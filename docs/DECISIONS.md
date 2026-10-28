@@ -46,3 +46,12 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **JSONB columns are `unknown`** in Drizzle and get parsed with Zod when read (Zod at every boundary), rather than trusting `$type<>()` casts.
 - **The schema imports enums by relative path**, because drizzle-kit loads `schema.ts` without Next's `@/` alias.
 - **`getDb()` connects lazily** with `prepare: false`, which Supabase's transaction pooler requires. `drizzle.config.ts` loads `.env.local` itself via `process.loadEnvFile`.
+
+## 2026-10-28 — Knowledge base: ritual docs & parser
+
+- **Ritual docs use a fixed bullet format** under each `## Ritual` heading: Key, When, Typical duration (minutes), Participants, Items, Significance (max 160 chars, matching `RitualPlan`). `tests/unit/kb/kb-content.test.ts` lints every doc in `kb/rituals/`, so a malformed edit fails the tests rather than the demo.
+- **Launch docs:** Bengali Hindu wedding, Tamil Brahmin wedding, Punjabi Sikh (Anand Karaj), and a generic birthday. Written in our own words from general knowledge. Each intro says practice varies by family and to confirm with the family priest or elders. Durations are planning estimates, not religious rules.
+- **No sub-community assumptions.** The Tamil doc mentions that Iyer and Iyengar practice differs without picking one. The birthday doc says to ask which religious element, if any, a family includes. The content test also fails if a doc mentions dowry or caste (rule 6).
+- **Hand-written frontmatter parser** (flat `key: value` lines) instead of adding `gray-matter`; our frontmatter is three or four flat fields.
+- **Chunking:** one chunk per `## ` section plus one for the intro, each prefixed with `# Title` so it stands alone in retrieval. Sections over ~500 tokens split on line boundaries with ~50 tokens of overlap. Token counts are estimated at 4 characters per token, which is enough for sizing.
+- **Parser lives in `src/lib/kb/parse.ts`** (pure functions, no I/O), shared by `scripts/embed-kb.ts` and tests.
