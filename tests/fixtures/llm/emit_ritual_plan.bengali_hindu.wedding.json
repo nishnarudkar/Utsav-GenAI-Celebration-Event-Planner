@@ -1,0 +1,381 @@
+{
+  "rituals": [
+    {
+      "key": "aashirbaad",
+      "name": "Aashirbaad",
+      "order": 1,
+      "durationMinutes": 60,
+      "participants": [
+        "Bride or groom",
+        "elders from the other family",
+        "priest (optional)"
+      ],
+      "items": [
+        {
+          "item": "Paddy (dhaan)"
+        },
+        {
+          "item": "durba grass"
+        },
+        {
+          "item": "sandalwood paste"
+        },
+        {
+          "item": "gifts from the visiting elders"
+        },
+        {
+          "item": "sweets"
+        }
+      ],
+      "significance": "Elders of the other family formally bless the bride or groom, accepting them into the family."
+    },
+    {
+      "key": "dodhi_mangal",
+      "name": "Dodhi Mangal",
+      "order": 2,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "groom (at his own home)",
+        "married women of the family"
+      ],
+      "items": [
+        {
+          "item": "Curd"
+        },
+        {
+          "item": "flattened rice (chira)"
+        },
+        {
+          "item": "sweets"
+        },
+        {
+          "item": "water from a pond or river if the family follows that custom"
+        }
+      ],
+      "significance": "A last light meal before the bride and groom fast for the rest of the wedding day."
+    },
+    {
+      "key": "gaye_holud",
+      "name": "Gaye Holud",
+      "order": 3,
+      "durationMinutes": 90,
+      "participants": [
+        "Bride",
+        "groom",
+        "married women of both families",
+        "close friends"
+      ],
+      "items": [
+        {
+          "item": "Turmeric paste"
+        },
+        {
+          "item": "mustard oil"
+        },
+        {
+          "item": "gift trays (tattva) sent from the groom's family"
+        },
+        {
+          "item": "fish (traditionally rohu)"
+        },
+        {
+          "item": "sweets"
+        },
+        {
+          "item": "a yellow saree for the bride"
+        }
+      ],
+      "significance": "Turmeric touched to the groom is carried to the bride, linking the two families before the wedding."
+    },
+    {
+      "key": "shankha_porana",
+      "name": "Shankha Porana",
+      "order": 4,
+      "durationMinutes": 20,
+      "participants": [
+        "Bride",
+        "married women of the bride's family"
+      ],
+      "items": [
+        {
+          "item": "Shankha (white conch-shell bangles)"
+        },
+        {
+          "item": "pola (red bangles)"
+        },
+        {
+          "item": "a small bowl of water or milk"
+        }
+      ],
+      "significance": "The bride wears the white and red bangles that traditionally mark a married Bengali woman."
+    },
+    {
+      "key": "bor_boron",
+      "name": "Bor Boron",
+      "order": 5,
+      "durationMinutes": 30,
+      "participants": [
+        "Groom",
+        "bride's mother and married women of the bride's family",
+        "groom's party"
+      ],
+      "items": [
+        {
+          "item": "Welcome platter (boron dala) with lamp"
+        },
+        {
+          "item": "paddy"
+        },
+        {
+          "item": "durba grass and sweets"
+        },
+        {
+          "item": "conch shell (shankha) to blow"
+        },
+        {
+          "item": "ulu-dhwani by the women"
+        }
+      ],
+      "significance": "The bride's family welcomes the groom and his party at the wedding venue."
+    },
+    {
+      "key": "saat_paak_shubho_drishti",
+      "name": "Saat Paak and Shubho Drishti",
+      "order": 6,
+      "durationMinutes": 20,
+      "participants": [
+        "Bride",
+        "groom",
+        "bride's brothers or male cousins"
+      ],
+      "items": [
+        {
+          "item": "Wooden seat (piri) to carry the bride"
+        },
+        {
+          "item": "two betel leaves"
+        },
+        {
+          "item": "flower decorations"
+        }
+      ],
+      "significance": "The bride, carried on a piri, circles the groom seven times, then lowers the betel leaves for their first formal look."
+    },
+    {
+      "key": "mala_badal",
+      "name": "Mala Badal",
+      "order": 7,
+      "durationMinutes": 10,
+      "participants": [
+        "Bride",
+        "groom",
+        "family members who lift the bride"
+      ],
+      "items": [
+        {
+          "item": "Two flower garlands (often rajanigandha or marigold)"
+        }
+      ],
+      "significance": "The couple exchange garlands, traditionally three times, as a sign of mutual acceptance."
+    },
+    {
+      "key": "sampradan",
+      "name": "Sampradan",
+      "order": 8,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "groom",
+        "bride's father or another elder who gives her away",
+        "priest"
+      ],
+      "items": [
+        {
+          "item": "Sacred thread"
+        },
+        {
+          "item": "copper plate"
+        },
+        {
+          "item": "mango leaves"
+        },
+        {
+          "item": "new clothes"
+        },
+        {
+          "item": "ghee lamp"
+        }
+      ],
+      "significance": "An elder of the bride's family formally entrusts her to the groom with mantras."
+    },
+    {
+      "key": "yagna_anjali",
+      "name": "Yagna and Anjali",
+      "order": 9,
+      "durationMinutes": 45,
+      "participants": [
+        "Bride",
+        "groom",
+        "bride's brother",
+        "priest"
+      ],
+      "items": [
+        {
+          "item": "Sacred fire setup (havan kund)"
+        },
+        {
+          "item": "ghee"
+        },
+        {
+          "item": "wood"
+        },
+        {
+          "item": "puffed rice (khoi)"
+        },
+        {
+          "item": "flowers"
+        }
+      ],
+      "significance": "The couple make offerings into the sacred fire, with the bride's brother passing the puffed rice."
+    },
+    {
+      "key": "saptapadi_sindoor_daan",
+      "name": "Saptapadi and Sindoor Daan",
+      "order": 10,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "groom",
+        "priest"
+      ],
+      "items": [
+        {
+          "item": "Sindoor (vermilion)"
+        },
+        {
+          "item": "a new saree or veil (lojjabostro) to cover the bride's head"
+        },
+        {
+          "item": "seven betel leaves or small stones for the steps"
+        }
+      ],
+      "significance": "The couple take seven steps together; the groom then applies sindoor to the bride's hair parting."
+    },
+    {
+      "key": "bashor_raat",
+      "name": "Bashor Raat",
+      "order": 11,
+      "durationMinutes": 180,
+      "participants": [
+        "Couple",
+        "cousins and friends from both families"
+      ],
+      "items": [
+        {
+          "item": "A decorated room with mattresses and bolsters"
+        },
+        {
+          "item": "snacks"
+        },
+        {
+          "item": "tea"
+        },
+        {
+          "item": "music"
+        },
+        {
+          "item": "games"
+        }
+      ],
+      "significance": "The couple stay up through the night with younger family members, with songs, games and teasing."
+    },
+    {
+      "key": "bidaai",
+      "name": "Bidaai and Kanakanjali",
+      "order": 12,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "bride's mother and family",
+        "groom"
+      ],
+      "items": [
+        {
+          "item": "A handful of rice and coins"
+        },
+        {
+          "item": "decorated car"
+        }
+      ],
+      "significance": "Leaving home, the bride throws rice over her shoulder to her mother, wishing prosperity for the home she leaves."
+    },
+    {
+      "key": "bou_boron",
+      "name": "Bou Boron",
+      "order": 13,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "groom",
+        "groom's mother and married women of his family"
+      ],
+      "items": [
+        {
+          "item": "Plate of alta (red dye) and milk to step into"
+        },
+        {
+          "item": "live fish (in some families)"
+        },
+        {
+          "item": "welcome platter"
+        },
+        {
+          "item": "conch shell"
+        }
+      ],
+      "significance": "The groom's mother welcomes the bride, who steps into the home leaving red footprints for good fortune."
+    },
+    {
+      "key": "bou_bhaat",
+      "name": "Bou Bhaat",
+      "order": 14,
+      "durationMinutes": 240,
+      "participants": [
+        "Couple",
+        "groom's family",
+        "guests from both families"
+      ],
+      "items": [
+        {
+          "item": "Feast for guests"
+        },
+        {
+          "item": "plate of rice and a new saree for the groom to give the bride"
+        },
+        {
+          "item": "serving utensils"
+        }
+      ],
+      "significance": "The groom promises to provide food and clothing; the bride serves rice to the family for the first time."
+    }
+  ],
+  "sources": [
+    "kb/rituals/bengali-hindu-wedding.md#0",
+    "kb/rituals/bengali-hindu-wedding.md#1",
+    "kb/rituals/bengali-hindu-wedding.md#2",
+    "kb/rituals/bengali-hindu-wedding.md#3",
+    "kb/rituals/bengali-hindu-wedding.md#4",
+    "kb/rituals/bengali-hindu-wedding.md#5",
+    "kb/rituals/bengali-hindu-wedding.md#6",
+    "kb/rituals/bengali-hindu-wedding.md#7",
+    "kb/rituals/bengali-hindu-wedding.md#8",
+    "kb/rituals/bengali-hindu-wedding.md#9",
+    "kb/rituals/bengali-hindu-wedding.md#10",
+    "kb/rituals/bengali-hindu-wedding.md#11",
+    "kb/rituals/bengali-hindu-wedding.md#12",
+    "kb/rituals/bengali-hindu-wedding.md#13",
+    "kb/rituals/bengali-hindu-wedding.md#14"
+  ],
+  "confidence": "high"
+}

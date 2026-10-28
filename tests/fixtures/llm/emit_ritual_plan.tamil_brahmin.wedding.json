@@ -1,0 +1,407 @@
+{
+  "rituals": [
+    {
+      "key": "panda_kaal_muhurtham",
+      "name": "Panda Kaal Muhurtham",
+      "order": 1,
+      "durationMinutes": 45,
+      "participants": [
+        "Both families' elders",
+        "vadhyar"
+      ],
+      "items": [
+        {
+          "item": "Bamboo pole"
+        },
+        {
+          "item": "turmeric"
+        },
+        {
+          "item": "kumkum"
+        },
+        {
+          "item": "mango leaves"
+        },
+        {
+          "item": "flowers"
+        },
+        {
+          "item": "coconut"
+        }
+      ],
+      "significance": "A bamboo pole is worshipped and set up so the wedding preparations go ahead without obstacles."
+    },
+    {
+      "key": "sumangali_prarthanai",
+      "name": "Sumangali Prarthanai",
+      "order": 2,
+      "durationMinutes": 120,
+      "participants": [
+        "Bride",
+        "married women of the family (an odd number is customary in many families)",
+        "bride's mother"
+      ],
+      "items": [
+        {
+          "item": "Nine-yard sarees for the honoured women"
+        },
+        {
+          "item": "flowers"
+        },
+        {
+          "item": "turmeric"
+        },
+        {
+          "item": "kumkum"
+        },
+        {
+          "item": "a traditional meal served on banana leaves"
+        }
+      ],
+      "significance": "Married women of the family are honoured and their blessings sought for the bride's married life."
+    },
+    {
+      "key": "vratham",
+      "name": "Vratham",
+      "order": 3,
+      "durationMinutes": 60,
+      "participants": [
+        "Bride or groom",
+        "parents",
+        "vadhyar"
+      ],
+      "items": [
+        {
+          "item": "Sacred thread (kaappu) for the wrist"
+        },
+        {
+          "item": "homam materials"
+        },
+        {
+          "item": "new clothes"
+        }
+      ],
+      "significance": "The bride and groom each pray to the deities and tie a protective thread before the wedding rituals begin."
+    },
+    {
+      "key": "janavasam",
+      "name": "Janavasam",
+      "order": 4,
+      "durationMinutes": 60,
+      "participants": [
+        "Groom",
+        "groom's family and friends",
+        "bride's family receiving them"
+      ],
+      "items": [
+        {
+          "item": "Decorated car or procession arrangement"
+        },
+        {
+          "item": "nadaswaram musicians"
+        },
+        {
+          "item": "flowers"
+        },
+        {
+          "item": "aarti plate"
+        }
+      ],
+      "significance": "The groom is taken in procession to the venue and formally received by the bride's family."
+    },
+    {
+      "key": "nichayathartham",
+      "name": "Nichayathartham",
+      "order": 5,
+      "durationMinutes": 60,
+      "participants": [
+        "Bride",
+        "groom",
+        "both families",
+        "vadhyar"
+      ],
+      "items": [
+        {
+          "item": "Lagna patrikai (wedding agreement)"
+        },
+        {
+          "item": "saree for the bride from the groom's family"
+        },
+        {
+          "item": "fruits"
+        },
+        {
+          "item": "betel leaves and nuts"
+        },
+        {
+          "item": "flowers"
+        },
+        {
+          "item": "coconut"
+        }
+      ],
+      "significance": "The families formally read out and accept the wedding agreement; the bride receives a saree from the groom's family."
+    },
+    {
+      "key": "kasi_yatra",
+      "name": "Kasi Yatra",
+      "order": 6,
+      "durationMinutes": 20,
+      "participants": [
+        "Groom",
+        "bride's father",
+        "both families"
+      ],
+      "items": [
+        {
+          "item": "Umbrella"
+        },
+        {
+          "item": "walking stick"
+        },
+        {
+          "item": "fan"
+        },
+        {
+          "item": "slippers"
+        },
+        {
+          "item": "a copy of a sacred text"
+        },
+        {
+          "item": "coconut"
+        }
+      ],
+      "significance": "In a playful ritual the groom sets off for a life of study; the bride's father persuades him to marry instead."
+    },
+    {
+      "key": "maalai_maatral",
+      "name": "Maalai Maatral",
+      "order": 7,
+      "durationMinutes": 15,
+      "participants": [
+        "Bride",
+        "groom",
+        "maternal uncles who lift them"
+      ],
+      "items": [
+        {
+          "item": "Two flower garlands"
+        }
+      ],
+      "significance": "The couple exchange garlands three times, lifted on their uncles' shoulders amid friendly competition."
+    },
+    {
+      "key": "oonjal",
+      "name": "Oonjal",
+      "order": 8,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "groom",
+        "married women of both families"
+      ],
+      "items": [
+        {
+          "item": "Decorated swing"
+        },
+        {
+          "item": "cups of milk and bananas"
+        },
+        {
+          "item": "coloured rice balls (pidi suttral)"
+        },
+        {
+          "item": "lamps"
+        },
+        {
+          "item": "women singing oonjal songs"
+        }
+      ],
+      "significance": "The couple sit on a swing while women sing and circle coloured rice balls to ward off the evil eye."
+    },
+    {
+      "key": "kanyadaanam",
+      "name": "Kanyadaanam",
+      "order": 9,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "groom",
+        "bride's parents",
+        "vadhyar"
+      ],
+      "items": [
+        {
+          "item": "Coconut"
+        },
+        {
+          "item": "nine-yard saree (koorai) for the bride"
+        },
+        {
+          "item": "water vessel"
+        }
+      ],
+      "significance": "The bride's parents give her hand to the groom; she then changes into the koorai saree."
+    },
+    {
+      "key": "mangalya_dharanam",
+      "name": "Mangalya Dharanam",
+      "order": 10,
+      "durationMinutes": 15,
+      "participants": [
+        "Bride",
+        "groom",
+        "groom's sister",
+        "vadhyar",
+        "nadaswaram musicians"
+      ],
+      "items": [
+        {
+          "item": "Thaali (mangalyam) on a turmeric-coated thread"
+        },
+        {
+          "item": "plate of akshatai (rice with turmeric) for guests to shower"
+        }
+      ],
+      "significance": "The groom ties the thaali while the music rises (getti melam); guests shower akshatai as blessing."
+    },
+    {
+      "key": "paanigrahanam_saptapadi",
+      "name": "Paanigrahanam and Saptapadi",
+      "order": 11,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "groom",
+        "vadhyar"
+      ],
+      "items": [
+        {
+          "item": "Sacred fire setup (homam)"
+        },
+        {
+          "item": "ghee"
+        },
+        {
+          "item": "samidhs (wood sticks)"
+        }
+      ],
+      "significance": "The groom takes the bride's hand and they walk seven steps around the sacred fire, each step a vow."
+    },
+    {
+      "key": "ammi_midhithal",
+      "name": "Ammi Midhithal and Arundhati Darshanam",
+      "order": 12,
+      "durationMinutes": 15,
+      "participants": [
+        "Bride",
+        "groom",
+        "vadhyar"
+      ],
+      "items": [
+        {
+          "item": "Grinding stone (ammi)"
+        },
+        {
+          "item": "toe rings (metti)"
+        }
+      ],
+      "significance": "The bride places her foot on a grinding stone, symbolising steadiness; the groom puts toe rings on her and shows her the Arundhati star."
+    },
+    {
+      "key": "laaja_homam",
+      "name": "Laaja Homam",
+      "order": 13,
+      "durationMinutes": 20,
+      "participants": [
+        "Bride",
+        "groom",
+        "bride's brother",
+        "vadhyar"
+      ],
+      "items": [
+        {
+          "item": "Puffed rice (pori)"
+        },
+        {
+          "item": "ghee"
+        },
+        {
+          "item": "sacred fire"
+        }
+      ],
+      "significance": "The bride's brother fills her hands with puffed rice, which the couple offer into the fire together."
+    },
+    {
+      "key": "nalangu",
+      "name": "Nalangu",
+      "order": 14,
+      "durationMinutes": 60,
+      "participants": [
+        "Couple",
+        "cousins and friends from both families"
+      ],
+      "items": [
+        {
+          "item": "Coconut to roll"
+        },
+        {
+          "item": "papad to break"
+        },
+        {
+          "item": "turmeric and kumkum"
+        },
+        {
+          "item": "flowers"
+        },
+        {
+          "item": "a bowl for a ring-finding game"
+        }
+      ],
+      "significance": "Light-hearted games between the couple help both families relax and get to know each other."
+    },
+    {
+      "key": "grihapravesam",
+      "name": "Grihapravesam",
+      "order": 15,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "groom",
+        "groom's mother and family"
+      ],
+      "items": [
+        {
+          "item": "Aarti plate"
+        },
+        {
+          "item": "vessel of rice at the threshold"
+        },
+        {
+          "item": "lamp"
+        }
+      ],
+      "significance": "The groom's family welcomes the bride into her new home."
+    }
+  ],
+  "sources": [
+    "kb/rituals/tamil-brahmin-wedding.md#0",
+    "kb/rituals/tamil-brahmin-wedding.md#1",
+    "kb/rituals/tamil-brahmin-wedding.md#2",
+    "kb/rituals/tamil-brahmin-wedding.md#3",
+    "kb/rituals/tamil-brahmin-wedding.md#4",
+    "kb/rituals/tamil-brahmin-wedding.md#5",
+    "kb/rituals/tamil-brahmin-wedding.md#6",
+    "kb/rituals/tamil-brahmin-wedding.md#7",
+    "kb/rituals/tamil-brahmin-wedding.md#8",
+    "kb/rituals/tamil-brahmin-wedding.md#9",
+    "kb/rituals/tamil-brahmin-wedding.md#10",
+    "kb/rituals/tamil-brahmin-wedding.md#11",
+    "kb/rituals/tamil-brahmin-wedding.md#12",
+    "kb/rituals/tamil-brahmin-wedding.md#13",
+    "kb/rituals/tamil-brahmin-wedding.md#14",
+    "kb/rituals/tamil-brahmin-wedding.md#15"
+  ],
+  "confidence": "high"
+}

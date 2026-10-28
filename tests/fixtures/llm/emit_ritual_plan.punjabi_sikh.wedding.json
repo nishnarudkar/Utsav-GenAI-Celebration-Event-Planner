@@ -1,0 +1,305 @@
+{
+  "rituals": [
+    {
+      "key": "kurmai",
+      "name": "Kurmai",
+      "order": 1,
+      "durationMinutes": 90,
+      "participants": [
+        "Groom",
+        "both families",
+        "granthi (for the Ardas)"
+      ],
+      "items": [
+        {
+          "item": "Kara (steel bangle)"
+        },
+        {
+          "item": "dried fruit (chhuare)"
+        },
+        {
+          "item": "sweets"
+        },
+        {
+          "item": "gifts from the bride's family to the groom"
+        }
+      ],
+      "significance": "The engagement: after an Ardas (prayer), the bride's family blesses the groom and the families commit to the marriage."
+    },
+    {
+      "key": "chunni_chadana",
+      "name": "Chunni Chadana",
+      "order": 2,
+      "durationMinutes": 45,
+      "participants": [
+        "Bride",
+        "groom's mother and female relatives"
+      ],
+      "items": [
+        {
+          "item": "Red or embroidered chunni (headscarf)"
+        },
+        {
+          "item": "jewellery"
+        },
+        {
+          "item": "sweets"
+        }
+      ],
+      "significance": "The groom's family places a chunni over the bride's head, welcoming her into their family."
+    },
+    {
+      "key": "maiyan",
+      "name": "Maiyan and Vatna",
+      "order": 3,
+      "durationMinutes": 60,
+      "participants": [
+        "Bride or groom",
+        "female relatives",
+        "close friends"
+      ],
+      "items": [
+        {
+          "item": "Vatna paste (turmeric, gram flour, mustard oil)"
+        },
+        {
+          "item": "a low wooden seat"
+        },
+        {
+          "item": "red cloth held overhead"
+        },
+        {
+          "item": "folk songs"
+        }
+      ],
+      "significance": "Relatives apply a turmeric paste to cleanse and brighten the bride and groom before the wedding."
+    },
+    {
+      "key": "jaggo",
+      "name": "Jaggo",
+      "order": 4,
+      "durationMinutes": 120,
+      "participants": [
+        "Families and friends",
+        "led by the maternal aunt (maami) carrying the jaggo"
+      ],
+      "items": [
+        {
+          "item": "Decorated brass or clay pot (jaggo) with oil lamps"
+        },
+        {
+          "item": "sticks with bells"
+        },
+        {
+          "item": "dhol player"
+        }
+      ],
+      "significance": "Relatives dance and sing through the night with a lamp-lit pot, announcing the wedding to the neighbourhood."
+    },
+    {
+      "key": "choora",
+      "name": "Choora",
+      "order": 5,
+      "durationMinutes": 45,
+      "participants": [
+        "Bride",
+        "bride's maternal uncle (mama) and family"
+      ],
+      "items": [
+        {
+          "item": "Choora (set of red and ivory bangles)"
+        },
+        {
+          "item": "bowl of milk and rose petals"
+        },
+        {
+          "item": "kaleere (gold or silver ornaments tied to the bangles)"
+        }
+      ],
+      "significance": "The bride's maternal uncle gives her the choora bangles; relatives tie on kaleere as blessings."
+    },
+    {
+      "key": "sehrabandi_baraat",
+      "name": "Sehrabandi and Baraat",
+      "order": 6,
+      "durationMinutes": 60,
+      "participants": [
+        "Groom",
+        "groom's family and friends",
+        "his sister or sister-in-law"
+      ],
+      "items": [
+        {
+          "item": "Sehra (veil of flowers or pearls) tied over the turban"
+        },
+        {
+          "item": "kalgi (turban ornament)"
+        },
+        {
+          "item": "dhol player"
+        },
+        {
+          "item": "transport for the baraat"
+        }
+      ],
+      "significance": "The groom's turban is adorned with a sehra, and the wedding party sets off for the bride's side."
+    },
+    {
+      "key": "milni",
+      "name": "Milni",
+      "order": 7,
+      "durationMinutes": 30,
+      "participants": [
+        "Male relatives of both families in matching pairs (fathers, uncles, brothers)",
+        "granthi or raagi"
+      ],
+      "items": [
+        {
+          "item": "Garlands"
+        },
+        {
+          "item": "small gifts or envelopes"
+        },
+        {
+          "item": "blankets or shawls (in some families)"
+        }
+      ],
+      "significance": "Relatives of the same relationship from each family embrace and exchange garlands, joining the two families."
+    },
+    {
+      "key": "anand_karaj",
+      "name": "Anand Karaj",
+      "order": 8,
+      "durationMinutes": 90,
+      "participants": [
+        "Bride",
+        "groom",
+        "bride's father",
+        "granthi",
+        "raagis (hymn singers)",
+        "sangat (congregation)"
+      ],
+      "items": [
+        {
+          "item": "Palla (long scarf worn by the groom)"
+        },
+        {
+          "item": "head coverings for all guests"
+        },
+        {
+          "item": "Guru Granth Sahib"
+        },
+        {
+          "item": "Karah Prashad"
+        }
+      ],
+      "significance": "The couple walk around the Guru Granth Sahib four times as the four Laavan are sung, each round a stage of married life."
+    },
+    {
+      "key": "laavan",
+      "name": "Laavan",
+      "order": 9,
+      "durationMinutes": 30,
+      "participants": [
+        "Bride",
+        "groom",
+        "raagis",
+        "family members who stand around the path"
+      ],
+      "items": [
+        {
+          "item": "Palla linking bride and groom"
+        },
+        {
+          "item": "cleared walkway around the Guru Granth Sahib"
+        }
+      ],
+      "significance": "Four hymns composed by Guru Ram Das are sung; the couple, holding the palla, circle the scripture once per hymn."
+    },
+    {
+      "key": "ardas_karah_prashad",
+      "name": "Ardas and Karah Prashad",
+      "order": 10,
+      "durationMinutes": 20,
+      "participants": [
+        "Couple",
+        "sangat",
+        "granthi"
+      ],
+      "items": [
+        {
+          "item": "Karah Prashad (sweet offering)"
+        },
+        {
+          "item": "serving bowls"
+        },
+        {
+          "item": "langar arrangements"
+        }
+      ],
+      "significance": "A closing prayer and a reading (Hukamnama) bless the couple, and everyone receives Karah Prashad."
+    },
+    {
+      "key": "doli",
+      "name": "Doli",
+      "order": 11,
+      "durationMinutes": 45,
+      "participants": [
+        "Bride",
+        "groom",
+        "bride's family"
+      ],
+      "items": [
+        {
+          "item": "Puffed rice or grain to throw over the shoulder"
+        },
+        {
+          "item": "coins"
+        },
+        {
+          "item": "decorated car"
+        }
+      ],
+      "significance": "The bride's emotional farewell; she throws grain behind her, wishing prosperity for her parents' home."
+    },
+    {
+      "key": "paani_vaarna",
+      "name": "Paani Vaarna",
+      "order": 12,
+      "durationMinutes": 20,
+      "participants": [
+        "Couple",
+        "groom's mother",
+        "groom's family"
+      ],
+      "items": [
+        {
+          "item": "Glass or pot of water"
+        },
+        {
+          "item": "mustard oil to pour at the threshold"
+        },
+        {
+          "item": "sweets"
+        }
+      ],
+      "significance": "The groom's mother circles water over the couple's heads and sips it, welcoming the bride home."
+    }
+  ],
+  "sources": [
+    "kb/rituals/punjabi-sikh-anand-karaj.md#0",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#1",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#2",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#3",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#4",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#5",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#6",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#7",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#8",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#9",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#10",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#11",
+    "kb/rituals/punjabi-sikh-anand-karaj.md#12"
+  ],
+  "confidence": "high"
+}

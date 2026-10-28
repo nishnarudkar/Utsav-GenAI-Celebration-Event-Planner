@@ -1,0 +1,167 @@
+{
+  "rituals": [
+    {
+      "key": "morning_blessing",
+      "name": "Morning blessing",
+      "order": 1,
+      "durationMinutes": 45,
+      "participants": [
+        "Birthday person",
+        "parents",
+        "grandparents and elders"
+      ],
+      "items": [
+        {
+          "item": "Lamp or candle"
+        },
+        {
+          "item": "flowers"
+        },
+        {
+          "item": "sweets"
+        },
+        {
+          "item": "new clothes for the birthday person"
+        },
+        {
+          "item": "offering as per the family's practice"
+        }
+      ],
+      "significance": "Elders bless the birthday person; many families also offer a prayer of thanks for the year."
+    },
+    {
+      "key": "guest_welcome",
+      "name": "Guest welcome",
+      "order": 2,
+      "durationMinutes": 30,
+      "participants": [
+        "Hosts",
+        "birthday person",
+        "guests"
+      ],
+      "items": [
+        {
+          "item": "Welcome drinks"
+        },
+        {
+          "item": "name tags or a guest book"
+        },
+        {
+          "item": "photo backdrop"
+        },
+        {
+          "item": "gift table"
+        }
+      ],
+      "significance": "Guests settle in, greet the birthday person and get photographed."
+    },
+    {
+      "key": "games_activities",
+      "name": "Games and activities",
+      "order": 3,
+      "durationMinutes": 60,
+      "participants": [
+        "Guests (often grouped by age)",
+        "an anchor or entertainer"
+      ],
+      "items": [
+        {
+          "item": "Games props"
+        },
+        {
+          "item": "prizes"
+        },
+        {
+          "item": "music system"
+        },
+        {
+          "item": "activity corner (art, magic show, tattoo or balloon artist for children)"
+        }
+      ],
+      "significance": "Keeps guests of all ages engaged; especially important at children's parties."
+    },
+    {
+      "key": "aarti_cake_cutting",
+      "name": "Aarti and cake-cutting",
+      "order": 4,
+      "durationMinutes": 20,
+      "participants": [
+        "Birthday person",
+        "family",
+        "all guests"
+      ],
+      "items": [
+        {
+          "item": "Cake"
+        },
+        {
+          "item": "candles"
+        },
+        {
+          "item": "knife"
+        },
+        {
+          "item": "lighter"
+        },
+        {
+          "item": "plates and napkins; aarti plate with lamp and sweets for families who do an aarti"
+        }
+      ],
+      "significance": "The centrepiece moment: candles, the birthday song and the first slice, often fed to the parents."
+    },
+    {
+      "key": "dinner",
+      "name": "Dinner or high tea",
+      "order": 5,
+      "durationMinutes": 60,
+      "participants": [
+        "All guests"
+      ],
+      "items": [
+        {
+          "item": "Catering or home-cooked food sized to the guest count"
+        },
+        {
+          "item": "separate options for children"
+        },
+        {
+          "item": "water and serving staff"
+        }
+      ],
+      "significance": "The meal is usually the largest single cost; plan quantities from the confirmed guest count."
+    },
+    {
+      "key": "return_gifts",
+      "name": "Return gifts and farewell",
+      "order": 6,
+      "durationMinutes": 20,
+      "participants": [
+        "Hosts",
+        "birthday person",
+        "guests"
+      ],
+      "items": [
+        {
+          "item": "Return gifts (one per guest or per family)"
+        },
+        {
+          "item": "thank-you cards"
+        },
+        {
+          "item": "packed sweets or cake slices"
+        }
+      ],
+      "significance": "A thank-you to each guest; plan one return gift per child guest or per family."
+    }
+  ],
+  "sources": [
+    "kb/rituals/generic-birthday.md#0",
+    "kb/rituals/generic-birthday.md#1",
+    "kb/rituals/generic-birthday.md#2",
+    "kb/rituals/generic-birthday.md#3",
+    "kb/rituals/generic-birthday.md#4",
+    "kb/rituals/generic-birthday.md#5",
+    "kb/rituals/generic-birthday.md#6"
+  ],
+  "confidence": "high"
+}
