@@ -1,0 +1,580 @@
+{
+  "version": 1,
+  "currency": "INR",
+  "updated": "2026-10",
+  "disclaimer": "Indicative estimates for planning only, compiled as rough market ranges. Actual vendor prices vary widely by city, season, date and vendor. Always get quotes.",
+  "city_tiers": {
+    "1": "Metro cities",
+    "2": "Large cities and state capitals",
+    "3": "Smaller cities and towns"
+  },
+  "rows": [
+    {
+      "category": "venue",
+      "unit": "per_day",
+      "city_tier": 1,
+      "low_paise": 8000000,
+      "mid_paise": 20000000,
+      "high_paise": 60000000,
+      "label": "Banquet hall or lawn, per function-day, ~200–300 guests"
+    },
+    {
+      "category": "venue",
+      "unit": "per_day",
+      "city_tier": 2,
+      "low_paise": 5000000,
+      "mid_paise": 12000000,
+      "high_paise": 35000000,
+      "label": "Banquet hall or lawn, per function-day, ~200–300 guests"
+    },
+    {
+      "category": "venue",
+      "unit": "per_day",
+      "city_tier": 3,
+      "low_paise": 3000000,
+      "mid_paise": 7500000,
+      "high_paise": 20000000,
+      "label": "Banquet hall or lawn, per function-day, ~200–300 guests"
+    },
+    {
+      "category": "catering",
+      "unit": "per_plate",
+      "city_tier": 1,
+      "low_paise": 90000,
+      "mid_paise": 150000,
+      "high_paise": 280000,
+      "label": "Per plate per meal, veg or non-veg buffet"
+    },
+    {
+      "category": "catering",
+      "unit": "per_plate",
+      "city_tier": 2,
+      "low_paise": 70000,
+      "mid_paise": 120000,
+      "high_paise": 220000,
+      "label": "Per plate per meal, veg or non-veg buffet"
+    },
+    {
+      "category": "catering",
+      "unit": "per_plate",
+      "city_tier": 3,
+      "low_paise": 50000,
+      "mid_paise": 90000,
+      "high_paise": 160000,
+      "label": "Per plate per meal, veg or non-veg buffet"
+    },
+    {
+      "category": "decor",
+      "unit": "flat",
+      "city_tier": 1,
+      "low_paise": 6000000,
+      "mid_paise": 15000000,
+      "high_paise": 50000000,
+      "label": "Décor package per function (stage, entrance, flowers, lighting)"
+    },
+    {
+      "category": "decor",
+      "unit": "flat",
+      "city_tier": 2,
+      "low_paise": 4000000,
+      "mid_paise": 10000000,
+      "high_paise": 30000000,
+      "label": "Décor package per function (stage, entrance, flowers, lighting)"
+    },
+    {
+      "category": "decor",
+      "unit": "flat",
+      "city_tier": 3,
+      "low_paise": 2500000,
+      "mid_paise": 6000000,
+      "high_paise": 18000000,
+      "label": "Décor package per function (stage, entrance, flowers, lighting)"
+    },
+    {
+      "category": "decor",
+      "unit": "per_item",
+      "city_tier": 1,
+      "low_paise": 300000,
+      "mid_paise": 800000,
+      "high_paise": 2500000,
+      "label": "Single décor element (floral arch, centrepiece, photo booth)"
+    },
+    {
+      "category": "decor",
+      "unit": "per_item",
+      "city_tier": 2,
+      "low_paise": 200000,
+      "mid_paise": 600000,
+      "high_paise": 1800000,
+      "label": "Single décor element (floral arch, centrepiece, photo booth)"
+    },
+    {
+      "category": "decor",
+      "unit": "per_item",
+      "city_tier": 3,
+      "low_paise": 150000,
+      "mid_paise": 400000,
+      "high_paise": 1200000,
+      "label": "Single décor element (floral arch, centrepiece, photo booth)"
+    },
+    {
+      "category": "photography",
+      "unit": "per_day",
+      "city_tier": 1,
+      "low_paise": 4000000,
+      "mid_paise": 8000000,
+      "high_paise": 20000000,
+      "label": "Photo + video team per event day"
+    },
+    {
+      "category": "photography",
+      "unit": "per_day",
+      "city_tier": 2,
+      "low_paise": 2500000,
+      "mid_paise": 5500000,
+      "high_paise": 12000000,
+      "label": "Photo + video team per event day"
+    },
+    {
+      "category": "photography",
+      "unit": "per_day",
+      "city_tier": 3,
+      "low_paise": 1500000,
+      "mid_paise": 3500000,
+      "high_paise": 8000000,
+      "label": "Photo + video team per event day"
+    },
+    {
+      "category": "photography",
+      "unit": "flat",
+      "city_tier": 1,
+      "low_paise": 2500000,
+      "mid_paise": 6000000,
+      "high_paise": 15000000,
+      "label": "Album, edited film and deliverables package"
+    },
+    {
+      "category": "photography",
+      "unit": "flat",
+      "city_tier": 2,
+      "low_paise": 1500000,
+      "mid_paise": 4000000,
+      "high_paise": 10000000,
+      "label": "Album, edited film and deliverables package"
+    },
+    {
+      "category": "photography",
+      "unit": "flat",
+      "city_tier": 3,
+      "low_paise": 1000000,
+      "mid_paise": 2500000,
+      "high_paise": 6000000,
+      "label": "Album, edited film and deliverables package"
+    },
+    {
+      "category": "attire",
+      "unit": "per_item",
+      "city_tier": 1,
+      "low_paise": 1500000,
+      "mid_paise": 4000000,
+      "high_paise": 15000000,
+      "label": "One outfit (incl. tailoring), bride/groom/family"
+    },
+    {
+      "category": "attire",
+      "unit": "per_item",
+      "city_tier": 2,
+      "low_paise": 1000000,
+      "mid_paise": 3000000,
+      "high_paise": 10000000,
+      "label": "One outfit (incl. tailoring), bride/groom/family"
+    },
+    {
+      "category": "attire",
+      "unit": "per_item",
+      "city_tier": 3,
+      "low_paise": 600000,
+      "mid_paise": 2000000,
+      "high_paise": 6000000,
+      "label": "One outfit (incl. tailoring), bride/groom/family"
+    },
+    {
+      "category": "attire",
+      "unit": "per_hour",
+      "city_tier": 1,
+      "low_paise": 300000,
+      "mid_paise": 600000,
+      "high_paise": 1500000,
+      "label": "Makeup and hair artist, per hour of service"
+    },
+    {
+      "category": "attire",
+      "unit": "per_hour",
+      "city_tier": 2,
+      "low_paise": 200000,
+      "mid_paise": 450000,
+      "high_paise": 1000000,
+      "label": "Makeup and hair artist, per hour of service"
+    },
+    {
+      "category": "attire",
+      "unit": "per_hour",
+      "city_tier": 3,
+      "low_paise": 150000,
+      "mid_paise": 300000,
+      "high_paise": 700000,
+      "label": "Makeup and hair artist, per hour of service"
+    },
+    {
+      "category": "jewelry",
+      "unit": "flat",
+      "city_tier": 1,
+      "low_paise": 5000000,
+      "mid_paise": 20000000,
+      "high_paise": 80000000,
+      "label": "Wedding jewellery set (excluding heirlooms); varies with gold price"
+    },
+    {
+      "category": "jewelry",
+      "unit": "flat",
+      "city_tier": 2,
+      "low_paise": 5000000,
+      "mid_paise": 18000000,
+      "high_paise": 70000000,
+      "label": "Wedding jewellery set (excluding heirlooms); varies with gold price"
+    },
+    {
+      "category": "jewelry",
+      "unit": "flat",
+      "city_tier": 3,
+      "low_paise": 4000000,
+      "mid_paise": 15000000,
+      "high_paise": 60000000,
+      "label": "Wedding jewellery set (excluding heirlooms); varies with gold price"
+    },
+    {
+      "category": "jewelry",
+      "unit": "per_item",
+      "city_tier": 1,
+      "low_paise": 1000000,
+      "mid_paise": 4000000,
+      "high_paise": 15000000,
+      "label": "Single piece (rings, mangalsutra/thaali, bangles)"
+    },
+    {
+      "category": "jewelry",
+      "unit": "per_item",
+      "city_tier": 2,
+      "low_paise": 800000,
+      "mid_paise": 3500000,
+      "high_paise": 13000000,
+      "label": "Single piece (rings, mangalsutra/thaali, bangles)"
+    },
+    {
+      "category": "jewelry",
+      "unit": "per_item",
+      "city_tier": 3,
+      "low_paise": 700000,
+      "mid_paise": 3000000,
+      "high_paise": 11000000,
+      "label": "Single piece (rings, mangalsutra/thaali, bangles)"
+    },
+    {
+      "category": "invites",
+      "unit": "per_item",
+      "city_tier": 1,
+      "low_paise": 6000,
+      "mid_paise": 15000,
+      "high_paise": 50000,
+      "label": "Printed invitation card per family, incl. envelope"
+    },
+    {
+      "category": "invites",
+      "unit": "per_item",
+      "city_tier": 2,
+      "low_paise": 4000,
+      "mid_paise": 12000,
+      "high_paise": 40000,
+      "label": "Printed invitation card per family, incl. envelope"
+    },
+    {
+      "category": "invites",
+      "unit": "per_item",
+      "city_tier": 3,
+      "low_paise": 3000,
+      "mid_paise": 9000,
+      "high_paise": 30000,
+      "label": "Printed invitation card per family, incl. envelope"
+    },
+    {
+      "category": "invites",
+      "unit": "flat",
+      "city_tier": 1,
+      "low_paise": 300000,
+      "mid_paise": 1000000,
+      "high_paise": 3000000,
+      "label": "Digital invite design + video invite"
+    },
+    {
+      "category": "invites",
+      "unit": "flat",
+      "city_tier": 2,
+      "low_paise": 200000,
+      "mid_paise": 700000,
+      "high_paise": 2000000,
+      "label": "Digital invite design + video invite"
+    },
+    {
+      "category": "invites",
+      "unit": "flat",
+      "city_tier": 3,
+      "low_paise": 150000,
+      "mid_paise": 500000,
+      "high_paise": 1500000,
+      "label": "Digital invite design + video invite"
+    },
+    {
+      "category": "music",
+      "unit": "per_hour",
+      "city_tier": 1,
+      "low_paise": 800000,
+      "mid_paise": 1500000,
+      "high_paise": 4000000,
+      "label": "DJ, band or traditional musicians, per hour"
+    },
+    {
+      "category": "music",
+      "unit": "per_hour",
+      "city_tier": 2,
+      "low_paise": 500000,
+      "mid_paise": 1000000,
+      "high_paise": 2500000,
+      "label": "DJ, band or traditional musicians, per hour"
+    },
+    {
+      "category": "music",
+      "unit": "per_hour",
+      "city_tier": 3,
+      "low_paise": 300000,
+      "mid_paise": 700000,
+      "high_paise": 1500000,
+      "label": "DJ, band or traditional musicians, per hour"
+    },
+    {
+      "category": "music",
+      "unit": "flat",
+      "city_tier": 1,
+      "low_paise": 1500000,
+      "mid_paise": 3000000,
+      "high_paise": 8000000,
+      "label": "Sound and lighting setup per function"
+    },
+    {
+      "category": "music",
+      "unit": "flat",
+      "city_tier": 2,
+      "low_paise": 1000000,
+      "mid_paise": 2000000,
+      "high_paise": 5000000,
+      "label": "Sound and lighting setup per function"
+    },
+    {
+      "category": "music",
+      "unit": "flat",
+      "city_tier": 3,
+      "low_paise": 600000,
+      "mid_paise": 1200000,
+      "high_paise": 3000000,
+      "label": "Sound and lighting setup per function"
+    },
+    {
+      "category": "transport",
+      "unit": "per_day",
+      "city_tier": 1,
+      "low_paise": 300000,
+      "mid_paise": 600000,
+      "high_paise": 1500000,
+      "label": "One car with driver, per day"
+    },
+    {
+      "category": "transport",
+      "unit": "per_day",
+      "city_tier": 2,
+      "low_paise": 250000,
+      "mid_paise": 450000,
+      "high_paise": 1000000,
+      "label": "One car with driver, per day"
+    },
+    {
+      "category": "transport",
+      "unit": "per_day",
+      "city_tier": 3,
+      "low_paise": 200000,
+      "mid_paise": 350000,
+      "high_paise": 800000,
+      "label": "One car with driver, per day"
+    },
+    {
+      "category": "transport",
+      "unit": "per_guest",
+      "city_tier": 1,
+      "low_paise": 30000,
+      "mid_paise": 60000,
+      "high_paise": 120000,
+      "label": "Guest shuttle (bus/tempo traveller), per guest per day"
+    },
+    {
+      "category": "transport",
+      "unit": "per_guest",
+      "city_tier": 2,
+      "low_paise": 25000,
+      "mid_paise": 45000,
+      "high_paise": 90000,
+      "label": "Guest shuttle (bus/tempo traveller), per guest per day"
+    },
+    {
+      "category": "transport",
+      "unit": "per_guest",
+      "city_tier": 3,
+      "low_paise": 20000,
+      "mid_paise": 35000,
+      "high_paise": 70000,
+      "label": "Guest shuttle (bus/tempo traveller), per guest per day"
+    },
+    {
+      "category": "gifts",
+      "unit": "per_guest",
+      "city_tier": 1,
+      "low_paise": 20000,
+      "mid_paise": 50000,
+      "high_paise": 150000,
+      "label": "Return gift or favour, per guest"
+    },
+    {
+      "category": "gifts",
+      "unit": "per_guest",
+      "city_tier": 2,
+      "low_paise": 15000,
+      "mid_paise": 40000,
+      "high_paise": 120000,
+      "label": "Return gift or favour, per guest"
+    },
+    {
+      "category": "gifts",
+      "unit": "per_guest",
+      "city_tier": 3,
+      "low_paise": 10000,
+      "mid_paise": 30000,
+      "high_paise": 90000,
+      "label": "Return gift or favour, per guest"
+    },
+    {
+      "category": "gifts",
+      "unit": "per_item",
+      "city_tier": 1,
+      "low_paise": 150000,
+      "mid_paise": 400000,
+      "high_paise": 1200000,
+      "label": "Gift for close family (ceremonial gifts, gift trays)"
+    },
+    {
+      "category": "gifts",
+      "unit": "per_item",
+      "city_tier": 2,
+      "low_paise": 100000,
+      "mid_paise": 300000,
+      "high_paise": 900000,
+      "label": "Gift for close family (ceremonial gifts, gift trays)"
+    },
+    {
+      "category": "gifts",
+      "unit": "per_item",
+      "city_tier": 3,
+      "low_paise": 80000,
+      "mid_paise": 250000,
+      "high_paise": 700000,
+      "label": "Gift for close family (ceremonial gifts, gift trays)"
+    },
+    {
+      "category": "priest",
+      "unit": "flat",
+      "city_tier": 1,
+      "low_paise": 1100000,
+      "mid_paise": 2500000,
+      "high_paise": 6000000,
+      "label": "Priest or officiant per ceremony, incl. puja/ceremony materials"
+    },
+    {
+      "category": "priest",
+      "unit": "flat",
+      "city_tier": 2,
+      "low_paise": 800000,
+      "mid_paise": 1800000,
+      "high_paise": 4500000,
+      "label": "Priest or officiant per ceremony, incl. puja/ceremony materials"
+    },
+    {
+      "category": "priest",
+      "unit": "flat",
+      "city_tier": 3,
+      "low_paise": 500000,
+      "mid_paise": 1200000,
+      "high_paise": 3000000,
+      "label": "Priest or officiant per ceremony, incl. puja/ceremony materials"
+    },
+    {
+      "category": "misc",
+      "unit": "flat",
+      "city_tier": 1,
+      "low_paise": 2000000,
+      "mid_paise": 5000000,
+      "high_paise": 15000000,
+      "label": "Contingency, tips, permits, logistics per function"
+    },
+    {
+      "category": "misc",
+      "unit": "flat",
+      "city_tier": 2,
+      "low_paise": 1500000,
+      "mid_paise": 3500000,
+      "high_paise": 10000000,
+      "label": "Contingency, tips, permits, logistics per function"
+    },
+    {
+      "category": "misc",
+      "unit": "flat",
+      "city_tier": 3,
+      "low_paise": 1000000,
+      "mid_paise": 2500000,
+      "high_paise": 7000000,
+      "label": "Contingency, tips, permits, logistics per function"
+    },
+    {
+      "category": "misc",
+      "unit": "per_guest",
+      "city_tier": 1,
+      "low_paise": 10000,
+      "mid_paise": 25000,
+      "high_paise": 60000,
+      "label": "Welcome kits, water, hospitality extras per guest"
+    },
+    {
+      "category": "misc",
+      "unit": "per_guest",
+      "city_tier": 2,
+      "low_paise": 8000,
+      "mid_paise": 20000,
+      "high_paise": 50000,
+      "label": "Welcome kits, water, hospitality extras per guest"
+    },
+    {
+      "category": "misc",
+      "unit": "per_guest",
+      "city_tier": 3,
+      "low_paise": 6000,
+      "mid_paise": 15000,
+      "high_paise": 40000,
+      "label": "Welcome kits, water, hospitality extras per guest"
+    }
+  ]
+}
