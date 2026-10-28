@@ -20,3 +20,9 @@ export const BudgetLineProposal = z.object({
   rationale: z.string().max(200),
 });
 export type BudgetLineProposal = z.infer<typeof BudgetLineProposal>;
+
+/** Budget agent output: line items with a basis, never totals (CLAUDE.md §7.3). */
+export const BudgetProposal = z.object({
+  lines: z.array(BudgetLineProposal).min(1).max(40),
+});
+export type BudgetProposal = z.infer<typeof BudgetProposal>;
