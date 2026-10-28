@@ -94,3 +94,17 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **"Estimate for me" budgets:** when `budgetTotalPaise` is null, the priced total becomes the suggested budget (`budgetIsEstimate: true`) and per-category allocations are null.
 - **Result shape:** each category reports the Planner's allocation next to the priced estimate, plus overall over-budget/remaining amounts. That's what the Budget page and later the cascade diff will use.
 - **Demo data is consistent end to end:** the Bengali Budget fixture prices to ₹14.4L against ₹15L, and the Planner fixture's split was rebalanced (small fractional percentages are allowed) so every category's estimate stays within its allocation. A demo-mode test runs Culture → Planner → Budget and checks this.
+
+## 2026-10-29 — Timeline agent & scheduling rules
+
+- **Relative due dates are integers** (`dueOffsetDays`, -90 = "T-90d") rather than "T-90d" strings, so the JSON schema enforces them and there's nothing to parse. The UI can still display them as T-90d.
+- **Scheduling lives in `src/lib/rules/schedule.ts`** (pure, unit-tested), and the agent stays thin. `scheduleTasks()`:
+  1. drops duplicate refs, self-dependencies and unknown dependencies, and breaks cycles (checked in input order, so the earlier-listed edge wins);
+  2. makes every dependency due no later than the tasks that need it, by moving dependencies *earlier* (moving dependents later could push pre-event work past the event);
+  3. resolves offsets against the main day and schedules anything ideally due before today *for today*, with `overdue: true` and `idealDueDate` kept.
+
+  Every repair is logged in `adjustments`; overdue tasks get one summary line, not one each.
+- **The model is told how many days remain** (computed in code), so it can plan realistic lead times. It still writes offsets only.
+- **Ritual prep tasks come from the KB, not the model:** one "Gather ritual items for X" task (source `ritual_kb`, category `priest`) a week before each function that has ritual items, listing up to 8 items. The prompt tells the model not to create these.
+- **"Today" is injectable** (`TimelineInput.today`) and defaults to the IST calendar date. Tests fix it at 2026-10-29: the demo wedding is then 108 days away and 7 early bookings (venue, purohit, photographer…) show as due now, which is realistic for a wedding 3½ months out.
+- **Task refs** are short snake_case ids that exist only to express dependencies. They map to UUIDs (`tasks.depends_on`) when persisted.
