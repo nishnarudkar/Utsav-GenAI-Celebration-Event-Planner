@@ -28,3 +28,6 @@ test-results/
 CLAUDE.md
 .vscode/
 .idea/
+
+# Local artifacts
+0.26.0
