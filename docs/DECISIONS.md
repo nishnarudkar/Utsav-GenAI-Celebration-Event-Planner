@@ -32,3 +32,17 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Retries/backoff come from the SDK** (`maxRetries: 3`, exponential backoff on 429/5xx/connection errors, 120 s timeout). No custom retry loop.
 - **Demo mode** (`DEMO_MODE=true`) reads `tests/fixtures/llm/<name>.json` (override dir with `DEMO_FIXTURES_DIR`; pick variants with `fixtureKey`), validates it against the same schema, and never calls the API.
 - **All calls use `client.beta.messages.create`** (one code path; the fallback parameter is beta-only).
+
+## 2026-10-28 — Database schema
+
+- **12 tables, as listed in CLAUDE.md §6.** Drizzle schema in `src/lib/db/schema.ts`; migrations `drizzle/0000_enable_pgvector.sql` (custom: `CREATE EXTENSION vector`, since drizzle-kit doesn't manage extensions) and `drizzle/0001_initial_schema.sql`.
+- **Money columns are `BIGINT` paise** (`mode: "number"`). `INTEGER` paise would cap at about ₹2.1Cr, which large weddings can exceed. `bigint` in number mode is exact up to about ₹90 lakh crore.
+- **Venues are vendors.** §6 has `functions.venue_id` but no venues table. A venue is a `vendors` row with `category = 'venue'`, and a nullable `vendors.capacity` column was added for the venue-capacity check.
+- **Enums have one source:** `src/lib/schemas/enums.ts` exports the value lists. Both the `pgEnum`s and the Zod enums are built from them.
+- **Function times are `text` "HH:MM"** with a regex check constraint (not `time`, which returns "HH:MM:SS"), matching `formatClock`.
+- **`kb_chunks` gained `chunk_index` and `heading`.** The pair `(source_path, chunk_index)` is unique, so `kb:embed` can upsert. `heading` is shown in citations. There's an HNSW cosine index on `embedding`.
+- **`plan_changes` is unique on `(event_id, version)`.** `events.version` starts at 1.
+- **`notifications.status` includes `mocked`** for `MESSAGING_MODE=mock` rows shown in the Sent messages panel.
+- **JSONB columns are `unknown`** in Drizzle and get parsed with Zod when read (Zod at every boundary), rather than trusting `$type<>()` casts.
+- **The schema imports enums by relative path**, because drizzle-kit loads `schema.ts` without Next's `@/` alias.
+- **`getDb()` connects lazily** with `prepare: false`, which Supabase's transaction pooler requires. `drizzle.config.ts` loads `.env.local` itself via `process.loadEnvFile`.
