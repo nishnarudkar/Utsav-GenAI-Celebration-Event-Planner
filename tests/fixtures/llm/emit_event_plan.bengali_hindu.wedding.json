@@ -1,0 +1,85 @@
+{
+  "functions": [
+    {
+      "name": "Aashirbaad",
+      "ritualKeys": ["aashirbaad"],
+      "dayOffset": -2,
+      "startTime": "11:00",
+      "endTime": "13:30",
+      "expectedGuests": 40,
+      "notes": "Held separately at both homes; elders of the other family visit."
+    },
+    {
+      "name": "Gaye Holud",
+      "ritualKeys": ["dodhi_mangal", "gaye_holud", "shankha_porana"],
+      "dayOffset": 0,
+      "startTime": "05:30",
+      "endTime": "10:30",
+      "expectedGuests": 60,
+      "notes": "Starts before sunrise with Dodhi Mangal; turmeric goes from the groom's home to the bride's."
+    },
+    {
+      "name": "Biye (wedding ceremony)",
+      "ritualKeys": ["bor_boron", "saat_paak_shubho_drishti", "mala_badal", "sampradan", "yagna_anjali", "saptapadi_sindoor_daan"],
+      "dayOffset": 0,
+      "startTime": "18:30",
+      "endTime": "23:30",
+      "expectedGuests": 250,
+      "notes": "Exact lagna timing from the family purohit."
+    },
+    {
+      "name": "Bashor Raat",
+      "ritualKeys": ["bashor_raat"],
+      "dayOffset": 0,
+      "startTime": "23:30",
+      "endTime": "04:00",
+      "expectedGuests": 30
+    },
+    {
+      "name": "Bidaai and Bou Boron",
+      "ritualKeys": ["bidaai", "bou_boron"],
+      "dayOffset": 1,
+      "startTime": "10:00",
+      "endTime": "14:00",
+      "expectedGuests": 50
+    },
+    {
+      "name": "Bou Bhaat (reception)",
+      "ritualKeys": ["bou_bhaat"],
+      "dayOffset": 2,
+      "startTime": "19:00",
+      "endTime": "23:00",
+      "expectedGuests": 250
+    }
+  ],
+  "allocation": [
+    { "category": "catering", "percent": 32 },
+    { "category": "jewelry", "percent": 13 },
+    { "category": "venue", "percent": 12 },
+    { "category": "attire", "percent": 10 },
+    { "category": "decor", "percent": 9 },
+    { "category": "photography", "percent": 7 },
+    { "category": "misc", "percent": 5 },
+    { "category": "gifts", "percent": 4 },
+    { "category": "music", "percent": 3 },
+    { "category": "transport", "percent": 2 },
+    { "category": "priest", "percent": 2 },
+    { "category": "invites", "percent": 1 }
+  ],
+  "highLevelTasks": [
+    { "title": "Confirm the lagna and ritual timings with the family purohit", "category": "priest" },
+    { "title": "Book the wedding venue and the Bou Bhaat venue", "category": "venue" },
+    { "title": "Shortlist caterers and do a tasting for the wedding dinner and Bou Bhaat", "category": "catering" },
+    { "title": "Book photographer and videographer for all four days", "category": "photography" },
+    { "title": "Finalise décor theme for the chhadnatola and reception stage", "category": "decor" },
+    { "title": "Buy the bride's Benarasi and the groom's dhoti-panjabi and topor", "category": "attire" },
+    { "title": "Finalise jewellery, including shankha-pola", "category": "jewelry" },
+    { "title": "Design, print and distribute invitation cards", "category": "invites" },
+    { "title": "Arrange tattva trays and gifts exchanged between the families", "category": "gifts" },
+    { "title": "Book shehnai or music for the wedding evening", "category": "music" },
+    { "title": "Arrange cars for the bor jatri and Bidaai", "category": "transport" },
+    { "title": "Collect puja and ritual items for each ceremony", "category": "priest" },
+    { "title": "Plan the Bou Bhaat guest list and seating", "category": "catering" }
+  ],
+  "rationale": "The rituals fall naturally into six functions over four days, from Aashirbaad two days before the wedding to Bou Bhaat two days after. Catering takes the largest share because the wedding dinner and Bou Bhaat each feed the full guest list; smaller rituals are kept to close family."
+}

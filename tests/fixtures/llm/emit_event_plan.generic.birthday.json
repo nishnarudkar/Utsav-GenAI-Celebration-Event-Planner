@@ -1,0 +1,40 @@
+{
+  "functions": [
+    {
+      "name": "Morning blessing",
+      "ritualKeys": ["morning_blessing"],
+      "dayOffset": 0,
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "expectedGuests": 10,
+      "notes": "Family only; at home or a place of worship, as the family prefers."
+    },
+    {
+      "name": "Birthday party",
+      "ritualKeys": ["guest_welcome", "games_activities", "aarti_cake_cutting", "dinner", "return_gifts"],
+      "dayOffset": 0,
+      "startTime": "18:00",
+      "endTime": "21:30",
+      "expectedGuests": 60
+    }
+  ],
+  "allocation": [
+    { "category": "catering", "percent": 35 },
+    { "category": "venue", "percent": 20 },
+    { "category": "decor", "percent": 15 },
+    { "category": "gifts", "percent": 10 },
+    { "category": "photography", "percent": 8 },
+    { "category": "music", "percent": 5 },
+    { "category": "misc", "percent": 7 }
+  ],
+  "highLevelTasks": [
+    { "title": "Book the party venue or confirm the home setup", "category": "venue" },
+    { "title": "Order the cake and confirm candles and knife", "category": "catering" },
+    { "title": "Choose a theme and book décor", "category": "decor" },
+    { "title": "Plan games and book an entertainer if needed", "category": "music" },
+    { "title": "Send invitations and track RSVPs", "category": "invites" },
+    { "title": "Buy return gifts for every guest", "category": "gifts" },
+    { "title": "Book a photographer", "category": "photography" }
+  ],
+  "rationale": "A family blessing in the morning and one evening party keep the day simple. Catering and venue take most of the budget; return gifts matter because every guest gets one."
+}
