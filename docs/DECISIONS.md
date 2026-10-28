@@ -66,3 +66,12 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Committed spend per line is** actual, else quoted, else estimate.
 - **City tiers** (`lib/rules/city-tier.ts`) are loosely based on India's X/Y/Z city classification plus metro suburbs (e.g. Gurugram, Thane). Unknown cities default to tier 2 with `known: false`, so onboarding can confirm.
 - **New shared enums:** `BUDGET_UNITS` and `PRICE_TIERS`. `BudgetLineProposal` (§8) lives in `src/lib/schemas/budget.ts`.
+
+## 2026-10-29 — Culture agent & local retrieval
+
+- **Local file retriever first, pgvector later.** `createLocalRetriever()` in `src/lib/ai/rag.ts` reads `kb/` from disk, filters by culture, event type and doc type, and ranks by keyword overlap. It needs no database or embedding key, and for a KB this small the metadata filter does most of the work. It implements the same `Retriever` signature (`(query, filters, k)`) that a pgvector retriever will. Citation ids are `kb/<dir>/<file>.md#<chunkIndex>`, matching `kb_chunks (source_path, chunk_index)`.
+- **Grounding is enforced in code, not only in the prompt.** `enforceGrounding()` drops any cited source that wasn't among the supplied excerpts and forces `confidence: "low"` when none remain (rule 3). It also renumbers ritual order 1..n.
+- **The Culture agent retrieves k = 24 chunks**, not the default 6, so a full wedding sequence (up to 16 chunks) reaches the model in order.
+- **Prompt caching:** the system prompt is two cached blocks, the static `CULTURE_PROMPT_V1` and the KB excerpts (stable per culture × event type). The user's notes go in the user message.
+- **Demo fixtures come from the KB, not from model output.** `pnpm fixtures:rituals` (`scripts/gen-ritual-fixtures.ts`) writes `tests/fixtures/llm/emit_ritual_plan.<culture>.<event_type>.json` from `kb/rituals/*.md`, citing real chunk ids. A test checks every fixture validates and cites existing chunks, and a demo-mode end-to-end test runs the agent with no API call.
+- **Removed `tests/fixtures/.gitkeep`**, since the folder now has content.
