@@ -55,3 +55,14 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Hand-written frontmatter parser** (flat `key: value` lines) instead of adding `gray-matter`; our frontmatter is three or four flat fields.
 - **Chunking:** one chunk per `## ` section plus one for the intro, each prefixed with `# Title` so it stands alone in retrieval. Sections over ~500 tokens split on line boundaries with ~50 tokens of overlap. Token counts are estimated at 4 characters per token, which is enough for sizing.
 - **Parser lives in `src/lib/kb/parse.ts`** (pure functions, no I/O), shared by `scripts/embed-kb.ts` and tests.
+
+## 2026-10-28 — Pricing benchmarks & budget math
+
+- **`kb/pricing/vendor-benchmarks-india.json`** is an object with metadata (`version`, `currency`, `updated`, `disclaimer`, `city_tiers`) and a `rows` array of `{ category, unit, city_tier, low_paise, mid_paise, high_paise, label }`. That's the §7.5 row shape plus a human-readable `label` saying what one unit means. 63 rows: 21 category/unit combinations × 3 tiers.
+- **The numbers are rough indicative market ranges I estimated**, not researched quotes. The `disclaimer` field says so and the UI must show it. `tests/unit/kb/pricing.test.ts` enforces: full category × tier coverage, low ≤ mid ≤ high, tier 3 ≤ tier 2 ≤ tier 1 at mid, and that the demo wedding (Kolkata, 250 guests) fits ₹15L at low/mid tiers (about ₹14.1L) while +100 guests adds at least ₹1L of catering.
+- **`budget-math.ts` never guesses a price.** A proposed line with no benchmark for its (category, unit, tier) comes back in `unpriced` for the UI to ask for a quote. The persisted basis records `unitPaise` and `cityTier` next to the AI's unit, quantity and tier, so "Why?" can show the working.
+- **`allocateByWeight` uses largest-remainder rounding**, so category allocations always sum exactly to the budget in whole paise. Weights are normalised and don't have to sum to 100.
+- **GST takes the rate as an argument;** there's no built-in rate table. GST rates differ by service and have changed recently, so the rate comes from the quote or the user rather than a hard-coded guess.
+- **Committed spend per line is** actual, else quoted, else estimate.
+- **City tiers** (`lib/rules/city-tier.ts`) are loosely based on India's X/Y/Z city classification plus metro suburbs (e.g. Gurugram, Thane). Unknown cities default to tier 2 with `known: false`, so onboarding can confirm.
+- **New shared enums:** `BUDGET_UNITS` and `PRICE_TIERS`. `BudgetLineProposal` (§8) lives in `src/lib/schemas/budget.ts`.
