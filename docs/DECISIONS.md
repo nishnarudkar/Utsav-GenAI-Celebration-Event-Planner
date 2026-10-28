@@ -85,3 +85,12 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Functions may end after midnight** (`endTime < startTime`, e.g. Bashor Raat 23:30 → 04:00); same-day functions are ordered by start time.
 - **The allocation is an array of `{ category, percent }`**, not a record, so the JSON schema stays simple for structured outputs; duplicates are merged.
 - **Demo fixtures** for the Planner are hand-written for the Bengali wedding (six functions, 12–16 Feb 2027) and a generic birthday. A test runs Culture → Planner in demo mode and checks every KB ritual is placed and the split sums to exactly ₹15L. Other traditions have no Planner fixture yet, so demo mode reports a missing fixture for them.
+
+## 2026-10-29 — Budget agent
+
+- **The model sees a price menu for the city tier** (a second cached system block listing each category/unit with its low/mid/high price) and the Planner's target per category in ₹. It picks unit, quantity and tier; it never writes totals. `priceBudgetProposal()` prices every line with `budget-math.ts`.
+- **Quantity caps:** a `per_guest` line is capped at its function's expected guests (or the event guest count if event-wide). A `per_plate` line is capped at 2 meals per guest at its function (or across all functions). Caps are logged in `adjustments`, as are function names that don't match a planned function (the line becomes event-wide).
+- **Lines with no benchmark** for their category/unit return in `unpriced` with a "needs a quote" note, never a guessed price.
+- **"Estimate for me" budgets:** when `budgetTotalPaise` is null, the priced total becomes the suggested budget (`budgetIsEstimate: true`) and per-category allocations are null.
+- **Result shape:** each category reports the Planner's allocation next to the priced estimate, plus overall over-budget/remaining amounts. That's what the Budget page and later the cascade diff will use.
+- **Demo data is consistent end to end:** the Bengali Budget fixture prices to ₹14.4L against ₹15L, and the Planner fixture's split was rebalanced (small fractional percentages are allowed) so every category's estimate stays within its allocation. A demo-mode test runs Culture → Planner → Budget and checks this.
