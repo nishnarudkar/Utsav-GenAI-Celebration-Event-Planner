@@ -1,0 +1,31 @@
+{
+  "tasks": [
+    { "ref": "confirm_lagna", "title": "Confirm the lagna and ritual timings with the family purohit", "category": "priest", "dueOffsetDays": -150, "dependsOn": [] },
+    { "ref": "book_purohit", "title": "Book the purohit for Gaye Holud and the wedding", "category": "priest", "dueOffsetDays": -120, "dependsOn": ["confirm_lagna"] },
+    { "ref": "book_wedding_venue", "title": "Book the wedding venue", "category": "venue", "functionName": "Biye (wedding ceremony)", "dueOffsetDays": -150, "dependsOn": ["confirm_lagna"] },
+    { "ref": "book_reception_venue", "title": "Book the Bou Bhaat venue", "category": "venue", "functionName": "Bou Bhaat (reception)", "dueOffsetDays": -140, "dependsOn": ["confirm_lagna"] },
+    { "ref": "finalise_guest_list", "title": "Finalise the guest list with both families", "category": "misc", "dueOffsetDays": -120, "dependsOn": [] },
+    { "ref": "book_photographer", "title": "Book the photographer and videographer", "category": "photography", "dueOffsetDays": -110, "dependsOn": ["confirm_lagna"] },
+    { "ref": "shortlist_caterers", "title": "Shortlist three caterers and get quotes", "category": "catering", "dueOffsetDays": -120, "dependsOn": ["book_wedding_venue"] },
+    { "ref": "book_caterer", "title": "Book the caterer for the wedding dinner and Bou Bhaat", "category": "catering", "dueOffsetDays": -100, "dependsOn": ["shortlist_caterers", "finalise_guest_list"] },
+    { "ref": "buy_bridal_saree", "title": "Buy the bride's Benarasi saree", "category": "attire", "dueOffsetDays": -90, "dependsOn": [] },
+    { "ref": "book_makeup_artist", "title": "Book the bridal makeup artist and do a trial", "category": "attire", "dueOffsetDays": -90, "dependsOn": [] },
+    { "ref": "decor_theme", "title": "Agree the décor theme for the chhadnatola and reception stage", "category": "decor", "dueOffsetDays": -90, "dependsOn": ["book_wedding_venue", "book_reception_venue"] },
+    { "ref": "groom_attire", "title": "Order the groom's dhoti-panjabi and topor", "category": "attire", "dueOffsetDays": -75, "dependsOn": [] },
+    { "ref": "book_decorator", "title": "Book the decorator", "category": "decor", "dueOffsetDays": -75, "dependsOn": ["decor_theme"] },
+    { "ref": "design_invites", "title": "Design the invitation card", "category": "invites", "dueOffsetDays": -75, "dependsOn": ["finalise_guest_list", "book_wedding_venue", "book_reception_venue"] },
+    { "ref": "jewellery", "title": "Finalise jewellery, including shankha-pola", "category": "jewelry", "dueOffsetDays": -60, "dependsOn": [] },
+    { "ref": "book_shehnai", "title": "Book shehnai for the wedding evening", "category": "music", "functionName": "Biye (wedding ceremony)", "dueOffsetDays": -60, "dependsOn": [] },
+    { "ref": "print_invites", "title": "Print invitation cards", "category": "invites", "dueOffsetDays": -55, "dependsOn": ["design_invites"] },
+    { "ref": "book_sound", "title": "Book sound and lighting for Bou Bhaat", "category": "music", "functionName": "Bou Bhaat (reception)", "dueOffsetDays": -45, "dependsOn": [] },
+    { "ref": "send_invites", "title": "Send invitations and start tracking RSVPs", "category": "invites", "dueOffsetDays": -40, "dependsOn": ["print_invites"] },
+    { "ref": "arrange_cars", "title": "Arrange cars for the bor jatri and Bidaai", "category": "transport", "dueOffsetDays": -30, "dependsOn": ["finalise_guest_list"] },
+    { "ref": "menu_tasting", "title": "Menu tasting with the caterer", "category": "catering", "dueOffsetDays": -30, "dependsOn": ["book_caterer"] },
+    { "ref": "return_gifts", "title": "Order return gifts for Bou Bhaat guests", "category": "gifts", "functionName": "Bou Bhaat (reception)", "dueOffsetDays": -21, "dependsOn": ["finalise_guest_list"] },
+    { "ref": "tattva_trays", "title": "Prepare the tattva gift trays", "category": "gifts", "functionName": "Gaye Holud", "dueOffsetDays": -14, "dependsOn": [] },
+    { "ref": "confirm_headcount", "title": "Confirm the final headcount with the caterer", "category": "catering", "dueOffsetDays": -10, "dependsOn": ["send_invites", "menu_tasting"] },
+    { "ref": "vendor_schedule", "title": "Share the day-by-day schedule with every vendor", "category": "misc", "dueOffsetDays": -7, "dependsOn": ["book_caterer", "book_photographer", "book_decorator"] },
+    { "ref": "payments_plan", "title": "Plan final vendor payments and cash for tips", "category": "misc", "dueOffsetDays": -5, "dependsOn": ["vendor_schedule"] },
+    { "ref": "thank_yous", "title": "Send thank-you messages to guests and vendors", "category": "misc", "dueOffsetDays": 7, "dependsOn": [] }
+  ]
+}
