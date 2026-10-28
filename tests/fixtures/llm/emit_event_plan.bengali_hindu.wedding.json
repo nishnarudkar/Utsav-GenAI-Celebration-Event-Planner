@@ -53,18 +53,18 @@
     }
   ],
   "allocation": [
-    { "category": "catering", "percent": 32 },
-    { "category": "jewelry", "percent": 13 },
-    { "category": "venue", "percent": 12 },
-    { "category": "attire", "percent": 10 },
+    { "category": "catering", "percent": 36 },
+    { "category": "venue", "percent": 11 },
+    { "category": "attire", "percent": 11 },
+    { "category": "photography", "percent": 10 },
     { "category": "decor", "percent": 9 },
-    { "category": "photography", "percent": 7 },
-    { "category": "misc", "percent": 5 },
-    { "category": "gifts", "percent": 4 },
-    { "category": "music", "percent": 3 },
-    { "category": "transport", "percent": 2 },
-    { "category": "priest", "percent": 2 },
-    { "category": "invites", "percent": 1 }
+    { "category": "gifts", "percent": 6 },
+    { "category": "misc", "percent": 2.5 },
+    { "category": "jewelry", "percent": 4 },
+    { "category": "music", "percent": 4 },
+    { "category": "priest", "percent": 3.5 },
+    { "category": "transport", "percent": 1.7 },
+    { "category": "invites", "percent": 1.3 }
   ],
   "highLevelTasks": [
     { "title": "Confirm the lagna and ritual timings with the family purohit", "category": "priest" },
@@ -81,5 +81,5 @@
     { "title": "Collect puja and ritual items for each ceremony", "category": "priest" },
     { "title": "Plan the Bou Bhaat guest list and seating", "category": "catering" }
   ],
-  "rationale": "The rituals fall naturally into six functions over four days, from Aashirbaad two days before the wedding to Bou Bhaat two days after. Catering takes the largest share because the wedding dinner and Bou Bhaat each feed the full guest list; smaller rituals are kept to close family."
+  "rationale": "The rituals fall naturally into six functions over four days, from Aashirbaad two days before the wedding to Bou Bhaat two days after. Catering takes the largest share because the wedding dinner and Bou Bhaat each feed the full guest list; smaller rituals are kept to close family. Jewellery is kept small on the assumption that heirloom pieces are used, and misc holds a contingency."
 }

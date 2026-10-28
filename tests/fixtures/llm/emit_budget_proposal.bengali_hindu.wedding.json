@@ -1,0 +1,37 @@
+{
+  "lines": [
+    { "category": "venue", "label": "Wedding venue — banquet hall", "functionName": "Biye (wedding ceremony)", "basis": { "unit": "per_day", "quantity": 1, "unitTier": "low" }, "rationale": "One hall for the ceremony and dinner; a modest hall leaves room for catering." },
+    { "category": "venue", "label": "Bou Bhaat venue", "functionName": "Bou Bhaat (reception)", "basis": { "unit": "per_day", "quantity": 1, "unitTier": "low" }, "rationale": "Separate evening booking for the reception on the groom's side." },
+
+    { "category": "catering", "label": "Wedding dinner — buffet", "functionName": "Biye (wedding ceremony)", "basis": { "unit": "per_plate", "quantity": 250, "unitTier": "low" }, "rationale": "Full guest list; a traditional Bengali menu at a modest tier." },
+    { "category": "catering", "label": "Bou Bhaat feast", "functionName": "Bou Bhaat (reception)", "basis": { "unit": "per_plate", "quantity": 250, "unitTier": "low" }, "rationale": "Full guest list for the reception feast." },
+    { "category": "catering", "label": "Gaye Holud breakfast", "functionName": "Gaye Holud", "basis": { "unit": "per_plate", "quantity": 60, "unitTier": "low" }, "rationale": "Morning meal for close family after the turmeric ritual." },
+    { "category": "catering", "label": "Aashirbaad lunch", "functionName": "Aashirbaad", "basis": { "unit": "per_plate", "quantity": 40, "unitTier": "low" }, "rationale": "Lunch for the visiting elders and family." },
+
+    { "category": "decor", "label": "Chhadnatola and mandap décor", "functionName": "Biye (wedding ceremony)", "basis": { "unit": "flat", "quantity": 1, "unitTier": "low" }, "rationale": "Flowers and lighting for the ceremony area and entrance." },
+    { "category": "decor", "label": "Reception stage décor", "functionName": "Bou Bhaat (reception)", "basis": { "unit": "flat", "quantity": 1, "unitTier": "low" }, "rationale": "Stage and entrance for the reception." },
+    { "category": "decor", "label": "Gaye Holud floral setup", "functionName": "Gaye Holud", "basis": { "unit": "per_item", "quantity": 4, "unitTier": "low" }, "rationale": "A few marigold elements for the home ritual." },
+
+    { "category": "photography", "label": "Photo and video team", "basis": { "unit": "per_day", "quantity": 3, "unitTier": "low" }, "rationale": "Wedding day (Gaye Holud and Biye), Bidaai and Bou Bhaat." },
+    { "category": "photography", "label": "Album and wedding film", "basis": { "unit": "flat", "quantity": 1, "unitTier": "low" }, "rationale": "Edited album and a short film." },
+
+    { "category": "attire", "label": "Bride's Benarasi, groom's dhoti-panjabi and reception outfit", "basis": { "unit": "per_item", "quantity": 3, "unitTier": "mid" }, "rationale": "Three key outfits; other clothes come from the families." },
+    { "category": "attire", "label": "Bridal makeup and hair", "basis": { "unit": "per_hour", "quantity": 6, "unitTier": "mid" }, "rationale": "Wedding evening and reception." },
+
+    { "category": "jewelry", "label": "Shankha-pola and wedding jewellery additions", "basis": { "unit": "flat", "quantity": 1, "unitTier": "low" }, "rationale": "Many families use heirloom pieces; this covers new additions." },
+
+    { "category": "invites", "label": "Printed invitation cards", "basis": { "unit": "per_item", "quantity": 120, "unitTier": "mid" }, "rationale": "About one card per family for 250 guests, plus spares." },
+
+    { "category": "music", "label": "Shehnai for the wedding evening", "functionName": "Biye (wedding ceremony)", "basis": { "unit": "per_hour", "quantity": 5, "unitTier": "low" }, "rationale": "Live shehnai through the ceremony." },
+    { "category": "music", "label": "Sound and lighting for the reception", "functionName": "Bou Bhaat (reception)", "basis": { "unit": "flat", "quantity": 1, "unitTier": "low" }, "rationale": "Basic sound setup for the reception." },
+
+    { "category": "transport", "label": "Cars for bor jatri and Bidaai", "basis": { "unit": "per_day", "quantity": 8, "unitTier": "low" }, "rationale": "Four cars on the wedding day and four for Bidaai and Bou Bhaat." },
+
+    { "category": "gifts", "label": "Tattva gift trays", "functionName": "Gaye Holud", "basis": { "unit": "per_item", "quantity": 10, "unitTier": "mid" }, "rationale": "Customary trays exchanged between the families." },
+    { "category": "gifts", "label": "Return gifts for guests", "functionName": "Bou Bhaat (reception)", "basis": { "unit": "per_guest", "quantity": 250, "unitTier": "low" }, "rationale": "One small gift per guest at the reception." },
+
+    { "category": "priest", "label": "Purohit and puja items", "basis": { "unit": "flat", "quantity": 2, "unitTier": "mid" }, "rationale": "Gaye Holud and the wedding ceremony, including ritual items." },
+
+    { "category": "misc", "label": "Tips, logistics and small extras", "basis": { "unit": "flat", "quantity": 1, "unitTier": "low" }, "rationale": "Staff tips and day-of logistics; the rest of the misc share is contingency." }
+  ]
+}
