@@ -12,3 +12,23 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **`EMBEDDING_PROVIDER` defaults to `mock`** in `.env.example` so the app runs before a Voyage key exists.
 - **Vitest stubs `server-only`** (`tests/stubs/server-only.ts`) so server modules can be unit-tested.
 - **PATCH payload shape:** `{ field, value }` (README form). The server reads the previous value from the DB rather than trusting a client-sent `from`.
+
+## 2026-10-25 — Formatting & date rules
+
+- **Vitest runs single-threaded with a plain `@` → `src` alias.** On this dev laptop (under memory pressure) the default worker pool (one per core) ran out of memory, and `vite-tsconfig-paths` hung while scanning. Unit tests finish in under a second on one thread. `vite-tsconfig-paths` is no longer used and can be removed from devDependencies.
+- **Calendar dates are ISO strings (`"2027-02-14"`), computed at UTC midnight.** Event dates are days, not instants, so this avoids host-timezone drift. "Now" is converted to the IST calendar day (`toISTDate`). Date arithmetic lives in `lib/rules/dates.ts`, display in `lib/format.ts`.
+- **Month names are hard-coded** rather than taken from `Intl` en-IN, whose output differs between ICU versions ("Sep" vs "Sept").
+- **Compact INR uses K / L / Cr** with one decimal (`₹12.5K`, `₹4.5L`, `₹1.2Cr`), promoting values that round into the next unit (`₹99,960` → `₹1L`). Negatives use a typographic minus (`−₹90K`).
+- **`parseINR`** accepts how people type budgets in onboarding ("15L", "15 lakh", "₹15,00,000", "1.2 cr", "80k") and returns paise or `null`.
+
+## 2026-10-28 — AI client & callStructured
+
+- **Structured outputs instead of forced tool use.** CLAUDE.md §7.1 rule 2 says to force `tool_choice: {type: "tool"}`, but that returns a 400 on Claude Sonnet 5.5 (our smart model). `callStructured` sends `output_config.format` with a JSON schema generated from the Zod schema by the SDK helper `zodOutputFormat`. The guarantee is the same: the reply is JSON matching the schema. The CLAUDE.md option `toolName` is therefore called `name`. It's also the demo fixture file name.
+- **Our own Zod validation still runs on every reply.** The API's JSON schema can't express every Zod constraint (e.g. `.max(200)` on strings), so the helper drops those and we enforce them locally. One corrective retry with the Zod issues appended, then `AIValidationError` (rule 2 unchanged).
+- **No `temperature`.** Since API version `2026-10-21` (which SDK 1.3.0 sends), `temperature`/`top_p`/`top_k` return a 400 on every model. Sonnet 5.5 and Haiku 5.5 already accepted only the default, so nothing is lost. The 0.4 / 0.8 values in CLAUDE.md §7.2 no longer apply. Creative agents (Vibe) get variety from their prompt instead. `effort` (`low`/`medium`/`high`) is exposed for depth/cost tuning.
+- **No `zod-to-json-schema` dependency.** Zod 4 + the SDK's `zodOutputFormat` replace it.
+- **Default `maxTokens` is 16000, not 4096.** Thinking is always on for Sonnet 5.5 and counts against `max_tokens`, so 4096 risks truncated JSON. A `max_tokens` stop is treated as a validation failure and retried with a "be more concise" note.
+- **Server-side refusal fallback on the smart tier** (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`). If Sonnet 5.5's safety classifier declines a request, the API re-runs it on a fallback model in the same call. Haiku 5.5 has no server-side fallback. A final refusal throws `AIRefusalError`. Text before a fallback switch point is ignored.
+- **Retries/backoff come from the SDK** (`maxRetries: 3`, exponential backoff on 429/5xx/connection errors, 120 s timeout). No custom retry loop.
+- **Demo mode** (`DEMO_MODE=true`) reads `tests/fixtures/llm/<name>.json` (override dir with `DEMO_FIXTURES_DIR`; pick variants with `fixtureKey`), validates it against the same schema, and never calls the API.
+- **All calls use `client.beta.messages.create`** (one code path; the fallback parameter is beta-only).
