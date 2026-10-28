@@ -49,7 +49,16 @@ export const BUDGET_CATEGORIES = [
 export const BudgetCategory = z.enum(BUDGET_CATEGORIES);
 export type BudgetCategory = z.infer<typeof BudgetCategory>;
 
-export const TASK_STATUSES = ["todo", "doing", "done", "blocked"] as const;
+/** How a budget line scales. The LLM picks a unit + quantity + tier; code prices it (rule 1). */
+export const BUDGET_UNITS = ["per_plate", "per_guest", "flat", "per_hour", "per_day", "per_item"] as const;
+export const BudgetUnit = z.enum(BUDGET_UNITS);
+export type BudgetUnit = z.infer<typeof BudgetUnit>;
+
+export const PRICE_TIERS = ["low", "mid", "high"] as const;
+export const PriceTier = z.enum(PRICE_TIERS);
+export type PriceTier = z.infer<typeof PriceTier>;
+
+export const TASK_STATUSES =["todo", "doing", "done", "blocked"] as const;
 export const TaskStatus = z.enum(TASK_STATUSES);
 export type TaskStatus = z.infer<typeof TaskStatus>;
 
