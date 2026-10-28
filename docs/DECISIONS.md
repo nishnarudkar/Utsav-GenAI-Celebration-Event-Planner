@@ -75,3 +75,13 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Prompt caching:** the system prompt is two cached blocks, the static `CULTURE_PROMPT_V1` and the KB excerpts (stable per culture × event type). The user's notes go in the user message.
 - **Demo fixtures come from the KB, not from model output.** `pnpm fixtures:rituals` (`scripts/gen-ritual-fixtures.ts`) writes `tests/fixtures/llm/emit_ritual_plan.<culture>.<event_type>.json` from `kb/rituals/*.md`, citing real chunk ids. A test checks every fixture validates and cites existing chunks, and a demo-mode end-to-end test runs the agent with no API call.
 - **Removed `tests/fixtures/.gitkeep`**, since the folder now has content.
+
+## 2026-10-29 — Planner agent
+
+- **The Planner returns structure only** (`EventPlanDraft`): functions with ritual keys, a `dayOffset` relative to the main day, "HH:MM" times and expected guests, plus a budget split as percentages and undated high-level tasks. `finalizeEventPlan()` does every date and rupee: `addDays` for dates, normalised percentages, `allocateByWeight` for exact paise (rule 1).
+- **`startDate` in onboarding means the main day** (the wedding ceremony, birthday or festival day). Other functions are placed around it with negative or positive offsets, and the event's start/end dates are derived from the first and last function.
+- **Code repairs the draft rather than rejecting it,** and logs every repair in `adjustments` for the "Why?" panel: unknown ritual keys are dropped, a ritual listed twice stays on its first function, guest counts are capped at the invite list, and percentages that don't sum to 100 are scaled. Rituals the model didn't place come back in `unassignedRitualKeys`, so they're never silently lost. Only an allocation with no positive percentage throws.
+- **Unknown budget** (`budgetTotalPaise: null`, the "not sure? I'll estimate" option) gives percentages but `allocationPaise: null`. The total will come from the Budget agent's priced lines.
+- **Functions may end after midnight** (`endTime < startTime`, e.g. Bashor Raat 23:30 → 04:00); same-day functions are ordered by start time.
+- **The allocation is an array of `{ category, percent }`**, not a record, so the JSON schema stays simple for structured outputs; duplicates are merged.
+- **Demo fixtures** for the Planner are hand-written for the Bengali wedding (six functions, 12–16 Feb 2027) and a generic birthday. A test runs Culture → Planner in demo mode and checks every KB ritual is placed and the split sums to exactly ₹15L. Other traditions have no Planner fixture yet, so demo mode reports a missing fixture for them.
