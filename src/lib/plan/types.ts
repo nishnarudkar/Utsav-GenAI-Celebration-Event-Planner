@@ -1,4 +1,6 @@
 import type { PricedBudget } from "@/lib/ai/agents/budget";
+import type { PlanChange } from "@/lib/graph/types";
+import type { PlanDiff } from "@/lib/schemas/diff";
 import type { CityTier, EventStatus } from "@/lib/schemas/enums";
 import type { OnboardingAnswers, PlannedEvent } from "@/lib/schemas/event";
 import type { RitualPlan } from "@/lib/schemas/ritual";
@@ -26,6 +28,20 @@ export interface StoredEvent extends EventPlan {
   procuredItems: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+/** One applied cascade (CLAUDE.md §6 plan_changes): powers the diff history and Undo. */
+export interface ChangeRecord {
+  id: string;
+  eventId: string;
+  /** The event version this change produced. */
+  version: number;
+  trigger: PlanChange;
+  diff: PlanDiff;
+  /** The plan before the change; Undo restores it exactly. */
+  before: EventPlan;
+  undone: boolean;
+  createdAt: string;
 }
 
 export interface EventSummary {

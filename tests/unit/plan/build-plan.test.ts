@@ -80,7 +80,7 @@ describe("MemoryEventRepository", () => {
 
   it("creates, gets and lists events newest first", async () => {
     let t = Date.parse("2026-10-29T00:00:00Z");
-    const repo = new MemoryEventRepository(new Map(), () => new Date((t += 1000)));
+    const repo = new MemoryEventRepository({ events: new Map(), changes: new Map() }, () => new Date((t += 1000)));
     const a = await repo.create(plan);
     const b = await repo.create({ ...plan, title: "Second" });
 
