@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { PUT as putItem } from "@/app/api/events/[id]/ritual-items/route";
 import { GET as getEvent } from "@/app/api/events/[id]/route";
 import { GET as listEvents, POST as createEvent } from "@/app/api/events/route";
 
@@ -62,6 +63,30 @@ describe("POST /api/events", () => {
     const body = (await res.json()) as { error: { code: string; message: string } };
     expect(body.error.code).toBe("DEMO_FIXTURE_MISSING");
     expect(body.error.message).not.toMatch(/fixtures|\.json|stack/i);
+  });
+});
+
+describe("PUT /api/events/:id/ritual-items", () => {
+  const put = (id: string, body: unknown) =>
+    putItem(new Request(`http://test/api/events/${id}/ritual-items`, { method: "PUT", body: JSON.stringify(body) }), {
+      params: Promise.resolve({ id }),
+    });
+
+  it("ticks and unticks a ritual item", async () => {
+    const { event } = (await (await post(DEMO_BODY)).json()) as { event: { id: string } };
+    const ticked = await put(event.id, { itemId: "gaye_holud#0", procured: true });
+    expect(ticked.status).toBe(200);
+    expect(await ticked.json()).toEqual({ procuredItems: ["gaye_holud#0"] });
+    const fetched = (await (await get(event.id)).json()) as { event: { procuredItems: string[] } };
+    expect(fetched.event.procuredItems).toEqual(["gaye_holud#0"]);
+    expect(await (await put(event.id, { itemId: "gaye_holud#0", procured: false })).json()).toEqual({ procuredItems: [] });
+  });
+
+  it("rejects items that aren't on the checklist, bad bodies and unknown events", async () => {
+    const { event } = (await (await post(DEMO_BODY)).json()) as { event: { id: string } };
+    expect((await put(event.id, { itemId: "made_up#0", procured: true })).status).toBe(400);
+    expect((await put(event.id, { itemId: "gaye_holud#0", procured: "yes" })).status).toBe(400);
+    expect((await put("00000000-0000-0000-0000-000000000000", { itemId: "gaye_holud#0", procured: true })).status).toBe(404);
   });
 });
 
