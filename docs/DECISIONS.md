@@ -108,3 +108,19 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Ritual prep tasks come from the KB, not the model:** one "Gather ritual items for X" task (source `ritual_kb`, category `priest`) a week before each function that has ritual items, listing up to 8 items. The prompt tells the model not to create these.
 - **"Today" is injectable** (`TimelineInput.today`) and defaults to the IST calendar date. Tests fix it at 2026-10-29: the demo wedding is then 108 days away and 7 early bookings (venue, purohit, photographer…) show as due now, which is realistic for a wedding 3½ months out.
 - **Task refs** are short snake_case ids that exist only to express dependencies. They map to UUIDs (`tasks.depends_on`) when persisted.
+
+## 2026-10-29 — Plan builder & events API
+
+- **`buildEventPlan()`** (`src/lib/plan/build-plan.ts`) runs Culture → Planner → (Budget ∥ Timeline). Budget and Timeline both need only the Planner's output, so they run in parallel. An `onStep` callback reports `rituals → structure → budget → timeline` for the "Building your plan" progress list. Agents are injectable for tests.
+- **In-memory event store for now.** `EventRepository` has a `MemoryEventRepository` implementation kept on `globalThis` (survives dev hot-reload, not a server restart). It returns deep copies, so callers can't mutate stored events. A Drizzle/Supabase implementation of the same interface comes once `DATABASE_URL` is set; until then, events vanish on restart and the 404 message says so.
+- **Routes:** `POST /api/events` (onboarding answers → 201 `{ event }`), `GET /api/events` (summaries, newest first) and `GET /api/events/:id`. Handlers stay thin: Zod-parse, call the service, return JSON. They use the standard `Response.json` rather than `NextResponse`.
+- **Error mapping** (`src/lib/api/errors.ts`):
+  - 400 `INVALID_INPUT` with one message per field;
+  - 404 `NOT_FOUND`;
+  - 422 `DEMO_FIXTURE_MISSING` when demo mode has no saved plan for a tradition (the message suggests a Bengali wedding or a birthday);
+  - 502 `AI_FAILED` "Couldn't generate that — try again.";
+  - 500 `INTERNAL`.
+
+  Details go to the server log only.
+- **Default titles** read "Bengali Hindu wedding in Kolkata"; the generic culture gives "Birthday in Pune". A title from onboarding wins.
+- **Verified against the real dev server** in demo mode: POST returns the full plan (14 rituals, 6 functions, ₹14.4L budget, 33 tasks).
