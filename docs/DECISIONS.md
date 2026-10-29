@@ -136,3 +136,14 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Build progress is paced on the client** (one step every 1.4 s, holding on the last) because `POST /api/events` returns once. Streaming real progress can come with SSE later. Errors show the API's friendly message with a "Try again" button.
 - **`/events/[id]` is a placeholder** summary card until the dashboard lands.
 - **Dev-server note:** a long-running `next dev` on this laptop once failed every dynamic page with "Jest worker encountered 2 child process exceptions". This followed earlier memory pressure, and a fresh restart fixed it. If dynamic pages suddenly 500 in dev, restart the dev server.
+
+## 2026-10-29 — Dashboard
+
+- **The dashboard data is a pure module** (`src/lib/plan/dashboard.ts`) that returns everything the page renders: days to go, budget used/total and %, tasks done / due now, the next 5 tasks, plan issues and donut slices. It's unit-tested on the real demo plan; the page and components are presentational.
+- **The donut has 6 slices, not 12.** Following the dataviz guidance (5–6 colours per chart; fold the tail into "Other"), Catering, Venue, Décor, Attire and Photography get fixed slices, and everything else becomes "Other" with its members listed. **Each colour belongs to its category, not its rank**, so slices keep their colours when amounts change. The Budget page will show all 12 categories as a table.
+- **Chart colours** (`--color-series-1..5`, `--color-series-other` in `globals.css`) are the dataviz skill's validated reference hues. Validated on our cream surface: lightness, chroma, colour-blind and normal-vision separation all pass. The grey "Other" fails only the chroma check, which is intended because it's a neutral. Three slices fall below 3:1 contrast on cream, so the legend always shows label, amount and % (no meaning by colour alone). There's a 2px cream gap between slices and a hover tooltip, and the chart has an `aria-label` summary.
+- **Brand colours stay in the UI chrome** (headings, buttons, the budget meter), not in the data series.
+- **"Open conflicts" counts warn and critical issues** found by `detectIssues()`: over budget, unpriced lines, unplaced rituals and low-confidence rituals. An unknown city tier is an info note that doesn't count. The Phase 2 conflict checks (venue capacity, timeline overlap) will feed this same list.
+- **"Tasks done" is 0 / n for now:** tasks have no status until task tracking lands. "Due now" counts tasks due today or earlier.
+- **No dark mode yet:** the app is light-only (cream identity). Adding one later means re-validating the chart palette against the dark surface.
+- **Friendly not-found page** for `/events/[id]`, explaining that in-memory plans vanish on restart.
