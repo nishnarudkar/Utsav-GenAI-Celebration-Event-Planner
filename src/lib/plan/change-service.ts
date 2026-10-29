@@ -1,5 +1,7 @@
 import "server-only";
+import { explainChange, type ExplainInput } from "@/lib/ai/agents/explainer";
 import { runCascade } from "@/lib/graph/cascade";
+import { generateRecoveryOptions } from "@/lib/graph/recovery";
 import type { FieldChange } from "@/lib/graph/types";
 import type { EventRepository } from "@/lib/plan/event-repo";
 import type { ChangeRecord, StoredEvent } from "@/lib/plan/types";
@@ -18,22 +20,37 @@ export type ChangeOutcome =
   | { kind: "preview"; event: StoredEvent; diff: PlanDiff }
   | { kind: "applied"; event: StoredEvent; diff: PlanDiff; change: ChangeRecord };
 
-export async function changeEvent(
-  repo: EventRepository,
-  id: string,
-  change: FieldChange,
-  opts: { today: ISODate; dryRun?: boolean },
-): Promise<ChangeOutcome> {
+export interface ChangeOptions {
+  today: ISODate;
+  dryRun?: boolean;
+  /** Writes the friendly summary; defaults to the Explainer agent (falls back to the deterministic text). */
+  explain?: (input: ExplainInput) => Promise<string>;
+}
+
+export async function changeEvent(repo: EventRepository, id: string, change: FieldChange, opts: ChangeOptions): Promise<ChangeOutcome> {
   const event = await repo.get(id);
   if (!event) return { kind: "not_found" };
 
-  const result = runCascade(event, change, { version: event.version, today: opts.today });
+  const ctx = { version: event.version, today: opts.today };
+  const result = runCascade(event, change, ctx);
   if (result.noop) return { kind: "noop", event, diff: result.diff };
-  if (opts.dryRun) return { kind: "preview", event: { ...event, ...result.state }, diff: result.diff };
 
-  const applied = await repo.applyChange(id, event.version, result.state, { trigger: result.change, diff: result.diff });
+  // Recovery options (deterministic), then the Explainer words the result.
+  const withOptions: PlanDiff = { ...result.diff, recoveryOptions: generateRecoveryOptions(result.state, { ...ctx, trigger: result.change }) };
+  const explanation = await (opts.explain ?? explainChange)({
+    trigger: result.change,
+    diff: withOptions,
+    totalEstimatePaise: result.state.budget.totalEstimatePaise,
+    budgetTotalPaise: result.state.budget.budgetTotalPaise,
+    overBudgetPaise: result.state.budget.overBudgetPaise,
+  });
+  const diff: PlanDiff = { ...withOptions, explanation };
+
+  if (opts.dryRun) return { kind: "preview", event: { ...event, ...result.state }, diff };
+
+  const applied = await repo.applyChange(id, event.version, result.state, { trigger: result.change, diff });
   if (!applied.ok) return { kind: applied.error };
-  return { kind: "applied", event: applied.event, diff: result.diff, change: applied.change };
+  return { kind: "applied", event: applied.event, diff, change: applied.change };
 }
 
 /** Change-log entry as sent to the client (the before-snapshot stays on the server). */

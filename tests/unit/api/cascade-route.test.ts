@@ -51,6 +51,19 @@ describe("PATCH /api/events/:id", () => {
     expect((await read(event.id)).answers.guestCount).toBe(350);
   });
 
+  it("attaches recovery options and keeps the explanation's amounts grounded", async () => {
+    const event = await newEvent();
+    const { diff } = await json<{ diff: PlanDiff }>(await patch(event.id, { field: "guest_count", value: 350 }));
+    expect(diff.recoveryOptions.map((o) => [o.title, o.savesPaise])).toEqual([
+      ["Choose budget-friendly attire options", 9300000],
+      ["Choose budget-friendly gifts options", 2500000],
+      ["Switch to digital invitations", 2220000],
+    ]);
+    // The demo explanation mentions the ₹1L "keep 300 guests" option, which doesn't exist without a
+    // venue capacity — so the guard rejects it and the deterministic summary is used.
+    expect(diff.explanation).toBe("Guest count changed from 250 to 350. 4 budget items were recalculated (+₹2.1L). 1 conflict needs attention: over budget.");
+  });
+
   it("previews with ?dryRun=true without saving anything", async () => {
     const event = await newEvent();
     const res = await patch(event.id, { field: "budget_total", value: 120000000 }, "?dryRun=true");
