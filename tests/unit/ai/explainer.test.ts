@@ -14,7 +14,7 @@ const INPUT: ExplainInput = {
     added: [],
     removed: [],
     conflicts: [{ type: "over_budget", severity: "critical", message: "Over budget by ₹1.5L (estimate ₹16.5L vs budget ₹15L)." }],
-    recoveryOptions: [{ id: "tier:attire", title: "Choose budget-friendly attire options", savesPaise: rupees(93_000), impact: "Saves ₹93K — covers 63% of the ₹1.5L overrun.", patch: {} }],
+    recoveryOptions: [{ id: "tier:attire", title: "Choose budget-friendly attire", savesPaise: rupees(93_000), impact: "Saves ₹93K — covers 63% of the ₹1.5L overrun.", patch: {} }],
     explanation: "Guest count changed from 250 to 350. 4 budget items were recalculated (+₹2.1L). 1 conflict needs attention: over budget.",
   },
   totalEstimatePaise: rupees(16_47_200),
@@ -30,7 +30,7 @@ describe("explainerFacts", () => {
     expect(facts).toContain("Change: guest count from 250 to 350.");
     expect(facts).toContain("Cost change: +₹2.1L. New estimate: ₹16.5L. Budget: ₹15L.");
     expect(facts).toContain("Over budget by ₹1.5L.");
-    expect(facts).toContain('"Choose budget-friendly attire options" — Saves ₹93K');
+    expect(facts).toContain('"Choose budget-friendly attire" — Saves ₹93K');
   });
 });
 

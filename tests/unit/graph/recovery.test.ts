@@ -32,8 +32,8 @@ describe("generateRecoveryOptions (demo: 350 guests, ₹1.47L over)", () => {
     const options = generateRecoveryOptions(after350.state, { ...CTX, version: 2, trigger: after350.change });
     expect(options.map((o) => [o.id, o.title, o.savesPaise])).toEqual([
       ["guests:300", "Keep the guest list at 300", rupees(1_03_600)], // 50 fewer plates ×2 feasts, cards and gifts
-      ["tier:attire", "Choose budget-friendly attire options", rupees(93_000)], // outfits mid→low + makeup mid→low
-      ["tier:gifts", "Choose budget-friendly gifts options", rupees(25_000)], // tattva trays mid→low
+      ["tier:attire", "Choose budget-friendly attire", rupees(93_000)], // outfits mid→low + makeup mid→low
+      ["tier:gifts", "Choose budget-friendly gifts", rupees(25_000)], // tattva trays mid→low
     ]);
     expect(options[0]?.impact).toBe("Saves ₹1L — covers 70% of the ₹1.5L overrun; fits the 300-seat venue.");
   });
@@ -104,6 +104,14 @@ describe("applyRecoveryPatch", () => {
     const i = after350.state.budget.lines.findIndex((l) => l.category === "invites");
     const { state } = applyRecoveryPatch(after350.state, { kind: "lines", updates: [{ lineIndex: i, basis: { unit: "flat", quantity: 1, unitTier: "low" } }] }, CTX);
     expect(state.budget.lines[i]).toMatchObject({ basis: { unit: "flat", quantity: 1 }, estimatePaise: rupees(3_000) });
+  });
+
+  it("offers digital invitations instead of a cheaper card tier, not both", () => {
+    const [, attire] = generateRecoveryOptions(after350.state, { ...CTX, trigger: after350.change });
+    const { state } = applyRecoveryPatch(after350.state, RecoveryPatch.parse(attire!.patch), CTX);
+    const ids = generateRecoveryOptions(state, CTX).map((o) => o.id);
+    expect(ids.some((id) => id.startsWith("digital_invites"))).toBe(true);
+    expect(ids).not.toContain("tier:invites");
   });
 
   it("skips locked lines", () => {

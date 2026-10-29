@@ -44,6 +44,7 @@ export function applyRecoveryPatch(
   state: EventPlan,
   patch: RecoveryPatch,
   ctx: CascadeContext,
+  headline = "Applied a recovery option.",
 ): { state: EventPlan; diff: PlanDiff } {
   if (patch.kind === "field") {
     const result = runCascade(state, patch.change, ctx);
@@ -79,7 +80,7 @@ export function applyRecoveryPatch(
       removed: [],
       conflicts,
       recoveryOptions: [],
-      explanation: describeCascade({ headline: "Applied a recovery option.", linesChanged: changed.length, budgetDeltaPaise: delta, conflicts }),
+      explanation: describeCascade({ headline, linesChanged: changed.length, budgetDeltaPaise: delta, conflicts }),
     },
   };
 }
@@ -103,10 +104,13 @@ function candidates(state: EventPlan, ctx: RecoveryContext): Candidate[] {
     if (!tier || line.locked || PROTECTED.has(line.category)) return;
     byCategory.set(line.category, [...(byCategory.get(line.category) ?? []), { i, line, tier }]);
   });
+  // Printed cards get the (bigger) digital-invitations option below instead of a tier option.
+  const digitalOffered = lines.some((l) => l.category === "invites" && l.basis.unit === "per_item" && !l.locked);
   for (const [category, items] of byCategory) {
+    if (category === "invites" && digitalOffered) continue;
     out.push({
       id: `tier:${category}`,
-      title: `Choose budget-friendly ${CATEGORY_LABELS[category].toLowerCase()} options`,
+      title: `Choose budget-friendly ${CATEGORY_LABELS[category].toLowerCase()}`,
       patch: { kind: "lines", updates: items.map(({ i, line, tier }) => ({ lineIndex: i, basis: { unit: line.basis.unit, quantity: line.basis.quantity, unitTier: tier } })) },
     });
   }
