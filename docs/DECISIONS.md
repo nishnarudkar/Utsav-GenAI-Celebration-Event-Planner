@@ -220,3 +220,17 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **The diff view model** (`lib/plan/diff-view.ts`, pure, tested) formats from/to per entry type and maps conflicts to titled issues.
 - **Option wording:** "Choose budget-friendly attire" (not "… options"). When printed cards can switch to digital invitations, no separate "cheaper cards" tier option is offered for the same line.
 - **Not yet in the UI:** setting a venue's capacity, and changing the date or city (both supported by the API). The Phase 5 seed sets the demo hall to 300 seats.
+
+## 2026-10-29 — Quote X-Ray: extraction, analysis, negotiation
+
+- **No `pdf-parse`.** Quote PDFs go to Claude as native `document` content blocks and images as `image` blocks. One code path handles typed PDFs, scanned PDFs and phone photos, with no extra dependency. CLAUDE.md §2 listed `pdf-parse`; this replaces it.
+- **The model transcribes; code checks** (rule 1). `QuoteExtraction` holds line items exactly as printed (rupees as numbers, `null` when a figure isn't printed; the prompt forbids working numbers out), the stated subtotal/total, GST status/rate, and its critical reading: verbatim phrases that hide cost ("as per actuals", overtime), commonly expected items that are missing, and terms.
+- **`analyzeQuote()`** (`lib/rules/quote-analysis.ts`, pure, tested) converts to paise and checks:
+  - quantity × rate against each printed amount (₹1 rounding tolerance), and the printed total against the sum of lines;
+  - lines with no price;
+  - GST: computed only when the quote states a rate, otherwise "ask which rate applies" (we don't assume a rate);
+  - per-unit rates against the city's **mid** benchmark, flagged above +15%.
+
+  Hidden costs and missing items come from the model's reading. Flags are sorted critical → warn → info.
+- **The negotiation message** (fast model) gets pre-formatted facts only, and the same `amountsAreGrounded` guard as the Explainer. A deterministic, polite fallback message is used if the model fails or invents an amount.
+- **Demo quote:** a fictional "Shubho Bhoj Caterers" (₹1,770/plate × 250 = ₹4,42,500, 18% above the ₹1,500 Kolkata mid; GST extra with no rate; live counters "as per actuals"; overtime after 11 PM), with fixtures for extraction (`emit_quote_extraction.catering`) and negotiation (`emit_negotiation.catering`). Demo extraction fixtures are keyed by category, so in demo mode any uploaded catering file returns this quote.
