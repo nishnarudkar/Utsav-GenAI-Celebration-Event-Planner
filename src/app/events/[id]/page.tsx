@@ -3,11 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { BudgetDonut } from "@/components/plan/BudgetDonut";
+import { EventHeader } from "@/components/plan/EventHeader";
 import { IssueList } from "@/components/plan/IssueList";
 import { NextTasks } from "@/components/plan/NextTasks";
 import { StatCards } from "@/components/plan/StatCards";
 import { formatDate } from "@/lib/format";
-import { cultureLabel } from "@/lib/onboarding/steps";
 import { summarizeDashboard } from "@/lib/plan/dashboard";
 import { getEventRepository } from "@/lib/plan/event-repo";
 import { toISTDate } from "@/lib/rules/dates";
@@ -40,23 +40,11 @@ export default async function EventDashboardPage({ params }: Props) {
 
   const today = toISTDate(new Date());
   const summary = summarizeDashboard(event, today);
-  const { answers, plan } = event;
+  const { plan } = event;
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
-      <header className="flex flex-col gap-3">
-        <Link href="/" className="font-display text-2xl text-maroon">
-          Utsav
-        </Link>
-        <div>
-          <h1 className="font-display text-3xl leading-tight text-maroon">{event.title}</h1>
-          <p className="mt-1 text-sm text-muted">
-            {formatDate(plan.startDate)}
-            {plan.endDate !== plan.startDate && ` – ${formatDate(plan.endDate)}`} · {answers.city} · {answers.guestCount.toLocaleString("en-IN")} guests
-            {answers.culture !== "generic" && ` · ${cultureLabel(answers.culture)}`}
-          </p>
-        </div>
-      </header>
+      <EventHeader event={event} active="overview" />
 
       <StatCards summary={summary} />
       <IssueList issues={summary.issues} />
@@ -66,7 +54,14 @@ export default async function EventDashboardPage({ params }: Props) {
           <NextTasks tasks={summary.nextTasks} today={today} />
         </Section>
 
-        <Section title="Budget" aside={<span className="text-xs text-muted">Indicative estimates</span>}>
+        <Section
+          title="Budget"
+          aside={
+            <Link href={`/events/${event.id}/budget`} className="text-sm font-medium text-marigold-ink hover:underline">
+              See all
+            </Link>
+          }
+        >
           <BudgetDonut slices={summary.donut} totalPaise={summary.budget.committedPaise} />
         </Section>
       </div>
