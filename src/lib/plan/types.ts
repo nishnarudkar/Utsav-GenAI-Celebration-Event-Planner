@@ -22,6 +22,8 @@ export interface StoredEvent extends EventPlan {
   status: EventStatus;
   /** Incremented by every cascade (CLAUDE.md §6). */
   version: number;
+  /** Ritual items the family has ticked off, as ritual item ids ("gaye_holud#0"). */
+  procuredItems: string[];
   createdAt: string;
   updatedAt: string;
 }

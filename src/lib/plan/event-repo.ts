@@ -10,6 +10,8 @@ export interface EventRepository {
   create(plan: EventPlan): Promise<StoredEvent>;
   get(id: string): Promise<StoredEvent | null>;
   list(): Promise<EventSummary[]>;
+  /** Tick or untick a ritual item. Returns the updated ticked list, or null if the event doesn't exist. */
+  setItemProcured(id: string, itemId: string, procured: boolean): Promise<string[] | null>;
 }
 
 export class MemoryEventRepository implements EventRepository {
@@ -20,7 +22,15 @@ export class MemoryEventRepository implements EventRepository {
 
   async create(plan: EventPlan): Promise<StoredEvent> {
     const ts = this.now().toISOString();
-    const event: StoredEvent = { ...structuredClone(plan), id: crypto.randomUUID(), status: "planning", version: 1, createdAt: ts, updatedAt: ts };
+    const event: StoredEvent = {
+      ...structuredClone(plan),
+      id: crypto.randomUUID(),
+      status: "planning",
+      version: 1,
+      procuredItems: [],
+      createdAt: ts,
+      updatedAt: ts,
+    };
     this.store.set(event.id, event);
     return structuredClone(event);
   }
@@ -28,6 +38,17 @@ export class MemoryEventRepository implements EventRepository {
   async get(id: string): Promise<StoredEvent | null> {
     const event = this.store.get(id);
     return event ? structuredClone(event) : null;
+  }
+
+  async setItemProcured(id: string, itemId: string, procured: boolean): Promise<string[] | null> {
+    const event = this.store.get(id);
+    if (!event) return null;
+    const items = new Set(event.procuredItems);
+    if (procured) items.add(itemId);
+    else items.delete(itemId);
+    event.procuredItems = [...items].sort();
+    event.updatedAt = this.now().toISOString();
+    return [...event.procuredItems];
   }
 
   async list(): Promise<EventSummary[]> {
