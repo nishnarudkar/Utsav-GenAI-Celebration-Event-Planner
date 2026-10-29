@@ -1,6 +1,5 @@
 import "server-only";
-import type { PlanChange } from "@/lib/graph/types";
-import type { ChangeRecord, EventPlan, EventSummary, StoredEvent } from "@/lib/plan/types";
+import type { ChangeRecord, ChangeTrigger, EventPlan, EventSummary, StoredEvent } from "@/lib/plan/types";
 import type { PlanDiff } from "@/lib/schemas/diff";
 
 /**
@@ -25,7 +24,7 @@ export interface EventRepository {
    * Store a cascade's result: replace the plan, bump the version, log the change with the
    * previous plan. Fails with "version_conflict" if the event changed since `expectedVersion`.
    */
-  applyChange(id: string, expectedVersion: number, next: EventPlan, log: { trigger: PlanChange; diff: PlanDiff }): Promise<ApplyResult>;
+  applyChange(id: string, expectedVersion: number, next: EventPlan, log: { trigger: ChangeTrigger; diff: PlanDiff }): Promise<ApplyResult>;
   /** Change log, newest first. */
   listChanges(id: string): Promise<ChangeRecord[] | null>;
   /** Restore the plan from before the most recent change that hasn't been undone. */
@@ -81,7 +80,7 @@ export class MemoryEventRepository implements EventRepository {
     return [...event.procuredItems];
   }
 
-  async applyChange(id: string, expectedVersion: number, next: EventPlan, log: { trigger: PlanChange; diff: PlanDiff }): Promise<ApplyResult> {
+  async applyChange(id: string, expectedVersion: number, next: EventPlan, log: { trigger: ChangeTrigger; diff: PlanDiff }): Promise<ApplyResult> {
     const event = this.store.events.get(id);
     if (!event) return { ok: false, error: "not_found" };
     if (event.version !== expectedVersion) return { ok: false, error: "version_conflict" };

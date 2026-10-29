@@ -30,13 +30,24 @@ export interface StoredEvent extends EventPlan {
   updatedAt: string;
 }
 
+/** Applying a recovery option is logged like a change, so it can be undone. */
+export interface RecoveryTrigger {
+  field: "recovery";
+  optionId: string;
+  /** The option title, shown in the change log. */
+  value: string;
+  from: null;
+}
+
+export type ChangeTrigger = PlanChange | RecoveryTrigger;
+
 /** One applied cascade (CLAUDE.md §6 plan_changes): powers the diff history and Undo. */
 export interface ChangeRecord {
   id: string;
   eventId: string;
   /** The event version this change produced. */
   version: number;
-  trigger: PlanChange;
+  trigger: ChangeTrigger;
   diff: PlanDiff;
   /** The plan before the change; Undo restores it exactly. */
   before: EventPlan;

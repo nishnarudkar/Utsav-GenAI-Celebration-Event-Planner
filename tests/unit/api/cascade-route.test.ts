@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET as listChanges } from "@/app/api/events/[id]/changes/route";
 import { PUT as putItem } from "@/app/api/events/[id]/ritual-items/route";
 import { GET as getEvent, PATCH as patchEvent } from "@/app/api/events/[id]/route";
+import { POST as recover } from "@/app/api/events/[id]/recovery/route";
 import { POST as undo } from "@/app/api/events/[id]/undo/route";
 import { POST as createEvent } from "@/app/api/events/route";
 import { MemoryEventRepository } from "@/lib/plan/event-repo";
@@ -55,8 +56,8 @@ describe("PATCH /api/events/:id", () => {
     const event = await newEvent();
     const { diff } = await json<{ diff: PlanDiff }>(await patch(event.id, { field: "guest_count", value: 350 }));
     expect(diff.recoveryOptions.map((o) => [o.title, o.savesPaise])).toEqual([
-      ["Choose budget-friendly attire options", 9300000],
-      ["Choose budget-friendly gifts options", 2500000],
+      ["Choose budget-friendly attire", 9300000],
+      ["Choose budget-friendly gifts", 2500000],
       ["Switch to digital invitations", 2220000],
     ]);
     // The demo explanation mentions the ₹1L "keep 300 guests" option, which doesn't exist without a
@@ -136,6 +137,42 @@ describe("change log and undo", () => {
   it("returns 404 for unknown events", async () => {
     expect((await doUndo("00000000-0000-0000-0000-000000000000")).status).toBe(404);
     expect((await listChanges(new Request("http://test"), params("00000000-0000-0000-0000-000000000000"))).status).toBe(404);
+  });
+});
+
+describe("POST /api/events/:id/recovery", () => {
+  const applyOption = (id: string, optionId: string) =>
+    recover(new Request("http://test", { method: "POST", body: JSON.stringify({ optionId }) }), params(id));
+
+  it("applies an offered option, logs it, and can be undone", async () => {
+    const event = await newEvent();
+    await patch(event.id, { field: "guest_count", value: 350 });
+    const before = await read(event.id);
+
+    const res = await applyOption(event.id, "tier:attire");
+    expect(res.status).toBe(200);
+    const { event: updated, diff } = await json<{ event: StoredEvent; diff: PlanDiff }>(res);
+    expect(updated.version).toBe(3);
+    expect(updated.budget.totalEstimatePaise).toBe(before.budget.totalEstimatePaise - 9300000);
+    expect(diff.explanation).toMatch(/^Applied “Choose budget-friendly attire”\./);
+    // Still over budget, so fresh options are offered — without the one just applied.
+    expect(diff.recoveryOptions.map((o) => o.id)).not.toContain("tier:attire");
+
+    const { changes } = await json<{ changes: Array<{ field: string; to: unknown; from: unknown }> }>(
+      await listChanges(new Request("http://test"), params(event.id)),
+    );
+    expect(changes[0]).toMatchObject({ field: "recovery", to: "Choose budget-friendly attire", from: null });
+
+    await doUndo(event.id);
+    expect((await read(event.id)).budget).toEqual(before.budget);
+  });
+
+  it("rejects options that weren't offered by the latest change", async () => {
+    const event = await newEvent();
+    await patch(event.id, { field: "guest_count", value: 350 });
+    expect((await applyOption(event.id, "tier:priest")).status).toBe(409);
+    expect((await applyOption(event.id, "")).status).toBe(400);
+    expect((await applyOption("00000000-0000-0000-0000-000000000000", "tier:attire")).status).toBe(404);
   });
 });
 
