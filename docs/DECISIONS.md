@@ -124,3 +124,15 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
   Details go to the server log only.
 - **Default titles** read "Bengali Hindu wedding in Kolkata"; the generic culture gives "Birthday in Pune". A title from onboarding wins.
 - **Verified against the real dev server** in demo mode: POST returns the full plan (14 rituals, 6 functions, ₹14.4L budget, 33 tasks).
+
+## 2026-10-29 — Onboarding chat
+
+- **No shadcn/ui yet.** The chat needs only buttons, an input and bubbles, so it's plain Tailwind with the brand tokens. shadcn/ui gets added when a component earns it (dialog, slider for What-If, tabs), to avoid pulling in Radix and its helpers for nothing. `lucide-react` is in for icons.
+- **Onboarding logic is a pure, client-safe module** (`src/lib/onboarding/steps.ts`) with unit tests. The six steps follow CLAUDE.md §9; each step's parser turns typed or tapped input into a typed value with friendly messages, instead of Zod's defaults. The UI component only holds state.
+- **Tradition chips** start with specific traditions for weddings and with "No specific tradition" for other events. Its wording ("Pick the closest, or none — you can mix and adjust later") avoids presuming a community.
+- **Budget** accepts anything `parseINR` understands, plus "estimate / not sure / don't know", which becomes `null`. Budgets under ₹10,000 are rejected as likely typos.
+- **Dates** use a native date picker, must be upcoming and within 3 years. "Today" comes from the server (IST) as a prop, so server and client agree.
+- **Editing answers:** each answer has a pencil button that rewinds to that question and clears the later answers, since later chips can depend on earlier ones.
+- **Build progress is paced on the client** (one step every 1.4 s, holding on the last) because `POST /api/events` returns once. Streaming real progress can come with SSE later. Errors show the API's friendly message with a "Try again" button.
+- **`/events/[id]` is a placeholder** summary card until the dashboard lands.
+- **Dev-server note:** a long-running `next dev` on this laptop once failed every dynamic page with "Jest worker encountered 2 child process exceptions". This followed earlier memory pressure, and a fresh restart fixed it. If dynamic pages suddenly 500 in dev, restart the dev server.
