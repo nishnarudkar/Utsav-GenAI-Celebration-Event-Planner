@@ -205,3 +205,18 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **CLAUDE.md's demo story** ("move the reception to the lawn", "buffet tier") assumes venue alternatives and catering tiers the demo plan doesn't have (its catering is already low tier). The options here come from the plan's real levers. For the demo (350 guests, 300-seat hall) they are: keep 300 guests (₹1,03,600), budget attire (₹93,000), budget gift trays (₹25,000).
 - **The Explainer** (fast model, `EXPLAINER_PROMPT_V1`) gets the facts with every amount pre-formatted and writes 2–4 sentences. **Guard:** every ₹ amount in its text must appear in those facts (`amountsAreGrounded`), so it can't calculate or invent money (rule 1). If it does, or the AI call fails, the deterministic `describeCascade` text is used. A demo fixture (`emit_explanation.guest_count`) covers the demo scenario; the guard rejects it when its amounts don't apply (e.g. no venue capacity set).
 - **PATCH responses and the change log now carry** `recoveryOptions` and the Explainer's text. Applying an option through the API comes with the diff panel.
+
+## 2026-10-29 — Diff panel, recovery API & editable plan
+
+- **`POST /api/events/:id/recovery { optionId }`** applies an option offered by the **latest change that hasn't been undone**. That's always correct, because Undo restores exact snapshots. The change is logged with a `RecoveryTrigger` (`field: "recovery"`, the option's title), so it can be undone like any change, and fresh options are offered if the plan is still over budget. An option that's no longer offered returns 409.
+- **The dashboard's "Adjust plan" card** (`PlanControls`) edits guest count and budget, one field per submit (each is its own cascade and log entry), validated client-side with friendly messages. After every change, apply or undo it calls `router.refresh()`, so the stat cards and lists re-render from the server.
+- **`DiffPanel`:**
+  - the Explainer's text and the total delta
+  - one row per change, with ▲ (costs more, red), ▼ (saves, green) or ▸ (moved): icon, words and exact amounts, never colour alone
+  - problems via the shared `IssueList`
+  - "Ways to get back on budget" with **Apply** buttons whose accessible names include the option
+  - **Accept** (dismiss) and **Undo** (latest change)
+  - a word joiner keeps "+₹2.1L" from wrapping between sign and amount
+- **The diff view model** (`lib/plan/diff-view.ts`, pure, tested) formats from/to per entry type and maps conflicts to titled issues.
+- **Option wording:** "Choose budget-friendly attire" (not "… options"). When printed cards can switch to digital invitations, no separate "cheaper cards" tier option is offered for the same line.
+- **Not yet in the UI:** setting a venue's capacity, and changing the date or city (both supported by the API). The Phase 5 seed sets the demo hall to 300 seats.
