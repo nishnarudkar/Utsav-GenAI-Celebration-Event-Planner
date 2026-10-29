@@ -7,7 +7,14 @@ import { AIError, AIFixtureMissingError } from "@/lib/ai/errors";
  * Messages are friendly and actionable; details go to the server log, never to the client.
  */
 
-export type ApiErrorCode = "INVALID_INPUT" | "NOT_FOUND" | "AI_FAILED" | "DEMO_FIXTURE_MISSING" | "INTERNAL";
+export type ApiErrorCode =
+  | "INVALID_INPUT"
+  | "NOT_FOUND"
+  | "VERSION_CONFLICT"
+  | "NOTHING_TO_UNDO"
+  | "AI_FAILED"
+  | "DEMO_FIXTURE_MISSING"
+  | "INTERNAL";
 
 export interface ApiErrorBody {
   error: { code: ApiErrorCode; message: string; fields?: Record<string, string> };
