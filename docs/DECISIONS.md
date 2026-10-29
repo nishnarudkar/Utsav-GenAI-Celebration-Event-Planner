@@ -165,3 +165,13 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Ticked items are saved server-side**: `StoredEvent.procuredItems` holds item ids `"<ritual key>#<index>"`, updated via `PUT /api/events/:id/ritual-items { itemId, procured }`. The route only accepts ids that exist on the event's checklist. The client updates optimistically and rolls back with a message if saving fails. This maps onto `ritual_items.procured` when the DB repository lands.
 - **Tasks** on this page are the full list grouped by month, reusing `NextTasks`.
 - **Timeline tab** added to `EventHeader`.
+
+## 2026-10-29 — Cascade foundations: dependencies, capacity, conflicts
+
+- **Watched fields** are `guest_count`, `budget_total`, `start_date` and `city`. `FieldChange` (Zod, discriminated on `field`) validates PATCH bodies `{ field, value }`. The previous value always comes from the stored plan, never from the client.
+- **`DEPENDENCIES`** (`lib/graph/dependencies.ts`) follows §7.4. Changes from the spec example: return gifts are the `gifts` category; guest count also reaches `functions:guests`, `budget:misc` and the over-budget check; a date change also re-runs the timeline-overlap check. `computeImpact` returns nothing when the value didn't change.
+- **Which budget lines follow guests** (`guestScaling`): `per_plate` and `per_guest` lines scale with their function's guests; invitation cards (`invites` × `per_item`) scale with the event's guest count; everything else is fixed (venue days, décor packages, tattva trays). Scaling rounds to whole units, minimum 1.
+- **Functions and a new guest count:** a function that had the whole guest list (ceremony, reception) takes the new count; smaller functions keep their number, capped at the new total.
+- **Venue capacity** is a new optional `venueCapacity` on functions, because the Planner doesn't book venues. It's set by the family (UI later) or the demo seed (300 for the wedding hall, so 250 → 350 trips it). Over capacity is critical; ≥ 90% full is a warning; no capacity means no check.
+- **Conflicts** (`lib/rules/conflicts.ts`): over budget (critical, skipped when Utsav is estimating the budget), venue capacity, and function time overlaps (warn; functions that just touch, like Biye 23:30 → Bashor Raat 23:30, don't count; overnight functions extend into the next day). Results are sorted critical-first. These will replace the dashboard's interim `detectIssues` checks once the cascade lands.
+- **`PlanDiff`** Zod schema (§8) is in `lib/schemas/diff.ts`, ready for `cascade.ts` and `diff.ts`.
