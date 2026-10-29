@@ -23,7 +23,8 @@ export interface BudgetDeps {
   structured: (opts: CallStructuredOptions<typeof BudgetProposal>) => Promise<BudgetProposal>;
 }
 
-export type PricedLine = ResolvedLine<BudgetLineProposal>;
+/** A priced line. `locked` lines are never changed by a cascade (CLAUDE.md §7.1 rule 4). */
+export type PricedLine = ResolvedLine<BudgetLineProposal> & { locked?: boolean };
 
 export interface CategoryBudget {
   /** Planner's target; null when the total budget is still being estimated. */

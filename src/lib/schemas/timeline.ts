@@ -36,7 +36,8 @@ export interface ScheduledTask {
   /** Ideal date had already passed when the plan was made, so the task is due now. */
   overdue: boolean;
   dependsOn: string[];
-  source: Extract<TaskSource, "ai" | "ritual_kb">;
+  /** "user" tasks are never changed by a cascade (CLAUDE.md §7.1 rule 4). */
+  source: TaskSource;
 }
 
 export interface TimelinePlan {
