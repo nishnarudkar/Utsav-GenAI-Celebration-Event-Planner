@@ -147,3 +147,12 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **"Tasks done" is 0 / n for now:** tasks have no status until task tracking lands. "Due now" counts tasks due today or earlier.
 - **No dark mode yet:** the app is light-only (cream identity). Adding one later means re-validating the chart palette against the dark surface.
 - **Friendly not-found page** for `/events/[id]`, explaining that in-memory plans vanish on restart.
+
+## 2026-10-29 — Budget page
+
+- **`/events/[id]/budget`** lists every category (biggest first) with its target and its difference from target, and every line with a native `<details>` "Why?" panel. The panel shows the working ("250 plates × ₹900 · low tier · metro prices", from `basisText`) and the model's rationale. Native `<details>` gives keyboard and screen-reader support without client JS.
+- **Exact rupees on this page, compact elsewhere.** Compact rounding (₹1,65,000 → ₹1.7L, ₹1,60,000 → ₹1.6L) made a "₹5K under target" row look wrong. Category totals and targets on the Budget page use full Indian-grouped amounts; differences stay compact (₹5K). Dashboard tiles keep compact notation.
+- **Differences carry an icon and words** ("₹5K under target", "On target") as well as colour (§9 accessibility).
+- **The view model is pure** (`src/lib/plan/budget-view.ts`): rows, grouped lines and totals, unit-tested on the demo plan (12 categories, line totals match category totals).
+- **Shared `EventHeader`** with section tabs (Overview, Budget; Timeline joins next). The tab strip bleeds to the screen edge so it can scroll horizontally on narrow phones.
+- **"Regenerate" isn't wired yet.** It needs an endpoint that re-runs one agent and goes through the cascade/diff flow, which comes in Phase 2.
