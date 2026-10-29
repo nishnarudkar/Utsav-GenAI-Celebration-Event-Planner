@@ -6,6 +6,7 @@ import { BudgetDonut } from "@/components/plan/BudgetDonut";
 import { EventHeader } from "@/components/plan/EventHeader";
 import { IssueList } from "@/components/plan/IssueList";
 import { NextTasks } from "@/components/plan/NextTasks";
+import { PlanControls } from "@/components/plan/PlanControls";
 import { StatCards } from "@/components/plan/StatCards";
 import { formatDate } from "@/lib/format";
 import { summarizeDashboard } from "@/lib/plan/dashboard";
@@ -48,6 +49,12 @@ export default async function EventDashboardPage({ params }: Props) {
 
       <StatCards summary={summary} />
       <IssueList issues={summary.issues} />
+      <PlanControls
+        eventId={event.id}
+        guestCount={event.answers.guestCount}
+        budgetTotalPaise={event.budget.budgetTotalPaise}
+        budgetIsEstimate={event.budget.budgetIsEstimate}
+      />
 
       <div className="grid gap-5 md:grid-cols-2">
         <Section title="Next up" aside={<span className="text-sm text-muted">{summary.tasks.total} tasks</span>}>
