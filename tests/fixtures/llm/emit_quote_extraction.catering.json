@@ -1,0 +1,26 @@
+{
+  "vendorName": "Shubho Bhoj Caterers",
+  "lineItems": [
+    { "description": "Wedding dinner buffet (Bengali veg & non-veg menu)", "quantity": 250, "unit": "per_plate", "unitPriceRupees": 1770, "amountRupees": 442500 },
+    { "description": "Service staff (waiters)", "quantity": 20, "unit": "other", "unitPriceRupees": 800, "amountRupees": 16000 },
+    { "description": "Crockery, cutlery and buffet setup", "quantity": null, "unit": "flat", "unitPriceRupees": null, "amountRupees": 0, "notes": "Included" },
+    { "description": "Live counters (chaat, fish fry)", "quantity": null, "unit": "other", "unitPriceRupees": null, "amountRupees": null, "notes": "Extra, as per actuals" },
+    { "description": "Transport of food and equipment", "quantity": 1, "unit": "flat", "unitPriceRupees": 8500, "amountRupees": 8500 }
+  ],
+  "statedSubtotalRupees": 467000,
+  "statedTotalRupees": 467000,
+  "gst": { "status": "extra", "percent": null },
+  "hiddenCosts": [
+    { "quote": "Live counters charged extra as per actuals", "concern": "There's no fixed price, so the final bill could grow." },
+    { "quote": "Overtime after 11:00 PM: ₹5,000 per hour", "concern": "The wedding dinner runs to 11:30 PM, so overtime is likely." }
+  ],
+  "missingItems": [
+    { "item": "Packaged drinking water", "why": "Usually included or quoted per guest — confirm so it isn't billed later." },
+    { "item": "Welcome drinks", "why": "Common at Bengali weddings; confirm whether they're part of the menu." }
+  ],
+  "terms": [
+    "50% advance at booking, balance 3 days before the event",
+    "Cancellation within 30 days of the event: advance not refundable",
+    "Overtime after 11:00 PM: ₹5,000 per hour"
+  ]
+}
