@@ -156,3 +156,12 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **The view model is pure** (`src/lib/plan/budget-view.ts`): rows, grouped lines and totals, unit-tested on the demo plan (12 categories, line totals match category totals).
 - **Shared `EventHeader`** with section tabs (Overview, Budget; Timeline joins next). The tab strip bleeds to the screen edge so it can scroll horizontally on narrow phones.
 - **"Regenerate" isn't wired yet.** It needs an endpoint that re-runs one agent and goes through the cascade/diff flow, which comes in Phase 2.
+
+## 2026-10-29 — Timeline page & ritual checklists
+
+- **CSS-only Gantt** (`components/plan/Gantt.tsx`): one row per function with an absolutely positioned bar across the whole event span (days × 24 h), day dividers, and the date/times as text on every row (bars are `aria-hidden`; the text carries the information). Functions ending after midnight extend into the next day and are labelled "next day". If the last function runs overnight, an extra day is added. At 375px a 5-hour function is about 12px wide, so position reads better than duration; the text times cover the detail.
+- **Ritual cards are grouped by function**, in the Planner's order, with unplaced rituals in a final "Not yet scheduled" group. Each card shows order, duration, significance, participants, a tickable item checklist and its **source citation**. The citation is found by matching the ritual's `**Key:**` line inside the chunks the plan actually cited, so a ritual whose chunk wasn't cited shows no source.
+- **Confidence note:** low confidence shows the exact §7.1 wording "General suggestion — verify with your family priest/elders." High and medium say the content comes from (or is adapted from) Utsav's ritual guide and that customs vary.
+- **Ticked items are saved server-side**: `StoredEvent.procuredItems` holds item ids `"<ritual key>#<index>"`, updated via `PUT /api/events/:id/ritual-items { itemId, procured }`. The route only accepts ids that exist on the event's checklist. The client updates optimistically and rolls back with a message if saving fails. This maps onto `ritual_items.procured` when the DB repository lands.
+- **Tasks** on this page are the full list grouped by month, reusing `NextTasks`.
+- **Timeline tab** added to `EventHeader`.
