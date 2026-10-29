@@ -59,6 +59,8 @@ export interface PlannedFunction {
   startTime: string;
   endTime: string;
   expectedGuests: number;
+  /** Seats at the booked venue, once known (set by the family or the demo seed). */
+  venueCapacity?: number;
   notes?: string;
 }
 
