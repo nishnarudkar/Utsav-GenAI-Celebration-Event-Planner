@@ -18,6 +18,15 @@
   --color-increased: #b91c1c;
   --color-conflict: #b45309;
 
+  /* Chart series (categorical, fixed order; validated on the cream surface with the dataviz
+     palette validator). Slots 3–5 are below 3:1 contrast, so charts always ship a labelled legend. */
+  --color-series-1: #2a78d6;
+  --color-series-2: #eb6834;
+  --color-series-3: #1baf7a;
+  --color-series-4: #eda100;
+  --color-series-5: #e87ba4;
+  --color-series-other: #5f5d58;
+
   --font-display: var(--font-playfair), Georgia, serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 }
