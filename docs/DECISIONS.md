@@ -290,3 +290,12 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Tests start their own server on port 3100** with `DEMO_MODE=true`, so they never call the real API and don't clash with `pnpm dev`.
 - **The chat-built event has no hall size**, so the demo moves to the seeded copy after step 1. Onboarding doesn't ask for capacity.
 - **`docs/DEMO_SCRIPT.md` leaves out live mode**, since Day-of Copilot (P2) isn't built.
+
+## 2026-10-30 — Export to PDF and calendar (F10)
+
+- **`GET /api/events/:id/export?format=pdf|ics`**, with Download PDF and Add to calendar links at the bottom of the dashboard.
+- **The calendar file is hand-written** (`lib/plan/export-ics.ts`, pure and tested), so it needs no dependency. Functions are timed events in UTC, so they're right for relatives abroad. Tasks are all-day and don't mark the day busy. UIDs are stable, so re-importing updates events rather than duplicating them where the calendar app supports that.
+- **`@fontsource/noto-sans` added for the PDF.** `@react-pdf/renderer`'s built-in fonts have no ₹, and printing "Rs." on the family's copy looked wrong. The ₹ sits in the latin-ext subset, so the PDF uses latin with latin-ext as a fallback. Only Latin script prints: other scripts, such as Bengali, would need their own fonts.
+- **Headings in the PDF use Noto Sans bold, not Playfair**, to avoid a second font package.
+- **Vitest now sets `esbuild.jsx: "automatic"`** so it can run the PDF component.
+- **For deployment:** the PDF reads its fonts from `node_modules` at runtime, so they must be included in the server bundle, like the saved samples and `kb/`.
