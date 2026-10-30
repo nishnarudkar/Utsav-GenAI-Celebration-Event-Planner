@@ -4,6 +4,7 @@ import { defineConfig } from "vitest/config";
 const fromRoot = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
 export default defineConfig({
+  esbuild: { jsx: "automatic" },
   resolve: {
     alias: {
       "@": fromRoot("./src"),
