@@ -3,13 +3,14 @@ import { formatDate } from "@/lib/format";
 import { cultureLabel } from "@/lib/onboarding/steps";
 import type { StoredEvent } from "@/lib/plan/types";
 
-export type EventTab = "overview" | "budget" | "timeline" | "vendors";
+export type EventTab = "overview" | "budget" | "timeline" | "vendors" | "council";
 
 const TABS: Array<{ key: EventTab; label: string; path: string }> = [
   { key: "overview", label: "Overview", path: "" },
   { key: "budget", label: "Budget", path: "/budget" },
   { key: "timeline", label: "Timeline", path: "/timeline" },
   { key: "vendors", label: "Vendors", path: "/vendors" },
+  { key: "council", label: "Family", path: "/council" },
 ];
 
 /** Title, key facts and section tabs shared by every event page. */
@@ -28,8 +29,8 @@ export function EventHeader({ event, active }: { event: StoredEvent; active: Eve
           {answers.culture !== "generic" && ` · ${cultureLabel(answers.culture)}`}
         </p>
       </div>
-      <nav aria-label="Event sections" className="-mx-4 overflow-x-auto px-4">
-        <ul className="flex gap-1 border-b border-line">
+      <nav aria-label="Event sections" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none]">
+        <ul className="flex border-b border-line sm:gap-1">
           {TABS.map((tab) => {
             const current = tab.key === active;
             return (
@@ -37,7 +38,7 @@ export function EventHeader({ event, active }: { event: StoredEvent; active: Eve
                 <Link
                   href={`/events/${event.id}${tab.path}`}
                   aria-current={current ? "page" : undefined}
-                  className={`-mb-px block border-b-2 px-3 py-2 text-sm font-medium ${
+                  className={`-mb-px block whitespace-nowrap border-b-2 px-2 py-2 text-[13px] font-medium sm:px-3 sm:text-sm ${
                     current ? "border-maroon text-maroon" : "border-transparent text-muted hover:text-maroon"
                   }`}
                 >
