@@ -1,4 +1,7 @@
 import { CATEGORY_LABELS } from "@/lib/labels";
+import { conflictIssues } from "@/lib/plan/diff-view";
+import { checkVenueCapacity } from "@/lib/rules/capacity";
+import { timelineOverlaps } from "@/lib/rules/conflicts";
 import { daysUntil, type ISODate } from "@/lib/rules/dates";
 import type { BudgetCategory } from "@/lib/schemas/enums";
 import type { ScheduledTask } from "@/lib/schemas/timeline";
@@ -97,7 +100,7 @@ export function donutSlices(event: Pick<EventPlan, "budget">): DonutSlice[] {
   return slices;
 }
 
-/** Things the family should look at. The cascade engine adds capacity and timeline checks in Phase 2. */
+/** Things the family should look at, including the conflicts that are still open after a change. */
 export function detectIssues(event: EventPlan): PlanIssue[] {
   const issues: PlanIssue[] = [];
   const { budget, rituals, plan } = event;
@@ -105,6 +108,7 @@ export function detectIssues(event: EventPlan): PlanIssue[] {
   if (budget.overBudgetPaise > 0) {
     issues.push({ id: "over_budget", severity: "critical", title: "Over budget", detail: "The estimate is higher than your budget." });
   }
+  issues.push(...conflictIssues([...checkVenueCapacity(plan.functions), ...timelineOverlaps(plan.functions)]));
   if (budget.unpriced.length > 0) {
     const n = budget.unpriced.length;
     issues.push({ id: "unpriced", severity: "warn", title: `${n} item${n === 1 ? "" : "s"} need${n === 1 ? "s" : ""} a quote`, detail: budget.unpriced.map((u) => u.label).join(", ") });
