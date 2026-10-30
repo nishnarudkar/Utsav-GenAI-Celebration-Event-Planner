@@ -28,6 +28,7 @@ export function EventHeader({ event, active }: { event: StoredEvent; active: Eve
           {plan.endDate !== plan.startDate && ` – ${formatDate(plan.endDate)}`} · {answers.city} · {answers.guestCount.toLocaleString("en-IN")} guests
           {answers.culture !== "generic" && ` · ${cultureLabel(answers.culture)}`}
         </p>
+        {process.env.DEMO_MODE === "true" && <p className="mt-1 text-xs text-muted">Demo mode: the AI answers here are saved samples.</p>}
       </div>
       <nav aria-label="Event sections" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none]">
         <ul className="flex border-b border-line sm:gap-1">

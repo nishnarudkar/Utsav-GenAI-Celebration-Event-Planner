@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DemoButton } from "@/components/plan/DemoButton";
 
 const HIGHLIGHTS = [
   { title: "Rituals, grounded", body: "Ritual sequences and item checklists from a curated knowledge base, with sources." },
@@ -17,13 +18,14 @@ export default function HomePage() {
         <p className="text-lg text-muted">
           Checklists tell you what to do. Utsav understands how your decisions affect each other, and your family.
         </p>
-        <div>
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/new"
             className="inline-flex items-center rounded-full bg-maroon px-6 py-3 font-medium text-cream transition-colors hover:bg-maroon-dark"
           >
             Plan a celebration
           </Link>
+          <DemoButton />
         </div>
       </header>
 
