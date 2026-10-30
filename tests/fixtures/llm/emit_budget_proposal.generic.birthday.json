@@ -1,0 +1,90 @@
+{
+  "lines": [
+    {
+      "category": "venue",
+      "label": "Party hall",
+      "functionName": "Birthday party",
+      "basis": {
+        "unit": "per_day",
+        "quantity": 1,
+        "unitTier": "low"
+      },
+      "rationale": "One evening booking for the party."
+    },
+    {
+      "category": "catering",
+      "label": "Birthday dinner",
+      "functionName": "Birthday party",
+      "basis": {
+        "unit": "per_plate",
+        "quantity": 60,
+        "unitTier": "mid"
+      },
+      "rationale": "Dinner for all guests, with options for children."
+    },
+    {
+      "category": "decor",
+      "label": "Party décor and backdrop",
+      "functionName": "Birthday party",
+      "basis": {
+        "unit": "flat",
+        "quantity": 1,
+        "unitTier": "low"
+      },
+      "rationale": "Theme, balloons and a photo backdrop."
+    },
+    {
+      "category": "photography",
+      "label": "Photographer",
+      "functionName": "Birthday party",
+      "basis": {
+        "unit": "per_day",
+        "quantity": 1,
+        "unitTier": "low"
+      },
+      "rationale": "Covers the party and cake-cutting."
+    },
+    {
+      "category": "music",
+      "label": "Music and games anchor",
+      "functionName": "Birthday party",
+      "basis": {
+        "unit": "per_hour",
+        "quantity": 3,
+        "unitTier": "low"
+      },
+      "rationale": "Keeps guests of all ages engaged."
+    },
+    {
+      "category": "gifts",
+      "label": "Return gifts",
+      "functionName": "Birthday party",
+      "basis": {
+        "unit": "per_guest",
+        "quantity": 60,
+        "unitTier": "low"
+      },
+      "rationale": "One small gift per guest."
+    },
+    {
+      "category": "invites",
+      "label": "Digital invitation",
+      "basis": {
+        "unit": "flat",
+        "quantity": 1,
+        "unitTier": "low"
+      },
+      "rationale": "A simple digital invite for family and friends."
+    },
+    {
+      "category": "misc",
+      "label": "Cake, candles and small extras",
+      "basis": {
+        "unit": "flat",
+        "quantity": 1,
+        "unitTier": "low"
+      },
+      "rationale": "Cake, tips and day-of logistics."
+    }
+  ]
+}

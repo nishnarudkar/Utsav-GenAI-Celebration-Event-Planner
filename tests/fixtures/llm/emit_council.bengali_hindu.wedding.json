@@ -1,0 +1,62 @@
+{
+  "conflicts": [
+    {
+      "topic": "Guest list",
+      "severity": "high",
+      "positions": [
+        { "ref": "couple", "wants": "A smaller wedding of about 150 close family and friends" },
+        { "ref": "bride_family", "wants": "A bigger gathering of 350 so relatives and neighbours aren't left out" },
+        { "ref": "groom_family", "wants": "To stay around the planned 250" }
+      ]
+    },
+    {
+      "topic": "Venue",
+      "severity": "medium",
+      "positions": [
+        { "ref": "couple", "wants": "An open lawn" },
+        { "ref": "bride_family", "wants": "A banquet hall, for the comfort of elders" }
+      ]
+    },
+    {
+      "topic": "Spending",
+      "severity": "medium",
+      "positions": [
+        { "ref": "groom_family", "wants": "To keep the total within a firm limit" },
+        { "ref": "bride_family", "wants": "A generous celebration, even if it costs more" }
+      ]
+    }
+  ],
+  "options": [
+    {
+      "id": "intimate_biye_big_reception",
+      "title": "Intimate wedding, big Bou Bhaat",
+      "description": "Keep the Biye close at 150 guests and welcome the wider circle of 350 at Bou Bhaat. The couple get their quiet ceremony and every relative is still invited to celebrate.",
+      "satisfies": ["couple", "bride_family"],
+      "compromises": ["groom_family"],
+      "patch": {
+        "guestCount": 350,
+        "functionGuests": [
+          { "functionName": "Biye (wedding ceremony)", "guests": 150 },
+          { "functionName": "Bou Bhaat (reception)", "guests": 350 }
+        ],
+        "budgetTotalPaise": null
+      }
+    },
+    {
+      "id": "middle_ground_300",
+      "title": "Meet in the middle at 300",
+      "description": "Invite 300 guests to both the Biye and Bou Bhaat. Everyone moves a little; the venue can be agreed separately, for example a hall with an adjoining lawn.",
+      "satisfies": ["bride_family"],
+      "compromises": ["couple", "groom_family"],
+      "patch": { "guestCount": 300, "functionGuests": [], "budgetTotalPaise": null }
+    },
+    {
+      "id": "keep_250",
+      "title": "Stay with the current 250",
+      "description": "Keep the plan as it is. It stays within budget, and the family can agree the venue style separately.",
+      "satisfies": ["groom_family"],
+      "compromises": ["couple", "bride_family"],
+      "patch": { "guestCount": null, "functionGuests": [], "budgetTotalPaise": null }
+    }
+  ]
+}

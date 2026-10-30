@@ -1,0 +1,173 @@
+{
+  "tasks": [
+    {
+      "ref": "set_guest_list",
+      "title": "Finalise the guest list",
+      "category": "misc",
+      "dueOffsetDays": -45,
+      "dependsOn": []
+    },
+    {
+      "ref": "choose_theme",
+      "title": "Choose a theme",
+      "category": "decor",
+      "dueOffsetDays": -45,
+      "dependsOn": []
+    },
+    {
+      "ref": "book_venue",
+      "title": "Book the party venue or confirm the home setup",
+      "category": "venue",
+      "functionName": "Birthday party",
+      "dueOffsetDays": -40,
+      "dependsOn": [
+        "set_guest_list"
+      ]
+    },
+    {
+      "ref": "book_caterer",
+      "title": "Book the caterer or plan the menu",
+      "category": "catering",
+      "functionName": "Birthday party",
+      "dueOffsetDays": -30,
+      "dependsOn": [
+        "book_venue",
+        "set_guest_list"
+      ]
+    },
+    {
+      "ref": "book_photographer",
+      "title": "Book a photographer",
+      "category": "photography",
+      "functionName": "Birthday party",
+      "dueOffsetDays": -30,
+      "dependsOn": [
+        "book_venue"
+      ]
+    },
+    {
+      "ref": "book_decor",
+      "title": "Book décor and the photo backdrop",
+      "category": "decor",
+      "functionName": "Birthday party",
+      "dueOffsetDays": -28,
+      "dependsOn": [
+        "choose_theme",
+        "book_venue"
+      ]
+    },
+    {
+      "ref": "design_invite",
+      "title": "Design the digital invitation",
+      "category": "invites",
+      "dueOffsetDays": -25,
+      "dependsOn": [
+        "book_venue",
+        "choose_theme"
+      ]
+    },
+    {
+      "ref": "send_invites",
+      "title": "Send invitations",
+      "category": "invites",
+      "dueOffsetDays": -21,
+      "dependsOn": [
+        "design_invite",
+        "set_guest_list"
+      ]
+    },
+    {
+      "ref": "plan_games",
+      "title": "Plan games and book an entertainer if needed",
+      "category": "music",
+      "functionName": "Birthday party",
+      "dueOffsetDays": -21,
+      "dependsOn": []
+    },
+    {
+      "ref": "order_cake",
+      "title": "Order the cake",
+      "category": "catering",
+      "functionName": "Birthday party",
+      "dueOffsetDays": -14,
+      "dependsOn": [
+        "choose_theme"
+      ]
+    },
+    {
+      "ref": "order_return_gifts",
+      "title": "Order return gifts",
+      "category": "gifts",
+      "functionName": "Birthday party",
+      "dueOffsetDays": -14,
+      "dependsOn": [
+        "set_guest_list"
+      ]
+    },
+    {
+      "ref": "buy_outfit",
+      "title": "Buy the birthday outfit",
+      "category": "attire",
+      "dueOffsetDays": -14,
+      "dependsOn": []
+    },
+    {
+      "ref": "track_rsvps",
+      "title": "Follow up on RSVPs",
+      "category": "invites",
+      "dueOffsetDays": -7,
+      "dependsOn": [
+        "send_invites"
+      ]
+    },
+    {
+      "ref": "confirm_headcount",
+      "title": "Confirm the final headcount with the caterer",
+      "category": "catering",
+      "functionName": "Birthday party",
+      "dueOffsetDays": -5,
+      "dependsOn": [
+        "track_rsvps",
+        "book_caterer"
+      ]
+    },
+    {
+      "ref": "share_schedule",
+      "title": "Share the day's schedule with vendors",
+      "category": "misc",
+      "dueOffsetDays": -3,
+      "dependsOn": [
+        "book_caterer",
+        "book_decor",
+        "book_photographer"
+      ]
+    },
+    {
+      "ref": "pack_party_kit",
+      "title": "Pack candles, knife, lighter and plates",
+      "category": "misc",
+      "functionName": "Birthday party",
+      "dueOffsetDays": -2,
+      "dependsOn": [
+        "order_cake"
+      ]
+    },
+    {
+      "ref": "collect_cake",
+      "title": "Collect the cake and check décor setup",
+      "category": "catering",
+      "functionName": "Birthday party",
+      "dueOffsetDays": 0,
+      "dependsOn": [
+        "order_cake"
+      ]
+    },
+    {
+      "ref": "thank_guests",
+      "title": "Send thank-you messages and share photos",
+      "category": "misc",
+      "dueOffsetDays": 3,
+      "dependsOn": []
+    }
+  ]
+}
