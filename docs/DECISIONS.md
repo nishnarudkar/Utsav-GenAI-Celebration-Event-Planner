@@ -253,3 +253,13 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Resolutions record `planVersion`.** Applying after the plan has moved on returns 409 and asks to hold the council again, so a family never acts on stale costs. Applying is a logged change (`trigger.field: "council"`), so Undo works and clears the recorded choice.
 - **Birthday demo fixtures added.** Budget and Timeline fixtures for `generic.birthday` were missing, so birthdays failed in demo mode despite the app's message suggesting one. Found by the Council tests; a route test now covers it.
 - **Council demo fixture** exists only for the Bengali wedding; other plans get a clear 422 in demo mode.
+
+## 2026-10-30 — Family Council page
+
+- **`/events/[id]/council`** (tab "Family"): add people with optional preferences, hold the council, see where they differ, choose a compromise. Choosing shows the shared `DiffPanel`, so Accept, Undo and recovery options work as on the dashboard.
+- **The conflict "matrix" is stacked:** one block per topic with each person's position, instead of a topic × person table that wouldn't fit a phone.
+- **Severity and outcomes carry words and icons:** "Needs settling" / "Worth discussing" / "Minor", "Gets their wish" / "Gives a little".
+- **Stale options** are disabled with an explanation whenever the plan's version differs from the one they were measured against. That includes after Undo, even though the plan is then back to its earlier state: versions only increase, so the council has to be held again. A little conservative, but never wrong.
+- **Form logic is pure** (`lib/plan/council-form.ts`, tested). `apiCall` (`lib/plan/client-api.ts`) is shared by `PlanControls` and `CouncilPanel`.
+- **Tabs:** five tabs overflowed at 375px and cut off the active one, so they're tighter on phones (13px text, less padding), with a hidden scrollbar on narrower screens.
+- **Not built:** the optional per-person shareable link from PROJECT.md F5 (needs auth or signed links, which are out of scope).
