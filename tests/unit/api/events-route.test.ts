@@ -43,6 +43,19 @@ describe("POST /api/events", () => {
     expect(list.events.some((e) => e.id === event.id)).toBe(true);
   });
 
+  it("builds the demo birthday too, as the demo-mode message promises", async () => {
+    const res = await post({ ...DEMO_BODY, eventType: "birthday", culture: "generic", city: "Pune", guestCount: 60, budgetTotalPaise: 30000000 });
+    expect(res.status).toBe(201);
+    const { event } = (await res.json()) as {
+      event: { budget: { unpriced: unknown[]; adjustments: unknown[]; lines: unknown[] }; timeline: { tasks: unknown[]; adjustments: string[] } };
+    };
+    expect(event.budget.lines).toHaveLength(8);
+    expect(event.budget.unpriced).toEqual([]);
+    expect(event.budget.adjustments).toEqual([]);
+    expect(event.timeline.tasks.length).toBeGreaterThanOrEqual(20);
+    expect(event.timeline.adjustments.filter((a) => !a.includes("ideally due"))).toEqual([]);
+  });
+
   it("rejects invalid answers with per-field messages", async () => {
     const res = await post({ ...DEMO_BODY, guestCount: 0, startDate: "14/02/2027" });
     expect(res.status).toBe(400);
