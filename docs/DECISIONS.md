@@ -273,3 +273,11 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **"Save ₹X" suggestions** reuse the recovery candidates via `evenWithinBudget`, ranked by exact saving. Priest and ritual costs stay excluded. They're informational; the sliders make the changes.
 - **`PlanDiff.removed`** is now populated, and `DiffPanel` shows removed items.
 - **Dev note:** Bash `netstat | grep` can silently return nothing on this machine. Use PowerShell `Get-NetTCPConnection -LocalPort 3001 -State Listen` to find or stop dev servers.
+
+## 2026-10-30 — Demo event (Phase 5)
+
+- **"Try the demo wedding" on the landing page** (`POST /api/demo`, `lib/plan/demo-event.ts`) creates a fresh copy each click: Bengali wedding, Kolkata, 14 Feb 2027, ₹15L, 250 guests, a 300-seat hall on the Biye, three stakeholders and one checked caterer quote. It goes through the normal services, so it can't drift from real events, and rehearsing never dirties the next run.
+- **`pnpm db:seed` calls `POST /api/demo` on a running server** instead of writing to a database, because events live in the server's memory. It should seed the database once the Drizzle repository exists.
+- **The demo mode toggle is still the `DEMO_MODE` env var**, not an in-app switch. A switch would change behaviour for every visitor of a shared server. Event pages now say "Demo mode: the AI answers here are saved samples." so samples never pass as live AI. A local `.env.local` (gitignored) sets `DEMO_MODE=true`, so `pnpm dev` works without a key.
+- **Bug found by walking the demo: the dashboard ignored venue and timeline conflicts.** `detectIssues` only checked the budget, so the tile said 1 while the diff listed 2. It now includes capacity and overlap checks.
+- **Bug found by walking the demo: the Council fixture assumed 250 guests.** After the script's 250→350 step, it offered "Stay with the current 250", "stays within budget". That option is now "Keep the guest list as it is", worded to be true at any guest count, with nobody named as winning or losing.
