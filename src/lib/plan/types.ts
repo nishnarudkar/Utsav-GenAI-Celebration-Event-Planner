@@ -49,7 +49,7 @@ export interface StoredQuote {
 
 /** Applying a recovery option or Council compromise is logged like a change, so it can be undone. */
 export interface RecoveryTrigger {
-  field: "recovery" | "council";
+  field: "recovery" | "council" | "whatif";
   optionId: string;
   /** The option title, shown in the change log. */
   value: string;
