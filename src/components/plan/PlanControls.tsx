@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useState, type FormEvent } from "react";
 import { DiffPanel } from "@/components/plan/DiffPanel";
 import { formatINR, parseINR } from "@/lib/format";
+import { apiCall } from "@/lib/plan/client-api";
 import type { PlanDiff } from "@/lib/schemas/diff";
 
 interface PlanControlsProps {
@@ -14,24 +15,9 @@ interface PlanControlsProps {
   budgetIsEstimate: boolean;
 }
 
-type ApiResult = { ok: true; diff: PlanDiff | null; noop?: boolean } | { ok: false; message: string };
-
-async function call(url: string, init: RequestInit): Promise<ApiResult> {
-  try {
-    const res = await fetch(url, { ...init, headers: { "Content-Type": "application/json" } });
-    const body: unknown = await res.json().catch(() => null);
-    if (!res.ok) {
-      const message =
-        typeof body === "object" && body !== null && "error" in body && typeof (body as { error: { message?: unknown } }).error.message === "string"
-          ? (body as { error: { message: string } }).error.message
-          : "Couldn't update the plan — try again.";
-      return { ok: false, message };
-    }
-    const b = body as { diff?: PlanDiff; noop?: boolean } | null;
-    return { ok: true, diff: b?.diff ?? null, noop: b?.noop };
-  } catch {
-    return { ok: false, message: "Couldn't reach Utsav — check your connection and try again." };
-  }
+interface ChangeResponse {
+  diff?: PlanDiff;
+  noop?: boolean;
 }
 
 /**
@@ -52,16 +38,16 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
   useEffect(() => setGuests(String(guestCount)), [guestCount]);
   useEffect(() => setBudget(formatINR(budgetTotalPaise)), [budgetTotalPaise]);
 
-  async function run(url: string, init: RequestInit, after?: (r: Extract<ApiResult, { ok: true }>) => void) {
+  async function run(url: string, init: RequestInit, after?: (r: ChangeResponse) => void) {
     setBusy(true);
     setMessage(null);
-    const result = await call(url, init);
+    const result = await apiCall<ChangeResponse>(url, init);
     setBusy(false);
     if (!result.ok) {
       setMessage({ tone: "error", text: result.message });
       return;
     }
-    after?.(result);
+    after?.(result.data);
     router.refresh();
   }
 
@@ -88,7 +74,7 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
   async function change(field: "guest_count" | "budget_total", value: number) {
     await run(`/api/events/${eventId}`, { method: "PATCH", body: JSON.stringify({ field, value }) }, (r) => {
       if (r.noop) setMessage({ tone: "info", text: "That's already the current value — nothing changed." });
-      else setDiff(r.diff);
+      else setDiff(r.diff ?? null);
     });
   }
 
@@ -99,7 +85,7 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
     });
 
   const apply = (optionId: string) =>
-    run(`/api/events/${eventId}/recovery`, { method: "POST", body: JSON.stringify({ optionId }) }, (r) => setDiff(r.diff));
+    run(`/api/events/${eventId}/recovery`, { method: "POST", body: JSON.stringify({ optionId }) }, (r) => setDiff(r.diff ?? null));
 
   const input = "w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink focus:border-maroon focus:outline-none tabular-nums";
   const save = "shrink-0 rounded-xl bg-maroon px-4 py-2.5 text-sm font-medium text-cream hover:bg-maroon-dark disabled:opacity-50";
