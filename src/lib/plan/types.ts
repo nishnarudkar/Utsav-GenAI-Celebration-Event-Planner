@@ -1,6 +1,7 @@
 import type { PricedBudget } from "@/lib/ai/agents/budget";
 import type { PlanChange } from "@/lib/graph/types";
 import type { QuoteAnalysis } from "@/lib/rules/quote-analysis";
+import type { CouncilResolution, Stakeholder } from "@/lib/schemas/council";
 import type { PlanDiff } from "@/lib/schemas/diff";
 import type { CityTier, EventStatus } from "@/lib/schemas/enums";
 import type { OnboardingAnswers, PlannedEvent } from "@/lib/schemas/event";
@@ -29,6 +30,10 @@ export interface StoredEvent extends EventPlan {
   procuredItems: string[];
   /** Vendor quotes checked with Quote X-Ray, newest first. Kept outside the plan, so Undo leaves them. */
   quotes: StoredQuote[];
+  /** Family Council members. Like quotes and ticks, kept outside the plan snapshot. */
+  stakeholders: Stakeholder[];
+  /** The latest Council result, or null if it hasn't run since the stakeholders last changed. */
+  council: CouncilResolution | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,9 +47,9 @@ export interface StoredQuote {
   createdAt: string;
 }
 
-/** Applying a recovery option is logged like a change, so it can be undone. */
+/** Applying a recovery option or Council compromise is logged like a change, so it can be undone. */
 export interface RecoveryTrigger {
-  field: "recovery";
+  field: "recovery" | "council";
   optionId: string;
   /** The option title, shown in the change log. */
   value: string;

@@ -1,5 +1,6 @@
 import "server-only";
 import type { ChangeRecord, ChangeTrigger, EventPlan, EventSummary, StoredEvent, StoredQuote } from "@/lib/plan/types";
+import type { CouncilConflict, CouncilOption, CouncilResolution, Stakeholder, StakeholderInput } from "@/lib/schemas/council";
 import type { PlanDiff } from "@/lib/schemas/diff";
 
 /**
@@ -27,6 +28,12 @@ export interface EventRepository {
   applyChange(id: string, expectedVersion: number, next: EventPlan, log: { trigger: ChangeTrigger; diff: PlanDiff }): Promise<ApplyResult>;
   /** Store a checked quote. Returns it with its id, or null if the event doesn't exist. */
   addQuote(id: string, quote: Omit<StoredQuote, "id" | "createdAt">): Promise<StoredQuote | null>;
+  /** Adding or removing a stakeholder clears the Council result, which no longer applies. */
+  addStakeholder(id: string, input: StakeholderInput): Promise<Stakeholder | null>;
+  /** Returns false if the stakeholder doesn't exist, null if the event doesn't. */
+  removeStakeholder(id: string, stakeholderId: string): Promise<boolean | null>;
+  setCouncil(id: string, result: { conflicts: CouncilConflict[]; options: CouncilOption[]; planVersion: number }): Promise<CouncilResolution | null>;
+  setChosenOption(id: string, optionId: string | null): Promise<void>;
   /** Change log, newest first. */
   listChanges(id: string): Promise<ChangeRecord[] | null>;
   /** Restore the plan from before the most recent change that hasn't been undone. */
@@ -59,6 +66,8 @@ export class MemoryEventRepository implements EventRepository {
       version: 1,
       procuredItems: [],
       quotes: [],
+      stakeholders: [],
+      council: null,
       createdAt: ts,
       updatedAt: ts,
     };
@@ -115,6 +124,42 @@ export class MemoryEventRepository implements EventRepository {
     return structuredClone(stored);
   }
 
+  async addStakeholder(id: string, input: StakeholderInput): Promise<Stakeholder | null> {
+    const event = this.store.events.get(id);
+    if (!event) return null;
+    const stakeholder: Stakeholder = { ...structuredClone(input), id: crypto.randomUUID() };
+    event.stakeholders = [...event.stakeholders, stakeholder];
+    event.council = null;
+    event.updatedAt = this.now().toISOString();
+    return structuredClone(stakeholder);
+  }
+
+  async removeStakeholder(id: string, stakeholderId: string): Promise<boolean | null> {
+    const event = this.store.events.get(id);
+    if (!event) return null;
+    const kept = event.stakeholders.filter((s) => s.id !== stakeholderId);
+    if (kept.length === event.stakeholders.length) return false;
+    event.stakeholders = kept;
+    event.council = null;
+    event.updatedAt = this.now().toISOString();
+    return true;
+  }
+
+  async setCouncil(id: string, result: { conflicts: CouncilConflict[]; options: CouncilOption[]; planVersion: number }): Promise<CouncilResolution | null> {
+    const event = this.store.events.get(id);
+    if (!event) return null;
+    const ts = this.now().toISOString();
+    const council: CouncilResolution = { ...structuredClone(result), id: crypto.randomUUID(), chosenOptionId: null, createdAt: ts };
+    event.council = council;
+    event.updatedAt = ts;
+    return structuredClone(council);
+  }
+
+  async setChosenOption(id: string, optionId: string | null): Promise<void> {
+    const event = this.store.events.get(id);
+    if (event?.council) event.council.chosenOptionId = optionId;
+  }
+
   async listChanges(id: string): Promise<ChangeRecord[] | null> {
     const changes = this.store.changes.get(id);
     return changes ? structuredClone([...changes].reverse()) : null;
@@ -127,6 +172,7 @@ export class MemoryEventRepository implements EventRepository {
     if (!latest) return { ok: false, error: "nothing_to_undo" };
 
     latest.undone = true;
+    if (latest.trigger.field === "council" && event.council) event.council.chosenOptionId = null;
     // Undo is itself a new version, so versions only ever increase.
     const restored: StoredEvent = { ...event, ...structuredClone(latest.before), version: event.version + 1, updatedAt: this.now().toISOString() };
     this.store.events.set(id, restored);
