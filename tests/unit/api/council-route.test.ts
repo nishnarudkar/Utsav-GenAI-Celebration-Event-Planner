@@ -82,7 +82,7 @@ describe("holding a council", () => {
     expect(council.options.map((o) => [o.id, o.costDeltaPaise])).toEqual([
       ["intimate_biye_big_reception", rupees(27_200)], // −100 + 100 plates, +100 gifts ₹200, +48 cards ₹150
       ["middle_ground_300", rupees(1_03_600)],
-      ["keep_250", 0],
+      ["keep_current", 0],
     ]);
     expect(council.options[0]).toMatchObject({ satisfies: ["Ananya & Rohan", "Mr & Mrs Sen"], compromises: ["Mr & Mrs Bose"] });
     expect(council.options[2]?.conflictsAfter).toEqual([]);
@@ -127,12 +127,12 @@ describe("applying a compromise", () => {
 
   it("refuses unknown options and options made for an older plan", async () => {
     const event = await withFamily();
-    expect((await applyOption(req({ optionId: "keep_250" }), params(event.id))).status).toBe(404); // no council yet
+    expect((await applyOption(req({ optionId: "keep_current" }), params(event.id))).status).toBe(404); // no council yet
     await hold(event.id);
     expect((await applyOption(req({ optionId: "nope" }), params(event.id))).status).toBe(404);
 
     await patchEvent(new Request("http://test", { method: "PATCH", body: JSON.stringify({ field: "guest_count", value: 260 }) }), params(event.id));
-    const stale = await applyOption(req({ optionId: "keep_250" }), params(event.id));
+    const stale = await applyOption(req({ optionId: "keep_current" }), params(event.id));
     expect(stale.status).toBe(409);
   });
 });

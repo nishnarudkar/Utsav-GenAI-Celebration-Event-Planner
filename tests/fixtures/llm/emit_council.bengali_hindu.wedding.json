@@ -51,11 +51,11 @@
       "patch": { "guestCount": 300, "functionGuests": [], "budgetTotalPaise": null }
     },
     {
-      "id": "keep_250",
-      "title": "Stay with the current 250",
-      "description": "Keep the plan as it is. It stays within budget, and the family can agree the venue style separately.",
-      "satisfies": ["groom_family"],
-      "compromises": ["couple", "bride_family"],
+      "id": "keep_current",
+      "title": "Keep the guest list as it is",
+      "description": "Change nothing for now. The numbers stay where they are, and the family can agree the venue style separately.",
+      "satisfies": [],
+      "compromises": [],
       "patch": { "guestCount": null, "functionGuests": [], "budgetTotalPaise": null }
     }
   ]
