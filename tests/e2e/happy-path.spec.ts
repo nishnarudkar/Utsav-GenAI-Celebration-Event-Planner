@@ -67,3 +67,15 @@ test("the demo script works from start to finish", async ({ page, context, brows
   await page.getByRole("button", { name: /copy/i }).first().click();
   await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
 });
+
+test("the plan downloads as a PDF and a calendar file", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try the demo wedding" }).click();
+  await page.waitForURL(/\/events\/[0-9a-f-]{36}$/);
+
+  for (const [link, file] of [["Download PDF", "utsav-ananya-rohan-s-wedding.pdf"], ["Add to calendar", "utsav-ananya-rohan-s-wedding.ics"]] as const) {
+    const download = page.waitForEvent("download");
+    await page.getByRole("link", { name: link }).click();
+    expect((await download).suggestedFilename()).toBe(file);
+  }
+});
