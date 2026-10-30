@@ -263,3 +263,13 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Form logic is pure** (`lib/plan/council-form.ts`, tested). `apiCall` (`lib/plan/client-api.ts`) is shared by `PlanControls` and `CouncilPanel`.
 - **Tabs:** five tabs overflowed at 375px and cut off the active one, so they're tighter on phones (13px text, less padding), with a hidden scrollbar on narrower screens.
 - **Not built:** the optional per-person shareable link from PROJECT.md F5 (needs auth or signed links, which are out of scope).
+
+## 2026-10-30 — What-If Simulator
+
+- **Lives on the Budget page** (`WhatIfSimulator`), per CLAUDE.md §5. `POST /api/events/:id/whatif { scenario }` is a pure dry run (`projectScenario`) with no AI: about 30–50 ms on the dev server, plus a 250 ms client debounce, so it meets the "under 1 s" target. In-flight requests are aborted when a slider moves again. `{ scenario, apply: true }` saves it as a logged change (`trigger.field: "whatif"`), so Undo restores it exactly.
+- **It uses its own endpoint rather than `PATCH ?dryRun`** because a scenario combines several changes at once and the slider path must skip the Explainer.
+- **Sliders for guests and for venue/catering/décor tier.** Each tier slider starts at the category's most used tier and is only sent once moved, so an untouched mixed-tier category isn't flattened.
+- **"Number of functions" is a keep/drop tick list, not a count slider.** A count can't say which function goes, and that's a family decision that shouldn't be guessed. Dropping removes the function, its budget lines and its tasks (user tasks stay, dangling dependencies are cleaned), and its rituals go to `unassignedRitualKeys`, so they show as unplaced rather than vanishing. A function with locked lines can't be dropped, and at least one function always stays.
+- **"Save ₹X" suggestions** reuse the recovery candidates via `evenWithinBudget`, ranked by exact saving. Priest and ritual costs stay excluded. They're informational; the sliders make the changes.
+- **`PlanDiff.removed`** is now populated, and `DiffPanel` shows removed items.
+- **Dev note:** Bash `netstat | grep` can silently return nothing on this machine. Use PowerShell `Get-NetTCPConnection -LocalPort 3001 -State Listen` to find or stop dev servers.
