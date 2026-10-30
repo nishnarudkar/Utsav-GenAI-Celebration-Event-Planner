@@ -1,5 +1,6 @@
 import type { PricedBudget } from "@/lib/ai/agents/budget";
 import type { PlanChange } from "@/lib/graph/types";
+import type { QuoteAnalysis } from "@/lib/rules/quote-analysis";
 import type { PlanDiff } from "@/lib/schemas/diff";
 import type { CityTier, EventStatus } from "@/lib/schemas/enums";
 import type { OnboardingAnswers, PlannedEvent } from "@/lib/schemas/event";
@@ -26,8 +27,19 @@ export interface StoredEvent extends EventPlan {
   version: number;
   /** Ritual items the family has ticked off, as ritual item ids ("gaye_holud#0"). */
   procuredItems: string[];
+  /** Vendor quotes checked with Quote X-Ray, newest first. Kept outside the plan, so Undo leaves them. */
+  quotes: StoredQuote[];
   createdAt: string;
   updatedAt: string;
+}
+
+/** A checked vendor quote (CLAUDE.md §6 quotes). The uploaded file itself isn't kept. */
+export interface StoredQuote {
+  id: string;
+  fileName: string;
+  analysis: QuoteAnalysis;
+  negotiationMessage: string;
+  createdAt: string;
 }
 
 /** Applying a recovery option is logged like a change, so it can be undone. */

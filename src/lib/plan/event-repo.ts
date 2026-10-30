@@ -1,5 +1,5 @@
 import "server-only";
-import type { ChangeRecord, ChangeTrigger, EventPlan, EventSummary, StoredEvent } from "@/lib/plan/types";
+import type { ChangeRecord, ChangeTrigger, EventPlan, EventSummary, StoredEvent, StoredQuote } from "@/lib/plan/types";
 import type { PlanDiff } from "@/lib/schemas/diff";
 
 /**
@@ -25,6 +25,8 @@ export interface EventRepository {
    * previous plan. Fails with "version_conflict" if the event changed since `expectedVersion`.
    */
   applyChange(id: string, expectedVersion: number, next: EventPlan, log: { trigger: ChangeTrigger; diff: PlanDiff }): Promise<ApplyResult>;
+  /** Store a checked quote. Returns it with its id, or null if the event doesn't exist. */
+  addQuote(id: string, quote: Omit<StoredQuote, "id" | "createdAt">): Promise<StoredQuote | null>;
   /** Change log, newest first. */
   listChanges(id: string): Promise<ChangeRecord[] | null>;
   /** Restore the plan from before the most recent change that hasn't been undone. */
@@ -56,6 +58,7 @@ export class MemoryEventRepository implements EventRepository {
       status: "planning",
       version: 1,
       procuredItems: [],
+      quotes: [],
       createdAt: ts,
       updatedAt: ts,
     };
@@ -100,6 +103,16 @@ export class MemoryEventRepository implements EventRepository {
     this.store.events.set(id, updated);
     this.store.changes.set(id, [...(this.store.changes.get(id) ?? []), record]);
     return { ok: true, event: structuredClone(updated), change: structuredClone(record) };
+  }
+
+  async addQuote(id: string, quote: Omit<StoredQuote, "id" | "createdAt">): Promise<StoredQuote | null> {
+    const event = this.store.events.get(id);
+    if (!event) return null;
+    const ts = this.now().toISOString();
+    const stored: StoredQuote = { ...structuredClone(quote), id: crypto.randomUUID(), createdAt: ts };
+    event.quotes = [stored, ...event.quotes];
+    event.updatedAt = ts;
+    return structuredClone(stored);
   }
 
   async listChanges(id: string): Promise<ChangeRecord[] | null> {
