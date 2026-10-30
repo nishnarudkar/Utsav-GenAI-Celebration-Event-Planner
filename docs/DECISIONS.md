@@ -281,3 +281,12 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **The demo mode toggle is still the `DEMO_MODE` env var**, not an in-app switch. A switch would change behaviour for every visitor of a shared server. Event pages now say "Demo mode: the AI answers here are saved samples." so samples never pass as live AI. A local `.env.local` (gitignored) sets `DEMO_MODE=true`, so `pnpm dev` works without a key.
 - **Bug found by walking the demo: the dashboard ignored venue and timeline conflicts.** `detectIssues` only checked the budget, so the tile said 1 while the diff listed 2. It now includes capacity and overlap checks.
 - **Bug found by walking the demo: the Council fixture assumed 250 guests.** After the script's 250→350 step, it offered "Stay with the current 250", "stays within budget". That option is now "Keep the guest list as it is", worded to be true at any guest count, with nobody named as winning or losing.
+
+## 2026-10-30 — Playwright tests and demo script
+
+- **`@playwright/test` added** as a dev dependency. The `test:e2e` script already existed, but the package didn't.
+- **Tests use the installed Edge, not a downloaded browser** (`channel: "msedge"`), to avoid a large download on a memory-tight laptop. `PW_CHANNEL=chrome` switches browser, and an empty `PW_CHANNEL` uses Playwright's own Chromium, which needs `playwright install chromium`, for example on CI.
+- **Two tests, not one.** Besides the required happy path, a second test walks the demo script with real clicks, because that's the flow that can't fail on stage. It covers the recovery Apply button, the file picker and Copy.
+- **Tests start their own server on port 3100** with `DEMO_MODE=true`, so they never call the real API and don't clash with `pnpm dev`.
+- **The chat-built event has no hall size**, so the demo moves to the seeded copy after step 1. Onboarding doesn't ask for capacity.
+- **`docs/DEMO_SCRIPT.md` leaves out live mode**, since Day-of Copilot (P2) isn't built.
