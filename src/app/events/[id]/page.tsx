@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { BudgetDonut } from "@/components/plan/BudgetDonut";
 import { EventHeader } from "@/components/plan/EventHeader";
+import { ExportLinks } from "@/components/plan/ExportLinks";
 import { IssueList } from "@/components/plan/IssueList";
 import { NextTasks } from "@/components/plan/NextTasks";
 import { PlanControls } from "@/components/plan/PlanControls";
@@ -85,6 +86,7 @@ export default async function EventDashboardPage({ params }: Props) {
           ))}
         </ol>
       </Section>
+      <ExportLinks eventId={event.id} />
     </main>
   );
 }
