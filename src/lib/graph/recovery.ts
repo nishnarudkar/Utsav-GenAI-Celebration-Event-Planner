@@ -146,11 +146,11 @@ function candidates(state: EventPlan, ctx: RecoveryContext): Candidate[] {
 
 /**
  * Up to three options, biggest saving first, each with its exact saving. Only offered when
- * the plan is over a family-set budget.
+ * the plan is over a family-set budget, unless evenWithinBudget asks for savings regardless.
  */
-export function generateRecoveryOptions(state: EventPlan, ctx: RecoveryContext): RecoveryOption[] {
+export function generateRecoveryOptions(state: EventPlan, ctx: RecoveryContext, opts: { evenWithinBudget?: boolean } = {}): RecoveryOption[] {
   const over = state.budget.budgetIsEstimate ? 0 : state.budget.overBudgetPaise;
-  if (over <= 0) return [];
+  if (over <= 0 && !opts.evenWithinBudget) return [];
 
   const scored = candidates(state, ctx)
     .map((c) => {
@@ -162,12 +162,12 @@ export function generateRecoveryOptions(state: EventPlan, ctx: RecoveryContext):
     .slice(0, MAX_OPTIONS);
 
   return scored.map(({ c, saves }) => {
-    const covers = saves >= over ? `brings you within budget` : `covers ${Math.round((saves / over) * 100)}% of the ${formatINRCompact(over)} overrun`;
+    const covers = over <= 0 ? "" : saves >= over ? " — brings you within budget" : ` — covers ${Math.round((saves / over) * 100)}% of the ${formatINRCompact(over)} overrun`;
     return {
       id: c.id,
       title: c.title,
       savesPaise: saves,
-      impact: `Saves ${formatINRCompact(saves)} — ${covers}${c.note ? `; ${c.note}` : ""}.`,
+      impact: `Saves ${formatINRCompact(saves)}${covers}${c.note ? `; ${c.note}` : ""}.`,
       patch: c.patch,
     };
   });
