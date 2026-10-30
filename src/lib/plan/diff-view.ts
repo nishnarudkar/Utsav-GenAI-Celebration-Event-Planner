@@ -40,7 +40,8 @@ function functionValue(v: unknown): string {
 }
 
 export function diffRows(diff: PlanDiff): DiffRow[] {
-  return diff.changed.map((c): DiffRow => {
+  const removed = diff.removed.map((r): DiffRow => ({ key: `removed:${r.nodeId}`, label: r.label, from: "Planned", to: "Removed", direction: "neutral", reason: "Taken out of the plan" }));
+  const changed = diff.changed.map((c): DiffRow => {
     if (c.nodeId.startsWith("field:")) {
       const field = c.nodeId.slice("field:".length);
       const a = num(c.from);
@@ -68,6 +69,7 @@ export function diffRows(diff: PlanDiff): DiffRow[] {
     const show = (v: unknown) => (typeof v === "string" && isISODate(v) ? formatDate(v) : String(v ?? "—"));
     return { key: c.nodeId, label: c.label, from: show(c.from), to: show(c.to), direction: "neutral", reason: c.reason };
   });
+  return [...changed, ...removed];
 }
 
 const CONFLICT_TITLES: Record<string, string> = {
@@ -76,6 +78,7 @@ const CONFLICT_TITLES: Record<string, string> = {
   timeline_overlap: "Functions overlap",
   locked_item: "Locked item not changed",
   date_note: "Check the new date",
+  function_kept: "Function kept",
 };
 
 /** Conflicts in the dashboard's issue shape, so the same IssueList renders them. */

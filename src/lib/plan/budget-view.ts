@@ -2,7 +2,7 @@ import type { PricedLine } from "@/lib/ai/agents/budget";
 import { formatINR } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { ResolvedBasis } from "@/lib/rules/budget-math";
-import type { BudgetCategory, BudgetUnit, CityTier } from "@/lib/schemas/enums";
+import type { BudgetCategory, BudgetUnit, CityTier, PriceTier } from "@/lib/schemas/enums";
 import type { EventPlan } from "@/lib/plan/types";
 
 /** View model for the Budget page. Pure; the page only renders it. */
@@ -74,4 +74,11 @@ export function basisText(basis: ResolvedBasis): string {
   const [one, many] = UNIT_NOUN[basis.unit];
   const qty = Number.isInteger(basis.quantity) ? basis.quantity.toLocaleString("en-IN") : String(basis.quantity);
   return `${qty} ${basis.quantity === 1 ? one : many} × ${formatINR(basis.unitPaise)} · ${basis.unitTier} tier · ${TIER_PLACE[basis.cityTier]} prices`;
+}
+
+/** The most used price tier in a category (by line count; the cheaper wins a tie), or undefined if it has no lines. */
+export function dominantTier(lines: readonly PricedLine[], category: BudgetCategory): PriceTier | undefined {
+  const counts = new Map<PriceTier, number>();
+  for (const l of lines) if (l.category === category) counts.set(l.basis.unitTier, (counts.get(l.basis.unitTier) ?? 0) + 1);
+  return (["low", "mid", "high"] as const).reduce<PriceTier | undefined>((best, tier) => ((counts.get(tier) ?? 0) > (best ? (counts.get(best) ?? 0) : 0) ? tier : best), undefined);
 }

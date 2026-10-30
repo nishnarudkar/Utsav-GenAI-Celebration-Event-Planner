@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { buildEventPlan } from "@/lib/plan/build-plan";
-import { basisText, buildBudgetView } from "@/lib/plan/budget-view";
+import { basisText, buildBudgetView, dominantTier } from "@/lib/plan/budget-view";
 import type { EventPlan } from "@/lib/plan/types";
 
 const rupees = (r: number) => r * 100;
@@ -74,5 +74,16 @@ describe("basisText", () => {
     [{ unit: "per_hour", quantity: 1.5, unitTier: "mid", unitPaise: rupees(6_000), cityTier: 1 }, "1.5 hours × ₹6,000 · mid tier · metro prices"],
   ] as const)("%o", (basis, text) => {
     expect(basisText(basis)).toBe(text);
+  });
+});
+
+describe("dominantTier", () => {
+  const line = (category: "decor" | "venue", unitTier: "low" | "mid" | "high") =>
+    ({ category, basis: { unitTier } }) as unknown as Parameters<typeof dominantTier>[0][number];
+
+  it("picks the most used tier, the cheaper on a tie, and nothing for an empty category", () => {
+    expect(dominantTier([line("decor", "high"), line("decor", "high"), line("decor", "low")], "decor")).toBe("high");
+    expect(dominantTier([line("decor", "mid"), line("decor", "low")], "decor")).toBe("low");
+    expect(dominantTier([line("decor", "mid")], "venue")).toBeUndefined();
   });
 });
