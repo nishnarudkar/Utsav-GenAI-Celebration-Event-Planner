@@ -3,12 +3,13 @@ import { formatDate } from "@/lib/format";
 import { cultureLabel } from "@/lib/onboarding/steps";
 import type { StoredEvent } from "@/lib/plan/types";
 
-export type EventTab = "overview" | "budget" | "timeline";
+export type EventTab = "overview" | "budget" | "timeline" | "vendors";
 
 const TABS: Array<{ key: EventTab; label: string; path: string }> = [
   { key: "overview", label: "Overview", path: "" },
   { key: "budget", label: "Budget", path: "/budget" },
   { key: "timeline", label: "Timeline", path: "/timeline" },
+  { key: "vendors", label: "Vendors", path: "/vendors" },
 ];
 
 /** Title, key facts and section tabs shared by every event page. */
