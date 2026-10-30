@@ -3,10 +3,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BudgetTable } from "@/components/plan/BudgetTable";
 import { EventHeader } from "@/components/plan/EventHeader";
+import { WhatIfSimulator } from "@/components/plan/WhatIfSimulator";
 import { formatINR, formatINRCompact } from "@/lib/format";
 import { getPricing } from "@/lib/kb/pricing";
 import { CATEGORY_LABELS } from "@/lib/labels";
-import { buildBudgetView } from "@/lib/plan/budget-view";
+import { buildBudgetView, dominantTier } from "@/lib/plan/budget-view";
 import { getEventRepository } from "@/lib/plan/event-repo";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +55,17 @@ export default async function BudgetPage({ params }: Props) {
           <p className="mt-3 text-sm text-muted">You asked Utsav to estimate, so the suggested budget is the total of the items below.</p>
         )}
       </section>
+
+      <WhatIfSimulator
+        eventId={event.id}
+        guestCount={event.answers.guestCount}
+        currentTiers={{
+          venue: dominantTier(event.budget.lines, "venue"),
+          catering: dominantTier(event.budget.lines, "catering"),
+          decor: dominantTier(event.budget.lines, "decor"),
+        }}
+        functions={event.plan.functions.map((f) => ({ name: f.name, guests: f.expectedGuests }))}
+      />
 
       <section className="rounded-2xl border border-line bg-white p-5">
         <div className="mb-2 flex items-baseline justify-between gap-3">
