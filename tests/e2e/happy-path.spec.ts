@@ -97,3 +97,22 @@ test("live mode moves the running order and records the messages", async ({ page
   await expect(page.getByText(/will now begin at 7:00 PM/).first()).toBeVisible();
   await expect(page.getByText("Nothing sent yet.")).toHaveCount(0);
 });
+
+test("a look can be made from a sample or a photo, and shows on the overview", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try the demo wedding" }).click();
+  await page.waitForURL(/\/events\/[0-9a-f-]{36}$/);
+  await page.getByRole("link", { name: /Look & feel/ }).click();
+
+  await page.getByRole("button", { name: "Try a sample look" }).click();
+  await expect(page.getByRole("heading", { name: "Lal Paar Heritage" })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Colour palette" }).getByRole("listitem")).toHaveCount(5);
+
+  await page.getByLabel(/^Photos/).setInputFiles({ name: "mandap.png", mimeType: "image/png", buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]) });
+  await page.getByRole("button", { name: "Make a new look" }).click();
+  await expect(page.getByRole("button", { name: "Make a new look" })).toBeEnabled();
+  await expect(page.getByRole("main").getByRole("alert")).toHaveCount(0);
+
+  await page.getByRole("link", { name: "Overview" }).click();
+  await expect(page.getByRole("link", { name: /Look & feel/ })).toContainText("Lal Paar Heritage");
+});
