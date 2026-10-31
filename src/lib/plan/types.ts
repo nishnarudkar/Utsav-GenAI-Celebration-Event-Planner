@@ -2,6 +2,7 @@ import type { PricedBudget } from "@/lib/ai/agents/budget";
 import type { PlanChange } from "@/lib/graph/types";
 import type { QuoteAnalysis } from "@/lib/rules/quote-analysis";
 import type { CouncilResolution, Stakeholder } from "@/lib/schemas/council";
+import type { LiveState } from "@/lib/schemas/dayof";
 import type { PlanDiff } from "@/lib/schemas/diff";
 import type { CityTier, EventStatus } from "@/lib/schemas/enums";
 import type { OnboardingAnswers, PlannedEvent } from "@/lib/schemas/event";
@@ -34,6 +35,8 @@ export interface StoredEvent extends EventPlan {
   stakeholders: Stakeholder[];
   /** The latest Council result, or null if it hasn't run since the stakeholders last changed. */
   council: CouncilResolution | null;
+  /** Day-of Copilot state. Like quotes and ticks, kept outside the plan snapshot. */
+  live: LiveState;
   createdAt: string;
   updatedAt: string;
 }
