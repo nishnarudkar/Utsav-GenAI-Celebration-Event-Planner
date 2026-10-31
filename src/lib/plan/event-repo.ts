@@ -1,6 +1,7 @@
 import "server-only";
 import type { ChangeRecord, ChangeTrigger, EventPlan, EventSummary, StoredEvent, StoredQuote } from "@/lib/plan/types";
 import type { CouncilConflict, CouncilOption, CouncilResolution, Stakeholder, StakeholderInput } from "@/lib/schemas/council";
+import type { LiveNotification, LiveProposal } from "@/lib/schemas/dayof";
 import type { PlanDiff } from "@/lib/schemas/diff";
 
 /**
@@ -34,6 +35,10 @@ export interface EventRepository {
   removeStakeholder(id: string, stakeholderId: string): Promise<boolean | null>;
   setCouncil(id: string, result: { conflicts: CouncilConflict[]; options: CouncilOption[]; planVersion: number }): Promise<CouncilResolution | null>;
   setChosenOption(id: string, optionId: string | null): Promise<void>;
+  /** Hold a day-of proposal until it is confirmed; a newer one replaces it. */
+  setLiveProposal(id: string, proposal: LiveProposal): Promise<void>;
+  /** Apply a confirmed proposal: move the slots, log the incident, record the messages. */
+  applyLive(id: string, proposal: LiveProposal, notifications: LiveNotification[]): Promise<StoredEvent | null>;
   /** Change log, newest first. */
   listChanges(id: string): Promise<ChangeRecord[] | null>;
   /** Restore the plan from before the most recent change that hasn't been undone. */
@@ -68,6 +73,7 @@ export class MemoryEventRepository implements EventRepository {
       quotes: [],
       stakeholders: [],
       council: null,
+      live: { shifts: {}, proposal: null, incidents: [], notifications: [] },
       createdAt: ts,
       updatedAt: ts,
     };
@@ -158,6 +164,27 @@ export class MemoryEventRepository implements EventRepository {
   async setChosenOption(id: string, optionId: string | null): Promise<void> {
     const event = this.store.events.get(id);
     if (event?.council) event.council.chosenOptionId = optionId;
+  }
+
+  async setLiveProposal(id: string, proposal: LiveProposal): Promise<void> {
+    const event = this.store.events.get(id);
+    if (event) event.live.proposal = structuredClone(proposal);
+  }
+
+  async applyLive(id: string, proposal: LiveProposal, notifications: LiveNotification[]): Promise<StoredEvent | null> {
+    const event = this.store.events.get(id);
+    if (!event) return null;
+    const ts = this.now().toISOString();
+    const shifts = { ...event.live.shifts };
+    for (const [slot, minutes] of Object.entries(proposal.deltas)) shifts[slot] = (shifts[slot] ?? 0) + minutes;
+    event.live = {
+      shifts,
+      proposal: null,
+      incidents: [{ id: proposal.id, incident: proposal.incident, summary: proposal.summary, at: ts }, ...event.live.incidents],
+      notifications: [...structuredClone(notifications), ...event.live.notifications],
+    };
+    event.updatedAt = ts;
+    return structuredClone(event);
   }
 
   async listChanges(id: string): Promise<ChangeRecord[] | null> {
