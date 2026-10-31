@@ -1,3 +1,4 @@
+import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -86,6 +87,13 @@ export default async function EventDashboardPage({ params }: Props) {
           ))}
         </ol>
       </Section>
+      <Link href={`/events/${event.id}/vibe`} className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 hover:border-maroon">
+        <span>
+          <span className="block font-display text-xl text-maroon">Look &amp; feel</span>
+          <span className="block text-sm text-muted">{event.vibe ? event.vibe.theme : "Turn photos you love into colours and décor ideas."}</span>
+        </span>
+        <ChevronRight className="size-5 shrink-0 text-maroon" aria-hidden />
+      </Link>
       <ExportLinks eventId={event.id} />
     </main>
   );

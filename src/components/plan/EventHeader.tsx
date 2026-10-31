@@ -15,7 +15,7 @@ const TABS: Array<{ key: EventTab; label: string; path: string }> = [
 ];
 
 /** Title, key facts and section tabs shared by every event page. */
-export function EventHeader({ event, active }: { event: StoredEvent; active: EventTab }) {
+export function EventHeader({ event, active }: { event: StoredEvent; active: EventTab | null }) {
   const { answers, plan } = event;
   return (
     <header className="flex flex-col gap-3">
