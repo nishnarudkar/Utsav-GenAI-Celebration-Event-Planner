@@ -79,3 +79,21 @@ test("the plan downloads as a PDF and a calendar file", async ({ page }) => {
     expect((await download).suggestedFilename()).toBe(file);
   }
 });
+
+test("live mode moves the running order and records the messages", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try the demo wedding" }).click();
+  await page.waitForURL(/\/events\/[0-9a-f-]{36}$/);
+  await page.getByRole("link", { name: "Live" }).click();
+  await expect(page.getByText("Nothing sent yet.")).toBeVisible();
+
+  await page.getByRole("button", { name: "Photographer 30 min late" }).click();
+  await expect(page.getByText("Suggested update")).toBeVisible();
+  await expect(page.getByText("Nothing sent yet.")).toBeVisible(); // nothing goes out until confirmed
+
+  await page.getByRole("button", { name: "Confirm and notify" }).click();
+  await expect(page.getByText("7:00 PM – 7:30 PM")).toBeVisible();
+  await expect(page.getByText("+30 min").first()).toBeVisible();
+  await expect(page.getByText(/will now begin at 7:00 PM/).first()).toBeVisible();
+  await expect(page.getByText("Nothing sent yet.")).toHaveCount(0);
+});

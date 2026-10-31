@@ -60,6 +60,16 @@ Click the copy button on the drafted message.
 
 **Say:** "Paste it into WhatsApp and the family has a polite, specific reply to the caterer."
 
+## 6. Bonus: live mode (20 seconds)
+
+Open **Live**. Tap **Photographer 30 min late**.
+
+**Show:** the Biye rituals move by 30 minutes, Bashor Raat stays put because there's spare time, and each vendor gets a drafted message with the new time.
+
+Click **Confirm and notify**. The running order updates and the messages appear under **Sent messages**.
+
+**Say:** "Utsav works out the times and drafts the messages, but nothing goes out until the family confirms. It also reminds them to check any fixed muhurat with the priest."
+
 ## If something goes wrong
 
 | Problem | What to do |
@@ -74,4 +84,3 @@ Click the copy button on the drafted message.
 - In demo mode the AI answers are saved samples, and event pages say so. The numbers are still calculated live.
 - Saved samples exist only for the Bengali wedding and a birthday. Other traditions need an API key.
 - Prices are indicative estimates, not real vendor quotes.
-- Live-day mode (the bonus step in `CLAUDE.md`) isn't built, so leave it out.
