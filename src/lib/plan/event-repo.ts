@@ -3,6 +3,7 @@ import type { ChangeRecord, ChangeTrigger, EventPlan, EventSummary, StoredEvent,
 import type { CouncilConflict, CouncilOption, CouncilResolution, Stakeholder, StakeholderInput } from "@/lib/schemas/council";
 import type { LiveNotification, LiveProposal } from "@/lib/schemas/dayof";
 import type { PlanDiff } from "@/lib/schemas/diff";
+import type { VibeProfile } from "@/lib/schemas/vibe";
 
 /**
  * Persistence for generated plans and their change log. `MemoryEventRepository` keeps both in
@@ -39,6 +40,8 @@ export interface EventRepository {
   setLiveProposal(id: string, proposal: LiveProposal): Promise<void>;
   /** Apply a confirmed proposal: move the slots, log the incident, record the messages. */
   applyLive(id: string, proposal: LiveProposal, notifications: LiveNotification[]): Promise<StoredEvent | null>;
+  /** Store the look from Vibe-to-Plan, replacing any earlier one. */
+  setVibe(id: string, vibe: VibeProfile): Promise<void>;
   /** Change log, newest first. */
   listChanges(id: string): Promise<ChangeRecord[] | null>;
   /** Restore the plan from before the most recent change that hasn't been undone. */
@@ -74,6 +77,7 @@ export class MemoryEventRepository implements EventRepository {
       stakeholders: [],
       council: null,
       live: { shifts: {}, proposal: null, incidents: [], notifications: [] },
+      vibe: null,
       createdAt: ts,
       updatedAt: ts,
     };
@@ -164,6 +168,13 @@ export class MemoryEventRepository implements EventRepository {
   async setChosenOption(id: string, optionId: string | null): Promise<void> {
     const event = this.store.events.get(id);
     if (event?.council) event.council.chosenOptionId = optionId;
+  }
+
+  async setVibe(id: string, vibe: VibeProfile): Promise<void> {
+    const event = this.store.events.get(id);
+    if (!event) return;
+    event.vibe = structuredClone(vibe);
+    event.updatedAt = this.now().toISOString();
   }
 
   async setLiveProposal(id: string, proposal: LiveProposal): Promise<void> {
