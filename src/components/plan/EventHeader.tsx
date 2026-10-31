@@ -3,7 +3,7 @@ import { formatDate } from "@/lib/format";
 import { cultureLabel } from "@/lib/onboarding/steps";
 import type { StoredEvent } from "@/lib/plan/types";
 
-export type EventTab = "overview" | "budget" | "timeline" | "vendors" | "council";
+export type EventTab = "overview" | "budget" | "timeline" | "vendors" | "council" | "live";
 
 const TABS: Array<{ key: EventTab; label: string; path: string }> = [
   { key: "overview", label: "Overview", path: "" },
@@ -11,6 +11,7 @@ const TABS: Array<{ key: EventTab; label: string; path: string }> = [
   { key: "timeline", label: "Timeline", path: "/timeline" },
   { key: "vendors", label: "Vendors", path: "/vendors" },
   { key: "council", label: "Family", path: "/council" },
+  { key: "live", label: "Live", path: "/live" },
 ];
 
 /** Title, key facts and section tabs shared by every event page. */
@@ -31,7 +32,7 @@ export function EventHeader({ event, active }: { event: StoredEvent; active: Eve
         {process.env.DEMO_MODE === "true" && <p className="mt-1 text-xs text-muted">Demo mode: the AI answers here are saved samples.</p>}
       </div>
       <nav aria-label="Event sections" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none]">
-        <ul className="flex border-b border-line sm:gap-1">
+        <ul className="flex justify-between border-b border-line sm:justify-start sm:gap-1">
           {TABS.map((tab) => {
             const current = tab.key === active;
             return (
@@ -39,7 +40,7 @@ export function EventHeader({ event, active }: { event: StoredEvent; active: Eve
                 <Link
                   href={`/events/${event.id}${tab.path}`}
                   aria-current={current ? "page" : undefined}
-                  className={`-mb-px block whitespace-nowrap border-b-2 px-2 py-2 text-[13px] font-medium sm:px-3 sm:text-sm ${
+                  className={`-mb-px block whitespace-nowrap border-b-2 px-1 py-2 text-[13px] font-medium sm:px-3 sm:text-sm ${
                     current ? "border-maroon text-maroon" : "border-transparent text-muted hover:text-maroon"
                   }`}
                 >
