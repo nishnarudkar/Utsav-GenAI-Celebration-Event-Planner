@@ -87,6 +87,15 @@ export default async function EventDashboardPage({ params }: Props) {
           ))}
         </ol>
       </Section>
+      {event.answers.eventType === "community" && (
+        <Link href={`/events/${event.id}/community`} className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 hover:border-maroon">
+          <span>
+            <span className="block font-display text-xl text-maroon">Community tools</span>
+            <span className="block text-sm text-muted">Permissions checklist and crowd safety numbers.</span>
+          </span>
+          <ChevronRight className="size-5 shrink-0 text-maroon" aria-hidden />
+        </Link>
+      )}
       <Link href={`/events/${event.id}/vibe`} className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 hover:border-maroon">
         <span>
           <span className="block font-display text-xl text-maroon">Look &amp; feel</span>
