@@ -299,3 +299,14 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Headings in the PDF use Noto Sans bold, not Playfair**, to avoid a second font package.
 - **Vitest now sets `esbuild.jsx: "automatic"`** so it can run the PDF component.
 - **For deployment:** the PDF reads its fonts from `node_modules` at runtime, so they must be included in the server bundle, like the saved samples and `kb/`.
+
+## 2026-10-31 — Day-of Copilot (F8)
+
+- **`/events/[id]/live`** (tab "Live") shows the running order for today if something's on, otherwise the main day, so it can be rehearsed. There's no day picker, to keep the page simple on the day.
+- **The AI never handles a time.** It reads the incident and returns where the delay starts, how long it is, and message drafts. `lib/rules/run-of-show.ts` moves the slots. Messages use `{new_time}` and `{slot}`; a draft that states its own clock time is replaced by a template, and a slot id the model made up is rejected.
+- **Spare time absorbs delays.** A delay moves the rest of its function, and reaches the next function only if it runs into it. In the demo, the 30-minute delay stops before Bashor Raat.
+- **Slots are worked out from ritual durations**, back to back from the function's start. That's an estimate of the running order, not a schedule the family set.
+- **Nothing moves or sends until "Confirm and notify".** Times sent to vendors shouldn't go out on an AI suggestion alone, and a muhurat can't simply slide, so moving a ritual always shows a reminder to check with the priest when the plan has one.
+- **Delays live in `event.live`, outside the plan.** The agreed schedule, budget and version don't change, and Undo doesn't touch them. There's no undo for a confirmed delay yet.
+- **Mock messaging only.** `MESSAGING_MODE=twilio` isn't built: Utsav doesn't collect vendors' phone numbers, so there's nobody to send to. Messages are addressed by role ("Photographer") and the panel says they weren't delivered.
+- **Demo fixtures match the incident text exactly** (`emit_reshuffle.<culture>.<type>.<slug>`). Any other incident gets a clear 422, rather than a saved answer about a different problem.
