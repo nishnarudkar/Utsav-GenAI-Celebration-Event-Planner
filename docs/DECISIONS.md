@@ -320,3 +320,13 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Swatch labels pick black or white in code** (`readableTextOn`), because the model chooses the colours and contrast must still hold.
 - **The prompt tells the model to judge colours and décor, not people** in the photos.
 - **Demo mode says it doesn't read photos.** The saved look is always the same, so the page says so instead of appearing to analyse them. It only exists for the demo wedding; other events get a clear 422.
+
+## 2026-10-31 — Community extras, part 1 (F9): permissions and crowd safety
+
+- **A sample community festival now exists** (`kb/rituals/generic-community.md` plus plan, budget and timeline fixtures for `generic.community`). Community events previously failed in demo mode. It suits a neutral neighbourhood festival, not a specific one such as a Ganesh pandal or Durga Puja; those docs from CLAUDE.md §7.5 are still to write.
+- **`/events/[id]/community`, reached from an overview card shown only for community events.** Other event types get a 404. As with Vibe, a seventh tab wouldn't fit on a phone.
+- **Neither tool uses AI.** Permissions come from `kb/checklists/permits-india.json`, and `lib/rules/crowd.ts` is pure, so a family's safety numbers and legal list can't be made up by a model, and both work without a key.
+- **JSON, not markdown, for permissions**, unlike §5's `permits-india.md`, because the app needs fields such as lead time, not text to retrieve.
+- **All permissions are listed, each with when it applies**, instead of asking organisers a series of yes/no questions first. A pandal-or-not filter can come later.
+- **The permissions and lead days were written from general knowledge, not checked against official sources.** They need review by someone who knows the local process. The page says rules vary and that dates are estimates.
+- **The crowd numbers are rules of thumb, not standards:** density bands of 2, 4 and 5 people per sq m; 82 people per metre of exit per minute over 8 minutes, with a floor of 2 exits at 1.5 m each because the formula alone gives 1 m for 500 people; 1 volunteer per 100, 1 first-aid post per 1,000, 1 toilet per 150. They round up, and the page says they aren't a safety certificate.
