@@ -3,6 +3,7 @@ import type { PlanChange } from "@/lib/graph/types";
 import type { QuoteAnalysis } from "@/lib/rules/quote-analysis";
 import type { CouncilResolution, Stakeholder } from "@/lib/schemas/council";
 import type { LiveState } from "@/lib/schemas/dayof";
+import type { VibeProfile } from "@/lib/schemas/vibe";
 import type { PlanDiff } from "@/lib/schemas/diff";
 import type { CityTier, EventStatus } from "@/lib/schemas/enums";
 import type { OnboardingAnswers, PlannedEvent } from "@/lib/schemas/event";
@@ -37,6 +38,8 @@ export interface StoredEvent extends EventPlan {
   council: CouncilResolution | null;
   /** Day-of Copilot state. Like quotes and ticks, kept outside the plan snapshot. */
   live: LiveState;
+  /** The look from Vibe-to-Plan, or null until one is made. Outside the plan, so Undo leaves it. */
+  vibe: VibeProfile | null;
   createdAt: string;
   updatedAt: string;
 }
