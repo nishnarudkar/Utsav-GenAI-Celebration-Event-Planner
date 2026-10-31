@@ -1,0 +1,11 @@
+{
+  "lines": [
+    { "category": "venue", "label": "Ground or community hall", "functionName": "Festival day", "basis": { "unit": "per_day", "quantity": 1, "unitTier": "low" }, "rationale": "One day of the ground, which is often discounted for residents." },
+    { "category": "catering", "label": "Community meal", "functionName": "Festival day", "basis": { "unit": "per_plate", "quantity": 220, "unitTier": "low" }, "rationale": "A simple meal; not everyone attending stays to eat." },
+    { "category": "decor", "label": "Stage and entrance décor", "functionName": "Festival day", "basis": { "unit": "flat", "quantity": 1, "unitTier": "low" }, "rationale": "A modest stage backdrop and entrance." },
+    { "category": "music", "label": "Sound system and operator", "functionName": "Festival day", "basis": { "unit": "per_hour", "quantity": 6, "unitTier": "low" }, "rationale": "Covers the opening and cultural programme." },
+    { "category": "photography", "label": "Event photographer", "functionName": "Festival day", "basis": { "unit": "per_day", "quantity": 1, "unitTier": "low" }, "rationale": "For the record and for sponsors." },
+    { "category": "invites", "label": "Posters and printed notices", "basis": { "unit": "flat", "quantity": 1, "unitTier": "low" }, "rationale": "Notices around the neighbourhood." },
+    { "category": "misc", "label": "Permissions, first aid and clean-up", "basis": { "unit": "flat", "quantity": 1, "unitTier": "mid" }, "rationale": "Fees, first-aid supplies and waste handling." }
+  ]
+}

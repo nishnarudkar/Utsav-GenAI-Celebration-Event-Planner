@@ -99,6 +99,7 @@ describe("ritual demo fixtures", () => {
     expect(files.sort()).toEqual([
       "emit_ritual_plan.bengali_hindu.wedding.json",
       "emit_ritual_plan.generic.birthday.json",
+      "emit_ritual_plan.generic.community.json",
       "emit_ritual_plan.punjabi_sikh.wedding.json",
       "emit_ritual_plan.tamil_brahmin.wedding.json",
     ]);

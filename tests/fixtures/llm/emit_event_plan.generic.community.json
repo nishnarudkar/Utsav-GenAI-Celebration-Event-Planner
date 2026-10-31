@@ -1,0 +1,49 @@
+{
+  "functions": [
+    {
+      "name": "Set-up and briefing",
+      "ritualKeys": ["volunteer_briefing"],
+      "dayOffset": -1,
+      "startTime": "17:00",
+      "endTime": "20:00",
+      "expectedGuests": 40,
+      "notes": "Volunteers and committee only."
+    },
+    {
+      "name": "Festival day",
+      "ritualKeys": ["community_opening", "cultural_programme", "community_meal", "community_closing"],
+      "dayOffset": 0,
+      "startTime": "11:00",
+      "endTime": "19:00",
+      "expectedGuests": 500
+    },
+    {
+      "name": "Clean-up",
+      "ritualKeys": ["community_cleanup"],
+      "dayOffset": 1,
+      "startTime": "09:00",
+      "endTime": "11:30",
+      "expectedGuests": 30,
+      "notes": "Volunteers and housekeeping staff."
+    }
+  ],
+  "allocation": [
+    { "category": "catering", "percent": 35 },
+    { "category": "decor", "percent": 20 },
+    { "category": "venue", "percent": 15 },
+    { "category": "music", "percent": 12 },
+    { "category": "photography", "percent": 5 },
+    { "category": "invites", "percent": 3 },
+    { "category": "misc", "percent": 10 }
+  ],
+  "highLevelTasks": [
+    { "title": "Form the organising committee and agree the budget", "category": "misc" },
+    { "title": "Apply for permissions", "category": "misc" },
+    { "title": "Book the ground or hall", "category": "venue" },
+    { "title": "Find sponsors", "category": "misc" },
+    { "title": "Book the stage and sound", "category": "music" },
+    { "title": "Arrange food for the community meal", "category": "catering" },
+    { "title": "Recruit volunteers and share the roster", "category": "misc" }
+  ],
+  "rationale": "A briefing the evening before, one festival day and a clean-up keep the load manageable for volunteers. The meal is the largest cost, followed by stage and décor."
+}

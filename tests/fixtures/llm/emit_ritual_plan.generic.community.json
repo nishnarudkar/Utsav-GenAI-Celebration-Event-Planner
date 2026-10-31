@@ -1,0 +1,170 @@
+{
+  "rituals": [
+    {
+      "key": "volunteer_briefing",
+      "name": "Volunteer briefing",
+      "order": 1,
+      "durationMinutes": 60,
+      "participants": [
+        "Organising committee",
+        "volunteers"
+      ],
+      "items": [
+        {
+          "item": "Duty roster"
+        },
+        {
+          "item": "volunteer badges"
+        },
+        {
+          "item": "contact list"
+        },
+        {
+          "item": "site map"
+        },
+        {
+          "item": "first-aid kit"
+        }
+      ],
+      "significance": "Everyone learns their duty, the exits and who to call if something goes wrong."
+    },
+    {
+      "key": "community_opening",
+      "name": "Opening",
+      "order": 2,
+      "durationMinutes": 45,
+      "participants": [
+        "Organising committee",
+        "residents",
+        "invited guests"
+      ],
+      "items": [
+        {
+          "item": "Lamp or ribbon"
+        },
+        {
+          "item": "flowers"
+        },
+        {
+          "item": "microphone"
+        },
+        {
+          "item": "welcome banner"
+        }
+      ],
+      "significance": "The committee welcomes everyone and thanks sponsors and volunteers."
+    },
+    {
+      "key": "cultural_programme",
+      "name": "Cultural programme",
+      "order": 3,
+      "durationMinutes": 180,
+      "participants": [
+        "Residents",
+        "children",
+        "local performers"
+      ],
+      "items": [
+        {
+          "item": "Stage"
+        },
+        {
+          "item": "sound system"
+        },
+        {
+          "item": "running order"
+        },
+        {
+          "item": "seating"
+        },
+        {
+          "item": "participation certificates"
+        }
+      ],
+      "significance": "Neighbours of all ages perform, which is what makes the day feel like everyone's own."
+    },
+    {
+      "key": "community_meal",
+      "name": "Community meal",
+      "order": 4,
+      "durationMinutes": 120,
+      "participants": [
+        "All attendees",
+        "serving volunteers"
+      ],
+      "items": [
+        {
+          "item": "Serving counters"
+        },
+        {
+          "item": "plates"
+        },
+        {
+          "item": "drinking water"
+        },
+        {
+          "item": "separate waste bins"
+        }
+      ],
+      "significance": "Sharing a meal brings people together, whatever their background."
+    },
+    {
+      "key": "community_closing",
+      "name": "Closing",
+      "order": 5,
+      "durationMinutes": 30,
+      "participants": [
+        "Organising committee",
+        "volunteers",
+        "residents"
+      ],
+      "items": [
+        {
+          "item": "Thank-you note"
+        },
+        {
+          "item": "prizes"
+        },
+        {
+          "item": "announcements for the way out"
+        }
+      ],
+      "significance": "The committee thanks everyone and guides the crowd out in an orderly way."
+    },
+    {
+      "key": "community_cleanup",
+      "name": "Clean-up",
+      "order": 6,
+      "durationMinutes": 120,
+      "participants": [
+        "Volunteers",
+        "housekeeping staff"
+      ],
+      "items": [
+        {
+          "item": "Gloves"
+        },
+        {
+          "item": "waste bags"
+        },
+        {
+          "item": "recycling sacks"
+        },
+        {
+          "item": "cleaning supplies"
+        }
+      ],
+      "significance": "The grounds are handed back clean, which keeps neighbours and the local authority on side for next year."
+    }
+  ],
+  "sources": [
+    "kb/rituals/generic-community.md#0",
+    "kb/rituals/generic-community.md#1",
+    "kb/rituals/generic-community.md#2",
+    "kb/rituals/generic-community.md#3",
+    "kb/rituals/generic-community.md#4",
+    "kb/rituals/generic-community.md#5",
+    "kb/rituals/generic-community.md#6"
+  ],
+  "confidence": "high"
+}

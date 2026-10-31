@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "disclaimer": "A starting point, not legal advice. Rules, forms and timelines differ by state and city, so confirm what applies with your ward office and local police station.",
+  "items": [
+    { "id": "site_consent", "title": "Written consent from the society or landowner", "authority": "Society, RWA or landowner", "appliesIf": "Always", "why": "Most other applications ask for proof that you may use the site.", "leadDays": 60 },
+    { "id": "police_permission", "title": "Police permission for the gathering", "authority": "Local police station", "appliesIf": "Always, for a public gathering", "why": "Police need to know the date, crowd size and organisers, and may set conditions.", "leadDays": 30 },
+    { "id": "municipal_permission", "title": "Municipal permission for a pandal or temporary structure", "authority": "Municipal corporation or ward office", "appliesIf": "If you put up a pandal, stage or tent, or use public land", "why": "Temporary structures and use of public land usually need ward-level approval.", "leadDays": 30 },
+    { "id": "fire_noc", "title": "Fire safety NOC or clearance", "authority": "Local fire department", "appliesIf": "If you put up a pandal or tent, or cook on site", "why": "Pandals burn easily. Clearance usually covers exits, extinguishers and cooking away from the structure.", "leadDays": 30 },
+    { "id": "traffic_permission", "title": "Traffic police permission", "authority": "Traffic police", "appliesIf": "If you use a road or hold a procession", "why": "Blocking or diverting a road, or walking a route, needs a plan agreed in advance.", "leadDays": 30 },
+    { "id": "loudspeaker_permission", "title": "Loudspeaker permission", "authority": "Local police station", "appliesIf": "If you use loudspeakers or a sound system", "why": "The Noise Pollution Rules, 2000 require written permission, and generally bar loudspeakers from 10 PM to 6 AM, with limited local exceptions.", "leadDays": 21 },
+    { "id": "temporary_electricity", "title": "Temporary electricity connection", "authority": "Electricity distribution company", "appliesIf": "If you need power beyond the building's supply", "why": "Illegal tapping is a fire and legal risk. Use a licensed electrician.", "leadDays": 21 },
+    { "id": "fireworks_permission", "title": "Permission for fireworks", "authority": "Local police station", "appliesIf": "If you plan fireworks", "why": "Only use licensed sellers. Local bans and court-ordered limits often apply.", "leadDays": 21 },
+    { "id": "immersion_permission", "title": "Immersion site and timing", "authority": "Municipal corporation", "appliesIf": "If an idol will be immersed", "why": "Cities name approved sites and time slots, and many have rules on idol materials.", "leadDays": 14 },
+    { "id": "food_registration", "title": "Food safety registration", "authority": "FSSAI or a registered caterer", "appliesIf": "If you sell or serve food to the public", "why": "A caterer with a valid FSSAI licence is the simplest way to meet this. Ask for a copy.", "leadDays": 14 },
+    { "id": "music_licence", "title": "Licence to play recorded music", "authority": "Music licensing bodies", "appliesIf": "If you play recorded music in public", "why": "Public performance of recorded music can need a copyright licence. Check what applies to your event.", "leadDays": 14 },
+    { "id": "ambulance_arrangement", "title": "Ambulance and nearest hospital arranged", "authority": "Local hospital or ambulance service", "appliesIf": "Recommended for large crowds", "why": "Not usually a permit, but the first thing asked in an emergency.", "leadDays": 7 }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "tasks": [
+    { "ref": "form_committee", "title": "Form the organising committee and agree the budget", "category": "misc", "dueOffsetDays": -75, "dependsOn": [] },
+    { "ref": "book_ground", "title": "Book the ground or hall", "category": "venue", "functionName": "Festival day", "dueOffsetDays": -60, "dependsOn": ["form_committee"] },
+    { "ref": "apply_permissions", "title": "Apply for permissions", "description": "See the permissions checklist on the Community page.", "category": "misc", "dueOffsetDays": -45, "dependsOn": ["book_ground"] },
+    { "ref": "find_sponsors", "title": "Find sponsors", "category": "misc", "dueOffsetDays": -45, "dependsOn": ["form_committee"] },
+    { "ref": "book_sound", "title": "Book the stage and sound", "category": "music", "functionName": "Festival day", "dueOffsetDays": -30, "dependsOn": ["book_ground"] },
+    { "ref": "arrange_food", "title": "Arrange food for the community meal", "category": "catering", "functionName": "Festival day", "dueOffsetDays": -30, "dependsOn": ["book_ground"] },
+    { "ref": "recruit_volunteers", "title": "Recruit volunteers and share the roster", "category": "misc", "dueOffsetDays": -21, "dependsOn": ["form_committee"] },
+    { "ref": "programme_order", "title": "Finalise the programme running order", "category": "music", "functionName": "Festival day", "dueOffsetDays": -14, "dependsOn": ["book_sound"] },
+    { "ref": "put_up_notices", "title": "Put up notices around the neighbourhood", "category": "invites", "dueOffsetDays": -10, "dependsOn": ["programme_order"] },
+    { "ref": "check_safety", "title": "Walk the site and check exits, first aid and fire points", "category": "misc", "functionName": "Set-up and briefing", "dueOffsetDays": -1, "dependsOn": ["recruit_volunteers"] }
+  ]
+}
