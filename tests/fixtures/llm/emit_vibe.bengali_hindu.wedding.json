@@ -1,0 +1,31 @@
+{
+  "theme": "Lal Paar Heritage",
+  "rationale": "Deep red and ivory recall a classic red-bordered saree, and marigold adds warmth. Fresh flowers keep it festive without feeling heavy.",
+  "palette": [
+    { "name": "Sindoor red", "hex": "#B3261E" },
+    { "name": "Ivory", "hex": "#FBF3E4" },
+    { "name": "Marigold", "hex": "#F59E0B" },
+    { "name": "Temple gold", "hex": "#B8860B" },
+    { "name": "Banana leaf", "hex": "#3F6B3A" }
+  ],
+  "keywords": ["heritage", "warm", "floral", "lamp-lit", "graceful"],
+  "decor": [
+    { "item": "Marigold and rajnigandha garlands", "where": "Mandap" },
+    { "item": "Alpona patterns in rice paste", "where": "Entrance" },
+    { "item": "Brass urli bowls with floating flowers", "where": "Welcome table" },
+    { "item": "Red-and-ivory fabric drapes", "where": "Stage backdrop" },
+    { "item": "Clusters of small brass lamps", "where": "Dinner tables" },
+    { "item": "Banana leaf accents", "where": "Food counters" }
+  ],
+  "attire": [
+    "The hosts in ivory with a red or gold border",
+    "Family in deep red, marigold or green",
+    "Guests in any warm festive colour"
+  ],
+  "vendorSearchTerms": [
+    "traditional Bengali wedding decorator Kolkata",
+    "marigold mandap decoration Kolkata",
+    "alpona artist Kolkata",
+    "brass decor rental Kolkata"
+  ]
+}
