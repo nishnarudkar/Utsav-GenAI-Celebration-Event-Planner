@@ -310,3 +310,13 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Delays live in `event.live`, outside the plan.** The agreed schedule, budget and version don't change, and Undo doesn't touch them. There's no undo for a confirmed delay yet.
 - **Mock messaging only.** `MESSAGING_MODE=twilio` isn't built: Utsav doesn't collect vendors' phone numbers, so there's nobody to send to. Messages are addressed by role ("Photographer") and the panel says they weren't delivered.
 - **Demo fixtures match the incident text exactly** (`emit_reshuffle.<culture>.<type>.<slug>`). Any other incident gets a clear 422, rather than a saved answer about a different problem.
+
+## 2026-10-31 — Vibe-to-Plan (F7)
+
+- **`/events/[id]/vibe`, reached from a "Look & feel" card on the overview, not a tab.** Seven tabs don't fit a phone, and this is an occasional page, not one families return to daily.
+- **Photos are optional if there are notes**, up to 5 (PROJECT.md) at 5 MB each, the vision API's limit. They go to the model and aren't kept; only the result is stored, in `event.vibe`, outside the plan.
+- **The AI output doesn't change the plan or budget.** It's inspiration, so it has no prices and adds no budget lines. A new look replaces the old one.
+- **No temperature 0.8.** CLAUDE.md §7.3 asks for it, but current models reject `temperature`, so this runs at the default.
+- **Swatch labels pick black or white in code** (`readableTextOn`), because the model chooses the colours and contrast must still hold.
+- **The prompt tells the model to judge colours and décor, not people** in the photos.
+- **Demo mode says it doesn't read photos.** The saved look is always the same, so the page says so instead of appearing to analyse them. It only exists for the demo wedding; other events get a clear 422.
