@@ -1,0 +1,10 @@
+{
+  "summary": "The priest is running 20 minutes late, so Sampradan and the rituals after it will start later.",
+  "fromSlotId": "sampradan",
+  "delayMinutes": 20,
+  "notify": [
+    { "category": "priest", "reason": "To confirm the new time", "message": "Namaste, no problem about the delay. {slot} will now begin at {new_time}. Please let us know if this affects the muhurat." },
+    { "category": "photography", "reason": "So they stay for the later rituals", "message": "Namaste, {slot} will now begin at {new_time}. Please be ready at the mandap." },
+    { "category": "catering", "reason": "Dinner service may need to move", "message": "Namaste, the rituals are running a little late, with {slot} now at {new_time}. Please keep the dinner service flexible." }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "summary": "The photographer is running 30 minutes late, so the Biye will start later to make sure Bor Boron is captured.",
+  "fromSlotId": "bor_boron",
+  "delayMinutes": 30,
+  "notify": [
+    { "category": "photography", "reason": "So they know the new start time", "message": "Namaste, no problem about the delay. {slot} will now begin at {new_time}. Please come straight to the mandap when you arrive." },
+    { "category": "priest", "reason": "The ceremony is starting later", "message": "Namaste, we are waiting for our photographer, so {slot} will now begin at {new_time}. Please let us know if this affects the muhurat." },
+    { "category": "catering", "reason": "Dinner service may need to move", "message": "Namaste, the ceremony is starting a little later, with {slot} now at {new_time}. Please hold the dinner service until the rituals allow for it." },
+    { "category": "music", "reason": "The welcome music needs to run longer", "message": "Namaste, {slot} will now begin at {new_time}. Please keep the music going until then." }
+  ]
+}
