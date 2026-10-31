@@ -116,3 +116,28 @@ test("a look can be made from a sample or a photo, and shows on the overview", a
   await page.getByRole("link", { name: "Overview" }).click();
   await expect(page.getByRole("link", { name: /Look & feel/ })).toContainText("Lal Paar Heritage");
 });
+
+test("a community event gets a saved permissions checklist and crowd numbers", async ({ page }) => {
+  await page.goto("/new");
+  await page.getByRole("button", { name: "Community event" }).click();
+  await page.getByRole("button", { name: "No specific tradition" }).click();
+  await page.getByRole("button", { name: "Pune" }).click();
+  await page.getByLabel("Main day").fill("2027-01-26");
+  await page.getByRole("button", { name: "Send answer" }).click();
+  await page.getByRole("button", { name: "500", exact: true }).click();
+  await page.getByRole("button", { name: "₹5L", exact: true }).click();
+  await page.waitForURL(/\/events\/[0-9a-f-]{36}$/);
+
+  await page.getByRole("link", { name: /Community tools/ }).click();
+  await expect(page.getByLabel("Most people at once")).toHaveValue("500");
+  await page.getByLabel("Open space (sq m)").fill("100");
+  await expect(page.getByText("Too crowded")).toBeVisible();
+
+  const permit = page.getByRole("checkbox", { name: /Fire safety NOC/ });
+  const saved = page.waitForResponse((r) => r.url().endsWith("/permits") && r.ok());
+  await permit.check();
+  await saved;
+  await expect(page.getByText("1 of 12 sorted.")).toBeVisible();
+  await page.reload();
+  await expect(permit).toBeChecked();
+});
