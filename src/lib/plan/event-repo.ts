@@ -40,6 +40,8 @@ export interface EventRepository {
   setLiveProposal(id: string, proposal: LiveProposal): Promise<void>;
   /** Apply a confirmed proposal: move the slots, log the incident, record the messages. */
   applyLive(id: string, proposal: LiveProposal, notifications: LiveNotification[]): Promise<StoredEvent | null>;
+  /** Tick or untick a permission. Returns the updated list, or null if the event doesn't exist. */
+  setPermitDone(id: string, permitId: string, done: boolean): Promise<string[] | null>;
   /** Store the look from Vibe-to-Plan, replacing any earlier one. */
   setVibe(id: string, vibe: VibeProfile): Promise<void>;
   /** Change log, newest first. */
@@ -78,6 +80,7 @@ export class MemoryEventRepository implements EventRepository {
       council: null,
       live: { shifts: {}, proposal: null, incidents: [], notifications: [] },
       vibe: null,
+      permitsDone: [],
       createdAt: ts,
       updatedAt: ts,
     };
@@ -168,6 +171,17 @@ export class MemoryEventRepository implements EventRepository {
   async setChosenOption(id: string, optionId: string | null): Promise<void> {
     const event = this.store.events.get(id);
     if (event?.council) event.council.chosenOptionId = optionId;
+  }
+
+  async setPermitDone(id: string, permitId: string, done: boolean): Promise<string[] | null> {
+    const event = this.store.events.get(id);
+    if (!event) return null;
+    const permits = new Set(event.permitsDone);
+    if (done) permits.add(permitId);
+    else permits.delete(permitId);
+    event.permitsDone = [...permits].sort();
+    event.updatedAt = this.now().toISOString();
+    return [...event.permitsDone];
   }
 
   async setVibe(id: string, vibe: VibeProfile): Promise<void> {

@@ -40,6 +40,8 @@ export interface StoredEvent extends EventPlan {
   live: LiveState;
   /** The look from Vibe-to-Plan, or null until one is made. Outside the plan, so Undo leaves it. */
   vibe: VibeProfile | null;
+  /** Ids of the community permissions the organisers have ticked off. */
+  permitsDone: string[];
   createdAt: string;
   updatedAt: string;
 }
