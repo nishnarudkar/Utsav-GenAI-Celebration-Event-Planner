@@ -37,6 +37,9 @@ export interface CrowdEstimate {
   exitShortfallM?: number;
 }
 
+/** The largest number of people expected at any one function. */
+export const peakCrowdOf = (functions: readonly { expectedGuests: number }[]) => Math.max(...functions.map((f) => f.expectedGuests));
+
 function densityLevel(perSqM: number): CrowdLevel {
   if (perSqM >= DENSITY.unsafe) return "unsafe";
   if (perSqM >= DENSITY.crowded) return "crowded";

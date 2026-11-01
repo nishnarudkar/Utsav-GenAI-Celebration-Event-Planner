@@ -1,6 +1,7 @@
 import type { PricedBudget } from "@/lib/ai/agents/budget";
 import type { PlanChange } from "@/lib/graph/types";
 import type { QuoteAnalysis } from "@/lib/rules/quote-analysis";
+import type { SavedSponsorship, Volunteer } from "@/lib/schemas/community";
 import type { CouncilResolution, Stakeholder } from "@/lib/schemas/council";
 import type { LiveState } from "@/lib/schemas/dayof";
 import type { VibeProfile } from "@/lib/schemas/vibe";
@@ -42,6 +43,10 @@ export interface StoredEvent extends EventPlan {
   vibe: VibeProfile | null;
   /** Ids of the community permissions the organisers have ticked off. */
   permitsDone: string[];
+  /** Community volunteers, one entry per shift. */
+  volunteers: Volunteer[];
+  /** The latest sponsorship pitch's inputs and wording, or null until one is made. */
+  sponsorship: SavedSponsorship | null;
   createdAt: string;
   updatedAt: string;
 }
