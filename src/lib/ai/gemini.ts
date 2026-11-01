@@ -71,6 +71,7 @@ export interface GeminiRequest {
   schema: z.ZodType;
   maxOutputTokens: number;
   effort?: "low" | "medium" | "high";
+  timeoutMs?: number;
 }
 
 export interface GeminiReply {
@@ -130,7 +131,7 @@ export async function generateGemini(req: GeminiRequest, deps: GeminiDeps): Prom
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": deps.apiKey },
         body,
-        signal: AbortSignal.timeout(TIMEOUT_MS),
+        signal: AbortSignal.timeout(req.timeoutMs ?? TIMEOUT_MS),
       });
       if (res.ok) return replyFrom(req.outputName, (await res.json()) as Interaction);
       const detail = await errorDetail(res);

@@ -130,6 +130,14 @@ describe("generateGemini", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it("uses a shorter timeout when a person is waiting", async () => {
+    const timeout = vi.spyOn(AbortSignal, "timeout");
+    const { deps } = makeDeps(interaction("{}"));
+    await generateGemini({ ...request, timeoutMs: 45_000 }, deps);
+    expect(timeout).toHaveBeenCalledWith(45_000);
+    timeout.mockRestore();
+  });
+
   it("doesn't retry a request Google rejected", async () => {
     const { deps, fetchMock } = makeDeps(Response.json({ error: { message: "API key not valid" } }, { status: 403 }));
     await expect(generateGemini(request, deps)).rejects.toThrow(/HTTP 403.*API key not valid/);

@@ -35,6 +35,8 @@ export interface CallStructuredOptions<T extends z.ZodType> {
   model?: ModelTier; // default "smart"
   maxTokens?: number; // default 16000 (thinking tokens count against it)
   effort?: "low" | "medium" | "high";
+  /** Give up sooner than the provider's default, for calls someone is waiting on. Gemini only. */
+  timeoutMs?: number;
   /** Pick a variant fixture in demo mode, e.g. "emit_event_plan.bengali". Defaults to `name`. */
   fixtureKey?: string;
 }
@@ -119,6 +121,7 @@ function geminiSender<T extends z.ZodType>(opts: CallStructuredOptions<T>, deps:
       schema: opts.schema,
       maxOutputTokens: opts.maxTokens ?? DEFAULT_MAX_TOKENS,
       ...(opts.effort ? { effort: opts.effort } : {}),
+      ...(opts.timeoutMs ? { timeoutMs: opts.timeoutMs } : {}),
     });
 }
 
