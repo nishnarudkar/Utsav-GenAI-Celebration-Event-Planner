@@ -109,6 +109,52 @@ export function resolveBudgetLines<T extends ProposedLine>(
   return { lines, unpriced };
 }
 
+const TIER_BELOW: Record<PriceTier, PriceTier | null> = { high: "mid", mid: "low", low: null };
+
+export interface TierStep<T> {
+  line: T;
+  from: PriceTier;
+  to: PriceTier;
+}
+
+/**
+ * Bring proposed lines within a budget by moving them down price tiers. The model can't total its
+ * own choices, so a fresh plan can overshoot. Each step is the smallest that clears what's left of
+ * the overage, or failing that the biggest available. Stops at all-low, so a budget that can't
+ * be met stays over and is flagged as a conflict rather than hidden. Quantities never change.
+ */
+export function fitTiersToBudget<T extends ProposedLine>(
+  proposals: readonly T[],
+  index: BenchmarkIndex,
+  cityTier: CityTier,
+  budgetPaise: number,
+): { lines: T[]; steps: TierStep<T>[] } {
+  const lines = [...proposals];
+  const steps: TierStep<T>[] = [];
+  const estimate = (p: ProposedLine, tier: PriceTier) => {
+    const unit = unitPricePaise(index, { category: p.category, unit: p.basis.unit, cityTier, tier });
+    return unit === null ? null : lineEstimatePaise(p.basis.quantity, unit);
+  };
+
+  let over = sumPaise(lines.map((l) => estimate(l, l.basis.unitTier) ?? 0)) - budgetPaise;
+  while (over > 0) {
+    const options = lines.flatMap((line, i) => {
+      const to = TIER_BELOW[line.basis.unitTier];
+      const now = estimate(line, line.basis.unitTier);
+      const next = to && estimate(line, to);
+      return to && now !== null && typeof next === "number" && next < now ? [{ i, line, to, saves: now - next }] : [];
+    });
+    const enough = options.filter((o) => o.saves >= over).sort((a, b) => a.saves - b.saves)[0];
+    const step = enough ?? [...options].sort((a, b) => b.saves - a.saves)[0];
+    if (!step) break;
+
+    lines[step.i] = { ...step.line, basis: { ...step.line.basis, unitTier: step.to } };
+    steps.push({ line: step.line, from: step.line.basis.unitTier, to: step.to });
+    over -= step.saves;
+  }
+  return { lines, steps };
+}
+
 // ---------- allocation ----------
 
 /**

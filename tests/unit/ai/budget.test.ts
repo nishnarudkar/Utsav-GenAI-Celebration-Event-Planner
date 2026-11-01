@@ -75,13 +75,29 @@ describe("priceBudgetProposal", () => {
     expect(out.adjustments).toEqual([]);
   });
 
-  it("reports how far over budget", () => {
+  it("steps a price tier down to fit the budget, and says so", () => {
     const out = priceBudgetProposal(
-      { lines: [line({ category: "catering", functionName: "Biye", basis: { unit: "per_plate", quantity: 500, unitTier: "high" } })] },
+      { lines: [line({ category: "catering", label: "Biye dinner", functionName: "Biye", basis: { unit: "per_plate", quantity: 500, unitTier: "high" } })] },
       { ...INPUT, answers: { ...ANSWERS, budgetTotalPaise: rupees(10_00_000) } },
     );
-    expect(out.totalEstimatePaise).toBe(rupees(14_00_000)); // 500 × ₹2,800
-    expect(out.overBudgetPaise).toBe(rupees(4_00_000));
+    expect(out.lines[0]?.basis).toMatchObject({ unitTier: "mid", quantity: 500 });
+    expect(out.overBudgetPaise).toBe(0);
+    expect(out.adjustments).toContain('"Biye dinner": moved from high to mid price to fit the budget.');
+  });
+
+  it("reports how far over budget when even the lowest prices don't fit", () => {
+    const out = priceBudgetProposal(
+      { lines: [line({ category: "catering", functionName: "Biye", basis: { unit: "per_plate", quantity: 500, unitTier: "high" } })] },
+      { ...INPUT, answers: { ...ANSWERS, budgetTotalPaise: rupees(1_00_000) } },
+    );
+    expect(out.lines[0]?.basis.unitTier).toBe("low");
+    expect(out.overBudgetPaise).toBe(out.totalEstimatePaise - rupees(1_00_000));
+    expect(out.overBudgetPaise).toBeGreaterThan(0);
+  });
+
+  it("leaves choices alone when the family asked for an estimate", () => {
+    const out = priceBudgetProposal({ lines: [line({ category: "catering", functionName: "Biye", basis: { unit: "per_plate", quantity: 500, unitTier: "high" } })] }, { ...INPUT, answers: { ...ANSWERS, budgetTotalPaise: null } });
+    expect(out.lines[0]?.basis.unitTier).toBe("high");
   });
 
   it("uses the priced total as the budget when the family asked for an estimate", () => {

@@ -51,7 +51,7 @@ describe("POST /api/events", () => {
     };
     expect(event.budget.lines).toHaveLength(8);
     expect(event.budget.unpriced).toEqual([]);
-    expect(event.budget.adjustments).toEqual([]);
+    expect(event.budget.adjustments).toEqual(['"Birthday dinner": moved from mid to low price to fit the budget.']);
     expect(event.timeline.tasks.length).toBeGreaterThanOrEqual(20);
     expect(event.timeline.adjustments.filter((a) => !a.includes("ideally due"))).toEqual([]);
   });
