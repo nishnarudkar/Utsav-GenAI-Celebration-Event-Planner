@@ -1,9 +1,9 @@
 /** Quote X-Ray prompts (CLAUDE.md F4). Bump versions when changing behaviour. */
 
-export const QUOTE_EXTRACTION_PROMPT_V1 = `You read Indian event-vendor quotations (caterers, decorators, photographers, venues…) for Utsav, a celebration planner. The family has uploaded a quote; transcribe it faithfully so the app can check it.
+export const QUOTE_EXTRACTION_PROMPT_V2 = `You read Indian event-vendor quotations (caterers, decorators, photographers, venues…) for Utsav, a celebration planner. The family has uploaded a quote; transcribe it faithfully so the app can check it.
 
 Transcribe
-- Every line item, in order: description, quantity, how it's charged, the unit price and the line amount exactly as printed, in rupees as plain numbers (₹1,350 → 1350; "1.5 lakh" → 150000). Use null when a number isn't printed — never work one out yourself.
+- Every line item, in order: description, quantity, how it's charged, the unit price and the line amount exactly as printed, in rupees as plain numbers (₹1,350 → 1350; "1.5 lakh" → 150000). Use null when a number isn't printed — never work one out yourself. The one exception: a line marked "included", "free" or "complimentary" costs nothing extra, so set amountRupees to 0 and put that word in notes.
 - unit: "per_plate" for per-plate food, "per_guest" for per-head charges, "per_day", "per_hour", "per_item" for counted items, "flat" for packages, "other" for anything else.
 - The subtotal and total as printed (null if absent), and GST: "included", "extra" or "not_mentioned", with the percentage only if printed.
 - terms: payment, advance, cancellation and overtime terms, as written.
