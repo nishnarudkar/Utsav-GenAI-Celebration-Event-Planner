@@ -1,5 +1,5 @@
 import "server-only";
-import { SPONSORSHIP_PROMPT_V1 } from "@/lib/ai/prompts/sponsorship";
+import { SPONSORSHIP_PROMPT_V2 } from "@/lib/ai/prompts/sponsorship";
 import { callStructured, type CallStructuredOptions } from "@/lib/ai/structured";
 import type { EventPlan } from "@/lib/plan/types";
 import { SponsorshipWords, type SponsorshipInput } from "@/lib/schemas/community";
@@ -24,7 +24,7 @@ export async function generateSponsorshipWords(state: EventPlan, input: Sponsors
     name: "emit_sponsorship",
     fixtureKey: "emit_sponsorship.community",
     model: "fast",
-    system: SPONSORSHIP_PROMPT_V1,
+    system: SPONSORSHIP_PROMPT_V2,
     messages: [{ role: "user", content: context }],
   });
 }
