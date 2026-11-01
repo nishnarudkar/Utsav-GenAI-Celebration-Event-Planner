@@ -15,6 +15,20 @@
       "when": 1793202609870,
       "tag": "0001_initial_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793549194808,
+      "tag": "0002_store_event_state",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793549195857,
+      "tag": "0003_enable_row_level_security",
+      "breakpoints": true
     }
   ]
 }

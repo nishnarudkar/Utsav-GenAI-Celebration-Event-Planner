@@ -88,6 +88,8 @@ export const events = pgTable(
     status: eventStatusEnum("status").notNull().default("draft"),
     /** Incremented on every cascade; plan_changes rows are keyed by it. */
     version: integer("version").notNull().default(1),
+    /** The whole StoredEvent. The columns above are copies of it, kept for querying. */
+    stateJson: jsonb("state_json").notNull(),
     ...timestamps(),
   },
   (t) => [
@@ -257,6 +259,9 @@ export const planChanges = pgTable(
     triggerJson: jsonb("trigger_json").notNull(),
     diffJson: jsonb("diff_json").notNull(),
     explanation: text("explanation"),
+    /** The plan before this change; Undo restores it exactly. */
+    beforeJson: jsonb("before_json").notNull(),
+    undone: boolean("undone").notNull().default(false),
     ...timestamps(),
   },
   (t) => [unique("plan_changes_event_version_uq").on(t.eventId, t.version)],
