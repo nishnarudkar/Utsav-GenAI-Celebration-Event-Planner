@@ -355,6 +355,30 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Free-tier privacy:** Google's terms say unpaid API content may be used to improve its products and may be read by human reviewers, and advise against sending sensitive or personal data. Families' names, preferences and quote photos would go to it, so real users need a paid (billed) project or another provider first.
 - **First real plan (`--plan`, 1 Nov 2026):** 14 rituals, high confidence, 109 seconds, nothing unpriced, but ₹1.75L over the ₹15L budget. Saved sample plans stay within budget, so fixtures had hidden this (fixed below).
 
+## 2026-11-01 — Public deployment
+
+- **The hackathon needs a public link, so "Try the demo wedding" must work for any judge at any time.** `/api/demo` runs inside `withSavedAnswers`, which serves fixtures through `AsyncLocalStorage` for that request only. The event is saved in Postgres like any other. `DEMO_MODE=true` couldn't be used for this: it keeps events in memory, and on serverless the next request can reach an instance that has never seen them.
+- **`AI_FALLBACK=saved` answers from a fixture when the provider fails**, where one exists. Without it, an empty daily allowance would stop the demo script at Family Council. It applies to provider failures only, never to a reply that failed validation. If no fixture exists, the original error is kept, so the message stays accurate.
+- **The public deployment uses `gemini-3.5-flash-lite` for the smart tier.** `gemini-3.6-flash` gives richer answers but allows 20 requests a day, about 5 plans, and is slower. For judges, reliable and fast beats richer but possibly unavailable. It's one environment variable to change. This was a judgement call, not a measurement of the lite model's own limits, which weren't reached.
+- **`GET /api/events` is removed.** The UI never used it, and it listed every family's event to anyone. `repo.list()` stays for scripts.
+- **Routes that spend AI quota are limited to 12 requests per client per 10 minutes** in middleware, so a script can't drain the allowance. Each serverless instance counts separately, so this limits casual abuse and isn't an exact global cap. Demo mode skips it. The cascade isn't limited: it mostly runs code, and its explanation falls back to plain text.
+- **Uploads stop at 4 MB** because Vercel refuses bodies over 4.5 MB with its own error page. Vibe's limit is 4 MB in total, since all photos travel in one request.
+- **`vercel.json` pins the Mumbai region (`bom1`)**, beside the Supabase database. Vercel's default is the US, which would add a slow round trip to every query in a transaction.
+- **Runtime files are listed in `outputFileTracingIncludes`**, because the knowledge base, fixtures, sample quote and PDF fonts are read from disk, which Next's tracing can't always see.
+- **Security headers** are set in `next.config.ts`. There's no Content-Security-Policy yet, because Next's inline scripts need a nonce setup that isn't worth the risk this close to submission.
+- **`.env.example` is a template with no real values.** The README's Supabase key rows are gone: the app talks to Postgres directly, so the service role key isn't needed on Vercel, and leaving it out reduces what a leak could expose.
+
+## 2026-11-01 — Saving events in Postgres
+
+- **One row per event, holding the whole `StoredEvent` in `events.state_json`.** The other `events` columns are copies, kept for querying. This departs from CLAUDE.md §6: the app reads and writes whole events, so mapping each change across 12 tables would add a lot of code and risk with no benefit yet. The tables for tasks, budget items and so on stay in the schema but are unused.
+- **`PostgresEventRepository` reuses `MemoryEventRepository`'s logic.** Each operation locks the row (`SELECT … FOR UPDATE`) in a transaction, runs the memory logic on that one event, and saves the result, so the two stores can't behave differently and concurrent edits queue up. `plan_changes` gained `before_json` and `undone`, which Undo needs.
+- **Row Level Security is on for every table, with no policies** (`drizzle/0003`). Supabase exposes the public schema over REST, and the anon key is public by design, so without this anyone with the key could read family data. The app connects as the database owner, which bypasses RLS, so only the server sees data. There's no per-user access: anyone with an event's link can open and edit it, because auth is out of scope (§14).
+- **`DEMO_MODE=true` always uses memory**, even with DATABASE_URL set, so offline demos and Playwright never write to the real database. It does mean demo events vanish on restart, as before.
+- **The session pooler (port 5432) for local use.** `getDb` requires SSL. Vercel will need the transaction pooler (port 6543), which `prepare: false` already supports.
+- **`pnpm db:check`** runs each kind of change against the real database, and confirms the public API sees nothing while a real row exists, using no AI quota. Unit tests stay offline, so the repository's SQL is covered by this script, not by `pnpm test`. It leaves no rows behind.
+- **JSONB is only shape-checked on read.** A full Zod schema for `StoredEvent` would be large, and only this app writes the column.
+- **Saved events have no schema versioning.** Changing the shape of `StoredEvent` later needs a data migration or a tolerant read.
+
 ## 2026-11-01 — Fixes from the first real AI replies
 
 Fixtures are tidy, so these only showed up with a live model. `pnpm ai:check --features` now runs every AI feature on made-up events.
