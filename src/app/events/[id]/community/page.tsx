@@ -3,9 +3,13 @@ import { notFound } from "next/navigation";
 import { CrowdEstimator } from "@/components/plan/CrowdEstimator";
 import { EventHeader } from "@/components/plan/EventHeader";
 import { PermitChecklist } from "@/components/plan/PermitChecklist";
+import { SponsorshipPitch } from "@/components/plan/SponsorshipPitch";
+import { VolunteerRoster } from "@/components/plan/VolunteerRoster";
 import { getPermits, permitRows } from "@/lib/kb/permits";
 import { getEventRepository } from "@/lib/plan/event-repo";
+import { peakCrowdOf } from "@/lib/rules/crowd";
 import { toISTDate } from "@/lib/rules/dates";
+import { pitchFor } from "@/lib/rules/sponsorship";
 
 export const dynamic = "force-dynamic";
 
@@ -22,13 +26,19 @@ export default async function CommunityPage({ params }: Props) {
   if (!event || event.answers.eventType !== "community") notFound();
 
   const { items, disclaimer } = getPermits();
-  const peakCrowd = Math.max(...event.plan.functions.map((f) => f.expectedGuests));
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
       <EventHeader event={event} active={null} />
-      <CrowdEstimator peakCrowd={peakCrowd} />
+      <CrowdEstimator peakCrowd={peakCrowdOf(event.plan.functions)} />
       <PermitChecklist eventId={event.id} rows={permitRows(items, event.answers.startDate, toISTDate(new Date()), event.permitsDone)} disclaimer={disclaimer} />
+      <VolunteerRoster eventId={event.id} title={event.title} functions={event.plan.functions} volunteers={event.volunteers} />
+      <SponsorshipPitch
+        eventId={event.id}
+        saved={event.sponsorship?.input ?? null}
+        pitch={event.sponsorship ? pitchFor(event, event.sponsorship) : null}
+        demoMode={process.env.DEMO_MODE === "true"}
+      />
     </main>
   );
 }
