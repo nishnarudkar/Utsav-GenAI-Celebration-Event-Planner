@@ -3,7 +3,7 @@ import { AIFixtureMissingError } from "@/lib/ai/errors";
 import { apiError, errorResponse, invalidInput, readJson } from "@/lib/api/errors";
 import { getEventRepository } from "@/lib/plan/event-repo";
 import { confirmReshuffle, proposeReshuffle } from "@/lib/plan/live-service";
-import { toISTDate } from "@/lib/rules/dates";
+import { toISTDate, toISTMinutes } from "@/lib/rules/dates";
 import { IncidentInput } from "@/lib/schemas/dayof";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +29,8 @@ export async function POST(req: Request, ctx: Ctx): Promise<Response> {
       if (outcome.kind === "stale") return apiError(409, "VERSION_CONFLICT", "That update is no longer current. Report the problem again to get a fresh one.");
       return Response.json({ live: outcome.event.live });
     }
-    const proposal = await proposeReshuffle(repo, id, parsed.data.incident, { today: toISTDate(new Date()) });
+    const now = new Date();
+    const proposal = await proposeReshuffle(repo, id, parsed.data.incident, { today: toISTDate(now), nowMinutes: toISTMinutes(now) });
     if (!proposal) return apiError(404, "NOT_FOUND", NOT_FOUND);
     return Response.json({ proposal });
   } catch (err) {

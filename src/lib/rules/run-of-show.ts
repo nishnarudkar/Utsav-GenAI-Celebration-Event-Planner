@@ -56,6 +56,12 @@ export function buildRunOfShow(
   });
 }
 
+/** Slots not yet finished at `nowMin`, so a delay can't move what's already happened. All of them if the day is over. */
+export function upcomingSlots(slots: readonly RunSlot[], nowMin: number): readonly RunSlot[] {
+  const upcoming = slots.filter((s) => s.endMin > nowMin);
+  return upcoming.length > 0 ? upcoming : slots;
+}
+
 /**
  * Minutes each slot moves when `fromId` starts `minutes` late. Everything after it in the same
  * function moves too. A later function moves only as far as the delay actually reaches it, so

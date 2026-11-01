@@ -36,6 +36,12 @@ export function toISTDate(instant: Date): ISODate {
   return fromUTCMidnight(instant.getTime() + IST_OFFSET_MS);
 }
 
+/** Minutes since midnight IST for an instant. */
+export function toISTMinutes(instant: Date): number {
+  const ist = new Date(instant.getTime() + IST_OFFSET_MS);
+  return ist.getUTCHours() * 60 + ist.getUTCMinutes();
+}
+
 export function addDays(date: ISODate, days: number): ISODate {
   if (!Number.isInteger(days)) throw new RangeError(`days must be an integer, got ${days}`);
   return fromUTCMidnight(toUTCMidnight(date) + days * MS_PER_DAY);

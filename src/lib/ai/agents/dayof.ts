@@ -1,6 +1,6 @@
 import "server-only";
 import { AIValidationError } from "@/lib/ai/errors";
-import { DAYOF_PROMPT_V1 } from "@/lib/ai/prompts/dayof";
+import { DAYOF_PROMPT_V2 } from "@/lib/ai/prompts/dayof";
 import { callStructured, type CallStructuredOptions } from "@/lib/ai/structured";
 import type { EventPlan } from "@/lib/plan/types";
 import { applyDelay, overruns, slotTime, type RunSlot } from "@/lib/rules/run-of-show";
@@ -93,7 +93,7 @@ export async function planReshuffle(state: EventPlan, slots: readonly RunSlot[],
     name: "emit_reshuffle",
     fixtureKey: `emit_reshuffle.${state.answers.culture}.${state.answers.eventType}.${incidentSlug(incident)}`,
     model: "smart",
-    system: DAYOF_PROMPT_V1,
+    system: DAYOF_PROMPT_V2,
     messages: [{ role: "user", content: userMessage(state, slots, incident) }],
   });
   return finalizeReshuffle(draft, state, slots, incident, id);
