@@ -9,7 +9,10 @@
       "esbuild",
       "unrs-resolver",
       "sharp"
-    ]
+    ],
+    "overrides": {
+      "postcss": "^8.5.23"
+    }
   },
   "scripts": {
     "dev": "next dev",
@@ -24,7 +27,6 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/seed.ts",
     "db:check": "tsx --env-file=.env.local --conditions=react-server scripts/check-db.ts",
-    "kb:embed": "tsx scripts/embed-kb.ts",
     "fixtures:rituals": "tsx scripts/gen-ritual-fixtures.ts",
     "ai:check": "tsx --env-file=.env.local --conditions=react-server scripts/check-ai.ts"
   },

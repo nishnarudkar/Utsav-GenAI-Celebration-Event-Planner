@@ -117,6 +117,28 @@ test("a look can be made from a sample or a photo, and shows on the overview", a
   await expect(page.getByRole("link", { name: /Look & feel/ })).toContainText("Lal Paar Heritage");
 });
 
+test("the assistant answers from the plan and proposes a change that waits for confirmation", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try the demo wedding" }).click();
+  await page.waitForURL(/\/events\/[0-9a-f-]{36}$/);
+
+  await page.getByRole("button", { name: "How much budget is left?" }).click();
+  await expect(page.getByRole("log", { name: "Conversation" })).toContainText(/₹[\d,]+ left/);
+
+  const question = page.getByLabel("Ask Utsav about your plan");
+  await question.fill("Mom wants 100 more guests");
+  await question.press("Enter");
+  await expect(page.getByText("Guests: 250 → 350")).toBeVisible();
+  await expect(page.getByLabel("Guest count")).toHaveValue("250"); // nothing moves until confirmed
+
+  await page.getByRole("button", { name: "Yes, change it" }).click();
+  await expect(page.getByText("What changed")).toBeVisible();
+  await expect(page.getByLabel("Guest count")).toHaveValue("350");
+
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByLabel("Guest count")).toHaveValue("250");
+});
+
 test("a community event gets a saved permissions checklist and crowd numbers", async ({ page }) => {
   await page.goto("/new");
   await page.getByRole("button", { name: "Community event" }).click();

@@ -22,6 +22,14 @@ Click **Plan a celebration** and answer: Wedding, Bengali Hindu, Kolkata, 14 Feb
 
 Then go back to the home page and click **Try the demo wedding**. It's the same wedding with a family, a booked 300-seat hall and a quote already added. Continue on this copy, because the chat-built event has no hall size and won't show the venue conflict.
 
+## 1b. Ask Utsav (20 seconds)
+
+On the demo wedding's Overview, press **How much budget is left?**, then type **Mom wants 100 more guests** or press that suggestion. Show the proposal, "Guests: 250 → 350", and that nothing has moved yet. Then press **Yes, change it**.
+
+**Say:** "It understands plain English, but it can't touch the plan on its own, and it never does the maths. Code works out 350, and the family confirms it."
+
+This replaces the guest count edit in step 3, so skip typing 350 there.
+
 ## 2. Rituals with sources (20 seconds)
 
 Open **Timeline**. Show the ritual cards from Aashirbaad to Bou Bhaat, the item checklists, and the source under a card.

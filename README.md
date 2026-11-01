@@ -12,7 +12,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)
 ![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E)
 ![Gemini](https://img.shields.io/badge/AI-Gemini-4285F4)
-![Tests](https://img.shields.io/badge/tests-533%20unit%20%2B%206%20e2e-brightgreen)
+![Tests](https://img.shields.io/badge/tests-570%2B%20unit%20%2B%207%20e2e-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 </div>
@@ -51,6 +51,7 @@ Three principles shape the design:
 
 | Agent | Job | Who does the maths |
 |---|---|---|
+| Assistant | Works out what a message wants: change, answer or tool | Code works out the new value and fills in every figure |
 | Culture | Ritual sequence and items, cited from the knowledge base | n/a |
 | Planner | Functions, timing and budget split | Code resolves dates |
 | Budget | Line items with quantity and price tier | Code prices them and fits them to the budget |
@@ -66,6 +67,7 @@ Three principles shape the design:
 | Feature | What it does |
 |---|---|
 | Conversational onboarding | Six quick questions become a full plan |
+| Ask Utsav assistant | Type a question or a change in plain English. It answers from your plan, proposes changes to confirm, or sends you to the right tool |
 | Cascade engine | Every change shows a diff, conflicts and recovery options, with Undo |
 | Ritual engine | Ritual order, item checklists and source citations |
 | Quote X-Ray | Upload a quote to find hidden costs and get a negotiation message |
@@ -80,10 +82,11 @@ Three principles shape the design:
 
 Open the live app and press **Try the demo wedding**. It uses saved answers, so it always works and costs no AI quota. Then:
 
-1. Open **Timeline** to see the ritual sequence with sources.
-2. On **Overview**, change the guest count to 350. The venue conflict, budget overrun and recovery options appear.
-3. Open **Family** and choose a compromise. The plan updates.
-4. Open **Vendors** to see the hidden charges in a sample quote.
+1. In **Ask Utsav** on the Overview, press **Mom wants 100 more guests**, then confirm. Or type your own question.
+2. Open **Timeline** to see the ritual sequence with sources.
+3. Back on **Overview**, the venue conflict, budget overrun and recovery options show what 350 guests would do.
+4. Open **Family** and choose a compromise. The plan updates.
+5. Open **Vendors** to see the hidden charges in a sample quote.
 
 The full walkthrough is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 
@@ -112,7 +115,7 @@ TypeScript strict mode with no `any`. Route handlers stay thin, agents never tou
 - Security headers are set on every response, and errors never expose internal details.
 - User text and text inside uploaded images are treated as data. Prompts tell the model not to follow instructions found in them.
 - Uploaded photos and quotes aren't stored.
-- Messages to vendors go out only after a person confirms them.
+- Plan changes from the assistant and messages to vendors happen only after a person confirms them.
 
 ### Efficiency
 
@@ -120,18 +123,18 @@ Only the affected parts of a plan are recalculated, and most changes need no hea
 
 ### Testing
 
-533 unit tests and 6 browser tests. Tests never call a real AI service: replies come from fixtures in `tests/fixtures/llm/`. Two more scripts test the real services, using made-up data:
+Over 570 unit tests and 7 browser tests. Tests never call a real AI service: replies come from fixtures in `tests/fixtures/llm/`. Two more scripts test the real services, using made-up data:
 
 ```bash
 pnpm test         # unit tests
 pnpm test:e2e     # browser tests at phone size, in demo mode
-pnpm ai:check     # real AI connection; add --plan or --features for more (uses quota)
+pnpm ai:check     # real AI connection; add --plan, --assistant or --features (uses quota)
 pnpm db:check     # real database, including the Row Level Security check
 ```
 
 ### Accessibility
 
-Designed for a 375px phone screen. Inputs have labels, status changes are announced, and the diff uses +/− signs so colour never carries meaning alone.
+Designed for a 375px phone screen. An axe-core scan of 14 page states at that size, against WCAG 2.2 AA and best-practice rules, found no violations. Inputs have labels, status changes are announced, a skip link leads to the main content, animation respects reduced-motion settings, and the diff uses +/− signs so colour never carries meaning alone.
 
 ### Responsible AI
 

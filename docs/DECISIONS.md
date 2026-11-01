@@ -355,13 +355,37 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Free-tier privacy:** Google's terms say unpaid API content may be used to improve its products and may be read by human reviewers, and advise against sending sensitive or personal data. Families' names, preferences and quote photos would go to it, so real users need a paid (billed) project or another provider first.
 - **First real plan (`--plan`, 1 Nov 2026):** 14 rituals, high confidence, 109 seconds, nothing unpriced, but ₹1.75L over the ₹15L budget. Saved sample plans stay within budget, so fixtures had hidden this (fixed below).
 
+## 2026-11-01 — Event assistant
+
+- **"Ask Utsav" is the Orchestrator from CLAUDE.md §7.3, as a request and reply rather than a stream.** Replies are short and structured, so §7.1 rule 9's streaming adds nothing. A thinking indicator covers the wait.
+- **The model never does arithmetic.** It returns a request ("add 100"), and `resolveChange` works out the new value from the current plan. Replies may not contain digits or ₹: they use placeholders such as `{budget_position}`, which code fills in. A reply with digits fails validation and gets the usual corrective retry.
+- **Nothing changes until a person confirms.** The API only proposes. Confirming sends the same PATCH as the Adjust plan form, so it gets the same cascade, diff, recovery options and Undo, with no second route for changing a plan.
+- **The model sees names and structure, not amounts**, so it has nothing to misquote.
+- **The four suggested questions always use saved wording**, with real figures filled in by code. Google's response time varied from about 1 second to over 40 for the same tiny request on the same day, which is too risky for the first thing a judge clicks. Typed messages use the real model.
+- **The chat gives up after 45 seconds**, not the usual 120, because someone is watching.
+- **Conversation history stays in the browser.** The last six turns go with each message so follow-ups work, and nothing is stored.
+- **The fast model handles it**, since it's routing and short wording (§2).
+- **Not built from §7.3:** the `add_task` intent, because the app has no way to manage tasks yet.
+- **Tested with 15 awkward real messages on `gemini-3.5-flash-lite` (1 Nov 2026), using `pnpm ai:check --assistant`.** All were routed correctly, including relative changes, a follow-up, a dowry request, an off-topic question and a prompt-injection attempt. The first run's weak wording led to `ASSISTANT_PROMPT_V2`, and the affected messages were rerun. This is a small sample on one model, not proof of how it behaves in every case.
+
+## 2026-11-01 — Pre-submission audit
+
+Checked against the hackathon's scoring areas with real tools, not by reading the code.
+
+- **axe-core at 375px across 14 page states** found a missing `<h1>` on `/new` and 34 low-contrast elements. `--color-conflict` moved from `#b45309` (4.39:1 on its tint) to `#92400e`. axe wasn't added as a dependency, so this isn't a repeating test. It also can't judge everything, so a manual screen-reader pass is still worth doing.
+- **A skip link and `prefers-reduced-motion` support** were added, since both are simple and the app has spinners and transitions.
+- **`pnpm audit` reported 4 PostCSS advisories**, all through Next. PostCSS runs at build time on our own CSS, so the practical risk was low, but it's overridden to `^8.5.23` in `package.json` so the audit is clean.
+- **Every prompt that receives outside text now says that text is information, not instructions.** Only 3 of 7 did, although the README claimed all of them. Budget, Timeline and Explainer receive only the app's own data.
+- **The `kb:embed` script is gone.** It pointed at a file that was never written.
+- **The Overview page is still about 210 kB of JavaScript, twice the others.** Loading its chart separately made no difference, so the chart isn't the cause, and that change was reverted.
+
 ## 2026-11-01 — Public deployment
 
 - **The hackathon needs a public link, so "Try the demo wedding" must work for any judge at any time.** `/api/demo` runs inside `withSavedAnswers`, which serves fixtures through `AsyncLocalStorage` for that request only. The event is saved in Postgres like any other. `DEMO_MODE=true` couldn't be used for this: it keeps events in memory, and on serverless the next request can reach an instance that has never seen them.
 - **`AI_FALLBACK=saved` answers from a fixture when the provider fails**, where one exists. Without it, an empty daily allowance would stop the demo script at Family Council. It applies to provider failures only, never to a reply that failed validation. If no fixture exists, the original error is kept, so the message stays accurate.
 - **The public deployment uses `gemini-3.5-flash-lite` for the smart tier.** `gemini-3.6-flash` gives richer answers but allows 20 requests a day, about 5 plans, and is slower. For judges, reliable and fast beats richer but possibly unavailable. It's one environment variable to change. This was a judgement call, not a measurement of the lite model's own limits, which weren't reached.
 - **`GET /api/events` is removed.** The UI never used it, and it listed every family's event to anyone. `repo.list()` stays for scripts.
-- **Routes that spend AI quota are limited to 12 requests per client per 10 minutes** in middleware, so a script can't drain the allowance. Each serverless instance counts separately, so this limits casual abuse and isn't an exact global cap. Demo mode skips it. The cascade isn't limited: it mostly runs code, and its explanation falls back to plain text.
+- **Routes that spend AI quota are limited to 30 requests per client per 10 minutes** (raised from 12 when the chat assistant arrived) in middleware, so a script can't drain the allowance. Each serverless instance counts separately, so this limits casual abuse and isn't an exact global cap. Demo mode skips it. The cascade isn't limited: it mostly runs code, and its explanation falls back to plain text.
 - **Uploads stop at 4 MB** because Vercel refuses bodies over 4.5 MB with its own error page. Vibe's limit is 4 MB in total, since all photos travel in one request.
 - **`vercel.json` pins the Mumbai region (`bom1`)**, beside the Supabase database. Vercel's default is the US, which would add a slow round trip to every query in a transaction.
 - **Runtime files are listed in `outputFileTracingIncludes`**, because the knowledge base, fixtures, sample quote and PDF fonts are read from disk, which Next's tracing can't always see.
