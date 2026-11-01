@@ -46,7 +46,7 @@ export default async function EventDashboardPage({ params }: Props) {
   const { plan } = event;
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
       <EventHeader event={event} active="overview" />
 
       <StatCards summary={summary} />
