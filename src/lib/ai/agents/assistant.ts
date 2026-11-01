@@ -15,10 +15,21 @@ export interface AssistantDeps {
 const defaultDeps: AssistantDeps = { structured: (opts) => callStructured(opts) };
 
 export const messageSlug = (message: string) =>
-  message.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+  message
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 60);
 
-export async function askAssistant(state: EventPlan, request: AssistantRequest, ctx: { eventId: string; today: ISODate }, deps: AssistantDeps = defaultDeps): Promise<AssistantResponse> {
-  const conversation = request.history.map((turn) => `${turn.role === "user" ? "Family" : "Utsav"}: ${turn.text}`).join("\n");
+export async function askAssistant(
+  state: EventPlan,
+  request: AssistantRequest,
+  ctx: { eventId: string; today: ISODate },
+  deps: AssistantDeps = defaultDeps,
+): Promise<AssistantResponse> {
+  const conversation = request.history
+    .map((turn) => `${turn.role === "user" ? "Family" : "Utsav"}: ${turn.text}`)
+    .join("\n");
   const draft = await deps.structured({
     schema: AssistantDraft,
     name: "emit_assistant",
@@ -30,7 +41,13 @@ export async function askAssistant(state: EventPlan, request: AssistantRequest, 
     messages: [
       {
         role: "user",
-        content: [`Plan facts:\n${assistantContext(state, ctx.today)}`, conversation ? `Recent conversation:\n${conversation}` : null, `Latest message: ${request.message}`].filter(Boolean).join("\n\n"),
+        content: [
+          `Plan facts:\n${assistantContext(state, ctx.today)}`,
+          conversation ? `Recent conversation:\n${conversation}` : null,
+          `Latest message: ${request.message}`,
+        ]
+          .filter(Boolean)
+          .join("\n\n"),
       },
     ],
   });

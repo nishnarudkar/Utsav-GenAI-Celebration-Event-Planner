@@ -39,7 +39,9 @@ export function explainerFacts(input: ExplainInput): string {
     `Deterministic summary: ${diff.explanation}`,
     `Cost change: ${formatINRDelta(diff.budgetDeltaPaise)}. New estimate: ${formatINRCompact(input.totalEstimatePaise)}. Budget: ${formatINRCompact(input.budgetTotalPaise)}.`,
     input.overBudgetPaise > 0 ? `Over budget by ${formatINRCompact(input.overBudgetPaise)}.` : "Within budget.",
-    lines.length ? `Items recalculated: ${lines.map((l) => `${l.label} (${l.reason})`).join("; ")}.` : "No budget items recalculated.",
+    lines.length
+      ? `Items recalculated: ${lines.map((l) => `${l.label} (${l.reason})`).join("; ")}.`
+      : "No budget items recalculated.",
     diff.conflicts.length ? `Problems: ${diff.conflicts.map((c) => c.message).join(" ")}` : "No problems.",
     diff.recoveryOptions.length
       ? `Recovery options: ${diff.recoveryOptions.map((o) => `"${o.title}" — ${o.impact}`).join(" ")}`

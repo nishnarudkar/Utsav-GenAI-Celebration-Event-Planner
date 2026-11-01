@@ -9,7 +9,9 @@ export function NextTasks({ tasks, today }: { tasks: ScheduledTask[]; today: str
     <ol className="flex flex-col divide-y divide-line">
       {tasks.map((t) => {
         const dueNow = t.dueDate <= today;
-        const meta = [t.category ? CATEGORY_LABELS[t.category] : null, t.functionName ?? null].filter(Boolean).join(" · ");
+        const meta = [t.category ? CATEGORY_LABELS[t.category] : null, t.functionName ?? null]
+          .filter(Boolean)
+          .join(" · ");
         return (
           <li key={t.ref} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
             <span className="text-ink">{t.title}</span>

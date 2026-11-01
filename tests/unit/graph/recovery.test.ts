@@ -14,12 +14,24 @@ let after350: ReturnType<typeof runCascade>;
 beforeAll(async () => {
   vi.stubEnv("DEMO_MODE", "true");
   const plan = await buildEventPlan(
-    { eventType: "wedding", culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250, budgetTotalPaise: rupees(15_00_000) },
+    {
+      eventType: "wedding",
+      culture: "bengali_hindu",
+      city: "Kolkata",
+      startDate: "2027-02-14",
+      guestCount: 250,
+      budgetTotalPaise: rupees(15_00_000),
+    },
     { today: TODAY },
   );
   demo = {
     ...plan,
-    plan: { ...plan.plan, functions: plan.plan.functions.map((f) => (f.name === "Biye (wedding ceremony)" ? { ...f, venueCapacity: 300 } : f)) },
+    plan: {
+      ...plan.plan,
+      functions: plan.plan.functions.map((f) =>
+        f.name === "Biye (wedding ceremony)" ? { ...f, venueCapacity: 300 } : f,
+      ),
+    },
   };
   after350 = runCascade(demo, { field: "guest_count", value: 350 }, CTX);
 });
@@ -57,7 +69,10 @@ describe("generateRecoveryOptions (demo: 350 guests, ₹1.47L over)", () => {
 
   it("says when one option alone brings the plan within budget", () => {
     // ₹15.5L budget: only ₹97,200 over, so keeping 300 guests (₹1.04L) is enough.
-    const tight = { ...after350.state, budget: { ...after350.state.budget, budgetTotalPaise: rupees(15_50_000), overBudgetPaise: rupees(97_200) } };
+    const tight = {
+      ...after350.state,
+      budget: { ...after350.state.budget, budgetTotalPaise: rupees(15_50_000), overBudgetPaise: rupees(97_200) },
+    };
     const [first] = generateRecoveryOptions(tight, { ...CTX, trigger: after350.change });
     expect(first?.impact).toBe("Saves ₹1L — brings you within budget; fits the 300-seat venue.");
   });
@@ -83,15 +98,27 @@ describe("demo explanation", () => {
 describe("applyRecoveryPatch", () => {
   it("re-prices lines at the lower tier and reports the saving", () => {
     const [, attire] = generateRecoveryOptions(after350.state, { ...CTX, trigger: after350.change });
-    const { state, diff } = applyRecoveryPatch(after350.state, RecoveryPatch.parse(attire!.patch), { ...CTX, version: 2 });
+    const { state, diff } = applyRecoveryPatch(after350.state, RecoveryPatch.parse(attire!.patch), {
+      ...CTX,
+      version: 2,
+    });
     expect(diff.budgetDeltaPaise).toBe(-rupees(93_000));
-    expect(diff.changed.map((c) => c.label)).toEqual(["Bride's Benarasi, groom's dhoti-panjabi and reception outfit", "Bridal makeup and hair"]);
-    expect(state.budget.lines.filter((l) => l.category === "attire").every((l) => l.basis.unitTier === "low")).toBe(true);
+    expect(diff.changed.map((c) => c.label)).toEqual([
+      "Bride's Benarasi, groom's dhoti-panjabi and reception outfit",
+      "Bridal makeup and hair",
+    ]);
+    expect(state.budget.lines.filter((l) => l.category === "attire").every((l) => l.basis.unitTier === "low")).toBe(
+      true,
+    );
     expect(state.budget.totalEstimatePaise).toBe(after350.state.budget.totalEstimatePaise - rupees(93_000));
   });
 
   it("runs the cascade for field patches", () => {
-    const { state, diff } = applyRecoveryPatch(after350.state, { kind: "field", change: { field: "guest_count", value: 300 } }, { ...CTX, version: 2 });
+    const { state, diff } = applyRecoveryPatch(
+      after350.state,
+      { kind: "field", change: { field: "guest_count", value: 300 } },
+      { ...CTX, version: 2 },
+    );
     expect(state.answers.guestCount).toBe(300);
     // The hall fits now, but it's full — a warning, no longer critical.
     expect(diff.conflicts.map((c) => [c.type, c.severity])).toEqual([
@@ -102,7 +129,11 @@ describe("applyRecoveryPatch", () => {
 
   it("switches printed cards to digital invitations", () => {
     const i = after350.state.budget.lines.findIndex((l) => l.category === "invites");
-    const { state } = applyRecoveryPatch(after350.state, { kind: "lines", updates: [{ lineIndex: i, basis: { unit: "flat", quantity: 1, unitTier: "low" } }] }, CTX);
+    const { state } = applyRecoveryPatch(
+      after350.state,
+      { kind: "lines", updates: [{ lineIndex: i, basis: { unit: "flat", quantity: 1, unitTier: "low" } }] },
+      CTX,
+    );
     expect(state.budget.lines[i]).toMatchObject({ basis: { unit: "flat", quantity: 1 }, estimatePaise: rupees(3_000) });
   });
 
@@ -115,7 +146,13 @@ describe("applyRecoveryPatch", () => {
   });
 
   it("skips locked lines", () => {
-    const locked = { ...after350.state, budget: { ...after350.state.budget, lines: after350.state.budget.lines.map((l) => (l.category === "attire" ? { ...l, locked: true } : l)) } };
+    const locked = {
+      ...after350.state,
+      budget: {
+        ...after350.state.budget,
+        lines: after350.state.budget.lines.map((l) => (l.category === "attire" ? { ...l, locked: true } : l)),
+      },
+    };
     const opts = generateRecoveryOptions(locked, { ...CTX, trigger: after350.change });
     expect(opts.some((o) => o.id === "tier:attire")).toBe(false);
   });

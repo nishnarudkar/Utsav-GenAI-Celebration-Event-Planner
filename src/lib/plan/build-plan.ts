@@ -23,7 +23,7 @@ export interface BuildPlanDeps {
   timeline: (input: TimelineInput) => Promise<TimelinePlan>;
 }
 
-export const defaultBuildPlanDeps: BuildPlanDeps = {
+const defaultBuildPlanDeps: BuildPlanDeps = {
   culture: (input) => generateRitualPlan(input),
   planner: (input) => planEvent(input),
   budget: (input) => proposeBudget(input),
@@ -52,7 +52,12 @@ export async function buildEventPlan(answers: OnboardingAnswers, opts: BuildPlan
   step("budget");
   const budgetP = deps.budget({ answers, cityTier: tier.tier, plan });
   step("timeline");
-  const timelineP = deps.timeline({ answers, plan, rituals: rituals.rituals, ...(opts.today ? { today: opts.today } : {}) });
+  const timelineP = deps.timeline({
+    answers,
+    plan,
+    rituals: rituals.rituals,
+    ...(opts.today ? { today: opts.today } : {}),
+  });
   const [budget, timeline] = await Promise.all([budgetP, timelineP]);
 
   return {

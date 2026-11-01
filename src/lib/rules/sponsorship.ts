@@ -30,7 +30,8 @@ export function sponsorshipTiers(targetPaise: number): SponsorshipTier[] {
   }));
 }
 
-export const tiersTotalPaise = (tiers: readonly SponsorshipTier[]) => tiers.reduce((sum, t) => sum + t.slots * t.amountPaise, 0);
+export const tiersTotalPaise = (tiers: readonly SponsorshipTier[]) =>
+  tiers.reduce((sum, t) => sum + t.slots * t.amountPaise, 0);
 
 const tierLine = (tier: SponsorshipTier, words: SponsorshipWords) =>
   `• ${tier.name} (${tier.slots === 1 ? "1 place" : `${tier.slots} places`}): ${formatINR(tier.amountPaise)}. ${words.perks[tier.key]}`;

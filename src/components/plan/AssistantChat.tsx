@@ -15,7 +15,9 @@ const SUGGESTIONS = ASSISTANT_SUGGESTIONS.map((q) => ({ label: q, value: q }));
 /** How many earlier turns go with each message, so follow-ups like "make it 400" work. */
 const HISTORY_TURNS = 6;
 
-type Turn = { id: number; role: "user"; text: string } | { id: number; role: "assistant"; text: string; action: AssistantResponse["action"]; confirmed?: boolean };
+type Turn =
+  | { id: number; role: "user"; text: string }
+  | { id: number; role: "assistant"; text: string; action: AssistantResponse["action"]; confirmed?: boolean };
 
 interface AssistantChatProps {
   eventId: string;
@@ -41,14 +43,22 @@ export function AssistantChat({ eventId, onConfirm, busy }: AssistantChatProps) 
     setDraft("");
     setError(null);
     setThinking(true);
-    const result = await apiCall<AssistantResponse>(`/api/events/${eventId}/assistant`, { method: "POST", body: JSON.stringify({ message, history }) });
+    const result = await apiCall<AssistantResponse>(`/api/events/${eventId}/assistant`, {
+      method: "POST",
+      body: JSON.stringify({ message, history }),
+    });
     setThinking(false);
-    if (result.ok) setTurns((list) => [...list, { id: nextId.current++, role: "assistant", text: result.data.reply, action: result.data.action }]);
+    if (result.ok)
+      setTurns((list) => [
+        ...list,
+        { id: nextId.current++, role: "assistant", text: result.data.reply, action: result.data.action },
+      ]);
     else setError(result.message);
   }
 
   async function confirm(turn: Extract<Turn, { role: "assistant" }>, change: FieldChange) {
-    if (await onConfirm(change)) setTurns((list) => list.map((t) => (t.id === turn.id ? { ...t, confirmed: true } : t)));
+    if (await onConfirm(change))
+      setTurns((list) => list.map((t) => (t.id === turn.id ? { ...t, confirmed: true } : t)));
   }
 
   function onSubmit(e: FormEvent) {
@@ -57,17 +67,27 @@ export function AssistantChat({ eventId, onConfirm, busy }: AssistantChatProps) 
   }
 
   return (
-    <section aria-labelledby="assistant-title" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+    <section
+      aria-labelledby="assistant-title"
+      className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5"
+    >
       <div>
         <h2 id="assistant-title" className="flex items-center gap-2 font-display text-xl text-maroon">
           <Sparkles className="size-5 text-marigold-ink" aria-hidden />
           Ask Utsav
         </h2>
-        <p className="mt-1 text-sm text-muted">Ask about your plan or tell it what changed. Nothing changes until you confirm.</p>
+        <p className="mt-1 text-sm text-muted">
+          Ask about your plan or tell it what changed. Nothing changes until you confirm.
+        </p>
       </div>
 
       {turns.length > 0 && (
-        <div role="log" aria-label="Conversation" aria-live="polite" className="flex flex-col gap-3 rounded-xl bg-cream p-3">
+        <div
+          role="log"
+          aria-label="Conversation"
+          aria-live="polite"
+          className="flex flex-col gap-3 rounded-xl bg-cream p-3"
+        >
           {turns.map((turn) =>
             turn.role === "user" ? (
               <MessageBubble key={turn.id} role="user">
@@ -77,7 +97,10 @@ export function AssistantChat({ eventId, onConfirm, busy }: AssistantChatProps) 
               <MessageBubble key={turn.id} role="assistant">
                 <p className="text-sm">{turn.text}</p>
                 {turn.action?.type === "open" && (
-                  <Link href={turn.action.href} className="mt-2 inline-block text-sm font-medium text-marigold-ink hover:underline">
+                  <Link
+                    href={turn.action.href}
+                    className="mt-2 inline-block text-sm font-medium text-marigold-ink hover:underline"
+                  >
                     {turn.action.label}
                   </Link>
                 )}
@@ -111,7 +134,14 @@ export function AssistantChat({ eventId, onConfirm, busy }: AssistantChatProps) 
         </div>
       )}
 
-      {turns.length === 0 && <SuggestionChips chips={SUGGESTIONS} onPick={(q) => void send(q)} disabled={thinking} label="Suggested questions" />}
+      {turns.length === 0 && (
+        <SuggestionChips
+          chips={SUGGESTIONS}
+          onPick={(q) => void send(q)}
+          disabled={thinking}
+          label="Suggested questions"
+        />
+      )}
 
       <form onSubmit={onSubmit} className="flex items-start gap-2">
         <div className="flex-1">
@@ -127,7 +157,12 @@ export function AssistantChat({ eventId, onConfirm, busy }: AssistantChatProps) 
             className="w-full rounded-xl border border-line bg-white px-4 py-3 text-ink placeholder:text-muted/70 focus:border-maroon focus:outline-none"
           />
         </div>
-        <button type="submit" disabled={thinking || !draft.trim()} aria-label="Send question" className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-maroon text-cream hover:bg-maroon-dark disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={thinking || !draft.trim()}
+          aria-label="Send question"
+          className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-maroon text-cream hover:bg-maroon-dark disabled:opacity-50"
+        >
           <ArrowUp className="size-5" aria-hidden />
         </button>
       </form>

@@ -46,7 +46,13 @@ describe("diffFunctions", () => {
     const before = [fn("Biye"), fn("Haldi", { expectedGuests: 40 })];
     const after = [fn("Biye", { expectedGuests: 350, date: "2027-02-21" }), fn("Haldi", { expectedGuests: 40 })];
     expect(diffFunctions(before, after, "why")).toEqual([
-      { nodeId: "function:0", label: "Biye", from: { expectedGuests: 100, date: "2027-02-14" }, to: { expectedGuests: 350, date: "2027-02-21" }, reason: "why" },
+      {
+        nodeId: "function:0",
+        label: "Biye",
+        from: { expectedGuests: 100, date: "2027-02-14" },
+        to: { expectedGuests: 350, date: "2027-02-21" },
+        reason: "why",
+      },
     ]);
   });
 });
@@ -67,7 +73,9 @@ describe("describeCascade", () => {
         budgetDeltaPaise: 9_000_00,
         conflicts: [{ type: "venue_capacity", severity: "warn", message: "" }],
       }),
-    ).toBe("Guest count changed from 250 to 260. 1 budget item was recalculated (+₹9K). 1 conflict needs attention: venue capacity.");
+    ).toBe(
+      "Guest count changed from 250 to 260. 1 budget item was recalculated (+₹9K). 1 conflict needs attention: venue capacity.",
+    );
   });
 
   it("ignores info notes when counting conflicts", () => {

@@ -87,10 +87,14 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
     });
 
   const apply = (optionId: string) =>
-    run(`/api/events/${eventId}/recovery`, { method: "POST", body: JSON.stringify({ optionId }) }, (r) => setDiff(r.diff ?? null));
+    run(`/api/events/${eventId}/recovery`, { method: "POST", body: JSON.stringify({ optionId }) }, (r) =>
+      setDiff(r.diff ?? null),
+    );
 
-  const input = "w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink focus:border-maroon focus:outline-none tabular-nums";
-  const save = "shrink-0 rounded-xl bg-maroon px-4 py-2.5 text-sm font-medium text-cream hover:bg-maroon-dark disabled:opacity-50";
+  const input =
+    "w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink focus:border-maroon focus:outline-none tabular-nums";
+  const save =
+    "shrink-0 rounded-xl bg-maroon px-4 py-2.5 text-sm font-medium text-cream hover:bg-maroon-dark disabled:opacity-50";
 
   return (
     <div className="flex flex-col gap-4">
@@ -104,7 +108,13 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
               Guest count
             </label>
             <div className="flex gap-2">
-              <input id={guestsId} inputMode="numeric" value={guests} onChange={(e) => setGuests(e.target.value)} className={input} />
+              <input
+                id={guestsId}
+                inputMode="numeric"
+                value={guests}
+                onChange={(e) => setGuests(e.target.value)}
+                className={input}
+              />
               <button type="submit" disabled={busy} className={save}>
                 Update
               </button>
@@ -128,11 +138,21 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
               <Loader2 className="size-4 animate-spin" aria-hidden /> Working out what changes…
             </span>
           )}
-          {!busy && message && <span className={message.tone === "error" ? "text-increased" : "text-muted"}>{message.text}</span>}
+          {!busy && message && (
+            <span className={message.tone === "error" ? "text-increased" : "text-muted"}>{message.text}</span>
+          )}
         </div>
       </section>
 
-      {diff && <DiffPanel diff={diff} busy={busy} onAccept={() => setDiff(null)} onUndo={() => void undo()} onApply={(id) => void apply(id)} />}
+      {diff && (
+        <DiffPanel
+          diff={diff}
+          busy={busy}
+          onAccept={() => setDiff(null)}
+          onUndo={() => void undo()}
+          onApply={(id) => void apply(id)}
+        />
+      )}
     </div>
   );
 }

@@ -16,7 +16,14 @@ import { budgetDelta, describeCascade, diffBudgetLines, diffFunctions, type Chan
 import type { FieldChange, PlanChange } from "@/lib/graph/types";
 import { getPricing, type BenchmarkRow } from "@/lib/kb/pricing";
 import type { EventPlan } from "@/lib/plan/types";
-import { allocateByWeight, indexBenchmarks, lineEstimatePaise, sumPaise, summarizeBudget, unitPricePaise } from "@/lib/rules/budget-math";
+import {
+  allocateByWeight,
+  indexBenchmarks,
+  lineEstimatePaise,
+  sumPaise,
+  summarizeBudget,
+  unitPricePaise,
+} from "@/lib/rules/budget-math";
 import { rescaleQuantity, scaleFunctionGuests } from "@/lib/rules/capacity";
 import { cityTier } from "@/lib/rules/city-tier";
 import { detectConflicts } from "@/lib/rules/conflicts";
@@ -75,7 +82,12 @@ export function readCurrentValue(state: EventPlan, field: FieldChange["field"]):
 export function runCascade(state: EventPlan, request: FieldChange, ctx: CascadeContext): CascadeResult {
   const change = { ...request, from: readCurrentValue(state, request.field) } as PlanChange;
   if (computeImpact(change).length === 0) {
-    return { noop: true, change, state, diff: emptyDiff(ctx.version, `${FIELD_LABELS[change.field]} is already ${String(change.value)}.`) };
+    return {
+      noop: true,
+      change,
+      state,
+      diff: emptyDiff(ctx.version, `${FIELD_LABELS[change.field]} is already ${String(change.value)}.`),
+    };
   }
 
   const outcome = applyField(state, change, ctx);
@@ -146,7 +158,8 @@ function applyGuestCount(state: EventPlan, fromG: number, toG: number): FieldOut
   const lines = state.budget.lines.map((line, i): PricedLine => {
     const scaling = guestScaling(line);
     if (scaling === "fixed") return line;
-    const byFunction = scaling === "function_guests" && line.functionName !== undefined && before.has(line.functionName);
+    const byFunction =
+      scaling === "function_guests" && line.functionName !== undefined && before.has(line.functionName);
     const gFrom = byFunction ? before.get(line.functionName!)! : fromG;
     const gTo = byFunction ? after.get(line.functionName!)! : toG;
     const quantity = rescaleQuantity(line.basis.quantity, gFrom, gTo);
@@ -156,7 +169,11 @@ function applyGuestCount(state: EventPlan, fromG: number, toG: number): FieldOut
       return line;
     }
     reasons.set(i, `${gFrom} → ${gTo} guests${byFunction ? ` at ${line.functionName}` : ""}`);
-    return { ...line, basis: { ...line.basis, quantity }, estimatePaise: lineEstimatePaise(quantity, line.basis.unitPaise) };
+    return {
+      ...line,
+      basis: { ...line.basis, quantity },
+      estimatePaise: lineEstimatePaise(quantity, line.basis.unitPaise),
+    };
   });
 
   const next: EventPlan = {
@@ -213,7 +230,12 @@ function applyStartDate(state: EventPlan, from: ISODate, to: ISODate, today: ISO
   const next: EventPlan = {
     ...state,
     answers: { ...state.answers, startDate: to },
-    plan: { ...state.plan, functions, startDate: addDays(state.plan.startDate, shift), endDate: addDays(state.plan.endDate, shift) },
+    plan: {
+      ...state.plan,
+      functions,
+      startDate: addDays(state.plan.startDate, shift),
+      endDate: addDays(state.plan.endDate, shift),
+    },
     timeline: { ...state.timeline, tasks },
   };
   const direction = shift > 0 ? "later" : "earlier";
@@ -245,20 +267,44 @@ function applyStartDate(state: EventPlan, from: ISODate, to: ISODate, today: ISO
 
 function applyCity(state: EventPlan, city: string, rows: readonly BenchmarkRow[]): FieldOutcome {
   const tier = cityTier(city);
-  const base: EventPlan = { ...state, answers: { ...state.answers, city }, cityTier: tier.tier, cityTierKnown: tier.known };
+  const base: EventPlan = {
+    ...state,
+    answers: { ...state.answers, city },
+    cityTier: tier.tier,
+    cityTierKnown: tier.known,
+  };
   if (tier.tier === state.cityTier) {
-    return { state: base, changed: [], headline: `City changed to ${city}; prices use the same city tier.`, linesChanged: 0 };
+    return {
+      state: base,
+      changed: [],
+      headline: `City changed to ${city}; prices use the same city tier.`,
+      linesChanged: 0,
+    };
   }
   const index = indexBenchmarks(rows);
   const notes: Conflict[] = [];
   const lines = state.budget.lines.map((line): PricedLine => {
-    const unitPaise = unitPricePaise(index, { category: line.category, unit: line.basis.unit, cityTier: tier.tier, tier: line.basis.unitTier });
+    const unitPaise = unitPricePaise(index, {
+      category: line.category,
+      unit: line.basis.unit,
+      cityTier: tier.tier,
+      tier: line.basis.unitTier,
+    });
     if (unitPaise === null || unitPaise === line.basis.unitPaise) return line;
     if (line.locked) {
-      notes.push(lockedNote(line, `would be ${formatINRCompact(lineEstimatePaise(line.basis.quantity, unitPaise))} at ${city} prices`));
+      notes.push(
+        lockedNote(
+          line,
+          `would be ${formatINRCompact(lineEstimatePaise(line.basis.quantity, unitPaise))} at ${city} prices`,
+        ),
+      );
       return line;
     }
-    return { ...line, basis: { ...line.basis, unitPaise, cityTier: tier.tier }, estimatePaise: lineEstimatePaise(line.basis.quantity, unitPaise) };
+    return {
+      ...line,
+      basis: { ...line.basis, unitPaise, cityTier: tier.tier },
+      estimatePaise: lineEstimatePaise(line.basis.quantity, unitPaise),
+    };
   });
   const lineChanges = diffBudgetLines(state.budget.lines, lines, () => `Re-priced for ${city}`);
   return {
@@ -273,7 +319,11 @@ function applyCity(state: EventPlan, city: string, rows: readonly BenchmarkRow[]
 // ---------- shared ----------
 
 function lockedNote(line: PricedLine, what: string): Conflict {
-  return { type: "locked_item", severity: "info", message: `"${line.label}" is locked, so it wasn't changed — it ${what}.` };
+  return {
+    type: "locked_item",
+    severity: "info",
+    message: `"${line.label}" is locked, so it wasn't changed — it ${what}.`,
+  };
 }
 
 /** Re-total the budget after lines or the budget total changed. An estimated budget follows the estimate. */
@@ -286,9 +336,13 @@ export function retotal(
   const totalEstimatePaise = sumPaise(lines.map((l) => l.estimatePaise));
   const total = prev.budgetIsEstimate ? totalEstimatePaise : budgetTotalPaise;
   const summary = summarizeBudget(lines, total);
-  const categories = new Set<BudgetCategory>([...(Object.keys(allocationPaise ?? {}) as BudgetCategory[]), ...lines.map((l) => l.category)]);
+  const categories = new Set<BudgetCategory>([
+    ...(Object.keys(allocationPaise ?? {}) as BudgetCategory[]),
+    ...lines.map((l) => l.category),
+  ]);
   const byCategory: PricedBudget["byCategory"] = {};
-  for (const c of categories) byCategory[c] = { allocatedPaise: allocationPaise?.[c] ?? null, estimatePaise: summary.byCategory[c] ?? 0 };
+  for (const c of categories)
+    byCategory[c] = { allocatedPaise: allocationPaise?.[c] ?? null, estimatePaise: summary.byCategory[c] ?? 0 };
   return {
     ...prev,
     lines,
@@ -301,5 +355,14 @@ export function retotal(
 }
 
 function emptyDiff(version: number, explanation: string): PlanDiff {
-  return { version, budgetDeltaPaise: 0, changed: [], added: [], removed: [], conflicts: [], recoveryOptions: [], explanation };
+  return {
+    version,
+    budgetDeltaPaise: 0,
+    changed: [],
+    added: [],
+    removed: [],
+    conflicts: [],
+    recoveryOptions: [],
+    explanation,
+  };
 }

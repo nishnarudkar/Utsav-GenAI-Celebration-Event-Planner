@@ -14,7 +14,7 @@ import type { OnboardingAnswers } from "@/lib/schemas/event";
  * "Try the demo wedding" gives a fresh copy to rehearse on.
  */
 
-export const DEMO_ANSWERS: OnboardingAnswers = {
+const DEMO_ANSWERS: OnboardingAnswers = {
   title: "Ananya & Rohan’s wedding",
   eventType: "wedding",
   culture: "bengali_hindu",
@@ -28,20 +28,39 @@ export const DEMO_ANSWERS: OnboardingAnswers = {
 export const DEMO_VENUE = { functionName: "Biye (wedding ceremony)", capacity: 300 };
 
 /** Their preferences match the conflicts in the emit_council demo fixture. */
-export const DEMO_FAMILY: StakeholderInput[] = [
+const DEMO_FAMILY: StakeholderInput[] = [
   { name: "Ananya & Rohan", role: "couple", weight: 1, preferences: { guestCount: 150, venueStyle: "lawn" } },
-  { name: "Mr & Mrs Sen", role: "bride_family", weight: 1, preferences: { guestCount: 350, venueStyle: "banquet_hall", notes: "A generous celebration, with every relative invited." } },
-  { name: "Mr & Mrs Bose", role: "groom_family", weight: 1, preferences: { guestCount: 250, budgetMaxPaise: DEMO_ANSWERS.budgetTotalPaise ?? undefined } },
+  {
+    name: "Mr & Mrs Sen",
+    role: "bride_family",
+    weight: 1,
+    preferences: {
+      guestCount: 350,
+      venueStyle: "banquet_hall",
+      notes: "A generous celebration, with every relative invited.",
+    },
+  },
+  {
+    name: "Mr & Mrs Bose",
+    role: "groom_family",
+    weight: 1,
+    preferences: { guestCount: 250, budgetMaxPaise: DEMO_ANSWERS.budgetTotalPaise ?? undefined },
+  },
 ];
 
 const SAMPLE_QUOTE = { fileName: "sample-caterer-quote.pdf", category: "catering" } as const;
 
 function withVenueCapacity(plan: EventPlan): EventPlan {
-  const functions = plan.plan.functions.map((f) => (f.name === DEMO_VENUE.functionName ? { ...f, venueCapacity: DEMO_VENUE.capacity } : f));
+  const functions = plan.plan.functions.map((f) =>
+    f.name === DEMO_VENUE.functionName ? { ...f, venueCapacity: DEMO_VENUE.capacity } : f,
+  );
   return { ...plan, plan: { ...plan.plan, functions } };
 }
 
-export async function createDemoEvent(repo: EventRepository, opts: Pick<BuildPlanOptions, "today"> = {}): Promise<StoredEvent> {
+export async function createDemoEvent(
+  repo: EventRepository,
+  opts: Pick<BuildPlanOptions, "today"> = {},
+): Promise<StoredEvent> {
   const plan = await buildEventPlan(DEMO_ANSWERS, opts);
   const { id } = await repo.create(withVenueCapacity(plan));
   for (const person of DEMO_FAMILY) await repo.addStakeholder(id, person);

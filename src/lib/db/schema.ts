@@ -182,7 +182,10 @@ export const tasks = pgTable(
     owner: text("owner"),
     dueDate: date("due_date", { mode: "string" }),
     status: taskStatusEnum("status").notNull().default("todo"),
-    dependsOn: uuid("depends_on").array().notNull().default(sql`'{}'::uuid[]`),
+    dependsOn: uuid("depends_on")
+      .array()
+      .notNull()
+      .default(sql`'{}'::uuid[]`),
     source: taskSourceEnum("source").notNull().default("ai"),
     ...timestamps(),
   },

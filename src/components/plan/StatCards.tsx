@@ -37,7 +37,9 @@ export function StatCards({ summary }: { summary: DashboardSummary }) {
           <span className="text-xs text-muted">Utsav&apos;s estimate</span>
         ) : (
           <>
-            <span className="text-xs text-muted">of {formatINRCompact(budget.totalPaise)} · {budget.percentUsed}%</span>
+            <span className="text-xs text-muted">
+              of {formatINRCompact(budget.totalPaise)} · {budget.percentUsed}%
+            </span>
             <span
               className="h-1.5 w-full overflow-hidden rounded-full bg-marigold-light/60"
               role="meter"
@@ -46,7 +48,10 @@ export function StatCards({ summary }: { summary: DashboardSummary }) {
               aria-valuemax={100}
               aria-valuenow={budget.percentUsed}
             >
-              <span className={`block h-full rounded-full ${over ? "bg-increased" : "bg-marigold"}`} style={{ width: `${meter}%` }} />
+              <span
+                className={`block h-full rounded-full ${over ? "bg-increased" : "bg-marigold"}`}
+                style={{ width: `${meter}%` }}
+              />
             </span>
             {over && (
               <span className="flex items-center gap-1 text-xs font-medium text-increased">
@@ -65,7 +70,10 @@ export function StatCards({ summary }: { summary: DashboardSummary }) {
         {tasks.dueNow > 0 && <span className="text-xs text-muted">{tasks.dueNow} due now</span>}
       </Card>
 
-      <Card icon={openIssueCount > 0 ? <AlertTriangle className="size-4" /> : <CheckCircle2 className="size-4" />} label="Open conflicts">
+      <Card
+        icon={openIssueCount > 0 ? <AlertTriangle className="size-4" /> : <CheckCircle2 className="size-4" />}
+        label="Open conflicts"
+      >
         <span className={big}>{openIssueCount}</span>
         <span className="text-xs text-muted">{openIssueCount === 0 ? "All clear" : "Needs a look"}</span>
       </Card>

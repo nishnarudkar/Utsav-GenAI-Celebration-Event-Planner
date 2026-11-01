@@ -10,7 +10,13 @@ import type { LiveProposal } from "@/lib/schemas/dayof";
 
 /** Day-of flow: an incident becomes a proposal; nothing moves or sends until it's confirmed. */
 
-export async function proposeReshuffle(repo: EventRepository, id: string, incident: string, opts: { today: ISODate; nowMinutes?: number }, deps?: DayofDeps): Promise<LiveProposal | null> {
+export async function proposeReshuffle(
+  repo: EventRepository,
+  id: string,
+  incident: string,
+  opts: { today: ISODate; nowMinutes?: number },
+  deps?: DayofDeps,
+): Promise<LiveProposal | null> {
   const event = await repo.get(id);
   if (!event) return null;
   const date = liveDate(event, opts.today);

@@ -26,10 +26,13 @@ export function EventHeader({ event, active }: { event: StoredEvent; active: Eve
         <h1 className="font-display text-3xl leading-tight text-maroon">{event.title}</h1>
         <p className="mt-1 text-sm text-muted">
           {formatDate(plan.startDate)}
-          {plan.endDate !== plan.startDate && ` – ${formatDate(plan.endDate)}`} · {answers.city} · {answers.guestCount.toLocaleString("en-IN")} guests
+          {plan.endDate !== plan.startDate && ` – ${formatDate(plan.endDate)}`} · {answers.city} ·{" "}
+          {answers.guestCount.toLocaleString("en-IN")} guests
           {answers.culture !== "generic" && ` · ${cultureLabel(answers.culture)}`}
         </p>
-        {process.env.DEMO_MODE === "true" && <p className="mt-1 text-xs text-muted">Demo mode: the AI answers here are saved samples.</p>}
+        {process.env.DEMO_MODE === "true" && (
+          <p className="mt-1 text-xs text-muted">Demo mode: the AI answers here are saved samples.</p>
+        )}
       </div>
       <nav aria-label="Event sections" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none]">
         <ul className="flex justify-between border-b border-line sm:justify-start sm:gap-1">

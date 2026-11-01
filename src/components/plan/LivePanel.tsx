@@ -9,7 +9,10 @@ import { apiCall } from "@/lib/plan/client-api";
 import type { LiveGroup } from "@/lib/plan/live-view";
 import type { LiveNotification, LiveProposal } from "@/lib/schemas/dayof";
 
-const SAMPLE_INCIDENTS = ["Photographer 30 min late", "Priest 20 min late"].map((text) => ({ label: text, value: text }));
+const SAMPLE_INCIDENTS = ["Photographer 30 min late", "Priest 20 min late"].map((text) => ({
+  label: text,
+  value: text,
+}));
 
 interface LivePanelProps {
   eventId: string;
@@ -32,7 +35,10 @@ export function LivePanel({ eventId, dayLabel, isToday, groups, notifications }:
     setBusy(true);
     setError(null);
     setProposal(null);
-    const result = await apiCall<{ proposal: LiveProposal }>(`/api/events/${eventId}/live`, { method: "POST", body: JSON.stringify({ incident: text }) });
+    const result = await apiCall<{ proposal: LiveProposal }>(`/api/events/${eventId}/live`, {
+      method: "POST",
+      body: JSON.stringify({ incident: text }),
+    });
     setBusy(false);
     if (result.ok) setProposal(result.data.proposal);
     else setError(result.message);
@@ -41,7 +47,10 @@ export function LivePanel({ eventId, dayLabel, isToday, groups, notifications }:
   async function confirm(id: string) {
     setBusy(true);
     setError(null);
-    const result = await apiCall(`/api/events/${eventId}/live`, { method: "POST", body: JSON.stringify({ confirm: id }) });
+    const result = await apiCall(`/api/events/${eventId}/live`, {
+      method: "POST",
+      body: JSON.stringify({ confirm: id }),
+    });
     setBusy(false);
     if (!result.ok) return setError(result.message);
     setProposal(null);
@@ -61,18 +70,25 @@ export function LivePanel({ eventId, dayLabel, isToday, groups, notifications }:
         <h2 id="live-show" className="font-display text-xl text-maroon">
           Running order
         </h2>
-        <p className="mt-1 text-sm text-muted">{isToday ? `Today, ${dayLabel}` : `Preview of the main day, ${dayLabel}`}</p>
+        <p className="mt-1 text-sm text-muted">
+          {isToday ? `Today, ${dayLabel}` : `Preview of the main day, ${dayLabel}`}
+        </p>
         <div className="mt-3 flex flex-col gap-4">
           {groups.map((g) => (
             <div key={g.functionName}>
               <h3 className="text-sm font-semibold text-ink">{g.functionName}</h3>
               <ol className="mt-1 flex flex-col">
                 {g.slots.map((s) => (
-                  <li key={s.id} className="flex flex-wrap items-baseline justify-between gap-x-3 border-b border-line py-1.5 text-sm last:border-0">
+                  <li
+                    key={s.id}
+                    className="flex flex-wrap items-baseline justify-between gap-x-3 border-b border-line py-1.5 text-sm last:border-0"
+                  >
                     <span className="text-ink">{s.name}</span>
                     <span className="tabular-nums text-muted">
                       {s.time}
-                      {s.delayMinutes > 0 && <span className="ml-2 font-medium text-increased">+{s.delayMinutes} min</span>}
+                      {s.delayMinutes > 0 && (
+                        <span className="ml-2 font-medium text-increased">+{s.delayMinutes} min</span>
+                      )}
                     </span>
                   </li>
                 ))}
@@ -82,7 +98,10 @@ export function LivePanel({ eventId, dayLabel, isToday, groups, notifications }:
         </div>
       </section>
 
-      <section aria-labelledby="live-report" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+      <section
+        aria-labelledby="live-report"
+        className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5"
+      >
         <h2 id="live-report" className="font-display text-xl text-maroon">
           Something gone wrong?
         </h2>
@@ -126,7 +145,10 @@ export function LivePanel({ eventId, dayLabel, isToday, groups, notifications }:
       </section>
 
       {proposal && (
-        <section aria-labelledby="live-proposal" className="flex flex-col gap-3 rounded-2xl border border-marigold/60 bg-white p-5">
+        <section
+          aria-labelledby="live-proposal"
+          className="flex flex-col gap-3 rounded-2xl border border-marigold/60 bg-white p-5"
+        >
           <div>
             <h2 id="live-proposal" className="font-display text-xl text-maroon">
               Suggested update

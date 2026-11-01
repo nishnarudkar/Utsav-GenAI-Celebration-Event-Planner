@@ -3,26 +3,47 @@ import { BUDGET_CATEGORIES } from "@/lib/schemas/enums";
 
 /** The event assistant: free text in, an answer or a proposed action out. */
 
-export const ASSISTANT_FIELDS = ["guest_count", "budget_total", "start_date", "city"] as const;
+const ASSISTANT_FIELDS = ["guest_count", "budget_total", "start_date", "city"] as const;
 export const ASSISTANT_TOOLS = ["budget", "timeline", "vendors", "council", "live", "vibe", "community"] as const;
 export type AssistantTool = (typeof ASSISTANT_TOOLS)[number];
 
 /** Offered as buttons. They have saved wording, so they're instant and work without AI quota. */
-export const ASSISTANT_SUGGESTIONS = ["Mom wants 100 more guests", "What should we book first?", "How much budget is left?", "The family disagrees on the guest list"];
+export const ASSISTANT_SUGGESTIONS = [
+  "Mom wants 100 more guests",
+  "What should we book first?",
+  "How much budget is left?",
+  "The family disagrees on the guest list",
+];
 
 /** Figures only code may supply. The model writes these and `fillPlaceholders` replaces them. */
-export const PLACEHOLDERS = ["guest_count", "budget_total", "estimate", "budget_position", "days_to_go", "main_day", "city", "next_tasks", "open_issues", ...BUDGET_CATEGORIES.map((c) => `spend:${c}`)];
+const PLACEHOLDERS = [
+  "guest_count",
+  "budget_total",
+  "estimate",
+  "budget_position",
+  "days_to_go",
+  "main_day",
+  "city",
+  "next_tasks",
+  "open_issues",
+  ...BUDGET_CATEGORIES.map((c) => `spend:${c}`),
+];
 
-const PLACEHOLDER = /\{([a-z_:]+)\}/g;
+export const PLACEHOLDER = /\{([a-z_:]+)\}/g;
 
 const Reply = z
   .string()
   .min(1)
   .max(500)
   .superRefine((text, ctx) => {
-    if (/[0-9₹]/.test(text)) ctx.addIssue({ code: "custom", message: "Write no digits or amounts. Use a placeholder such as {budget_position}." });
+    if (/[0-9₹]/.test(text))
+      ctx.addIssue({
+        code: "custom",
+        message: "Write no digits or amounts. Use a placeholder such as {budget_position}.",
+      });
     for (const [, name] of text.matchAll(PLACEHOLDER)) {
-      if (name && !PLACEHOLDERS.includes(name)) ctx.addIssue({ code: "custom", message: `Unknown placeholder {${name}}.` });
+      if (name && !PLACEHOLDERS.includes(name))
+        ctx.addIssue({ code: "custom", message: `Unknown placeholder {${name}}.` });
     }
   });
 

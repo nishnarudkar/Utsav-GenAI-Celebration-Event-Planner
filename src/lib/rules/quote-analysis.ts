@@ -10,7 +10,7 @@ import type { BudgetCategory, BudgetUnit, CityTier } from "@/lib/schemas/enums";
 import type { QuoteExtraction, QuoteLineItem } from "@/lib/schemas/quote";
 
 /** A unit price this far above the city's mid benchmark gets flagged. */
-export const ABOVE_BENCHMARK_FLAG = 0.15;
+const ABOVE_BENCHMARK_FLAG = 0.15;
 /** Tolerance for rounding on printed quotes, in paise (₹1). */
 const ROUNDING_PAISE = 100;
 
@@ -48,7 +48,13 @@ export interface QuoteAnalysis {
   terms: string[];
 }
 
-const BENCHMARKED_UNITS: ReadonlySet<BudgetUnit> = new Set(["per_plate", "per_guest", "per_day", "per_hour", "per_item"]);
+const BENCHMARKED_UNITS: ReadonlySet<BudgetUnit> = new Set([
+  "per_plate",
+  "per_guest",
+  "per_day",
+  "per_hour",
+  "per_item",
+]);
 
 export function analyzeQuote(
   extraction: QuoteExtraction,
@@ -60,7 +66,8 @@ export function analyzeQuote(
   const lines: AnalyzedLine[] = extraction.lineItems.map((item) => {
     const unitPricePaise = item.unitPriceRupees === null ? null : rupeesToPaise(item.unitPriceRupees);
     const printed = item.amountRupees === null ? null : rupeesToPaise(item.amountRupees);
-    const product = unitPricePaise !== null && item.quantity !== null ? Math.round(unitPricePaise * item.quantity) : null;
+    const product =
+      unitPricePaise !== null && item.quantity !== null ? Math.round(unitPricePaise * item.quantity) : null;
     const arithmeticOk = printed !== null && product !== null ? Math.abs(printed - product) <= ROUNDING_PAISE : null;
 
     let benchmark: AnalyzedLine["benchmark"];
@@ -75,7 +82,13 @@ export function analyzeQuote(
         };
       }
     }
-    return { ...item, unitPricePaise, amountPaise: printed ?? product, arithmeticOk, ...(benchmark ? { benchmark } : {}) };
+    return {
+      ...item,
+      unitPricePaise,
+      amountPaise: printed ?? product,
+      arithmeticOk,
+      ...(benchmark ? { benchmark } : {}),
+    };
   });
 
   // Arithmetic per line.
@@ -95,7 +108,9 @@ export function analyzeQuote(
   const statedRupees = extraction.statedTotalRupees ?? extraction.statedSubtotalRupees;
   const statedTotalPaise = statedRupees === null ? null : rupeesToPaise(statedRupees);
   const totalMismatchPaise =
-    statedTotalPaise !== null && extraction.gst.status !== "included" && Math.abs(statedTotalPaise - computedSubtotalPaise) > ROUNDING_PAISE
+    statedTotalPaise !== null &&
+    extraction.gst.status !== "included" &&
+    Math.abs(statedTotalPaise - computedSubtotalPaise) > ROUNDING_PAISE
       ? statedTotalPaise - computedSubtotalPaise
       : null;
   if (totalMismatchPaise !== null) {
@@ -110,7 +125,12 @@ export function analyzeQuote(
   // Unpriced lines.
   const unpriced = lines.filter((l) => l.amountPaise === null);
   for (const l of unpriced) {
-    flags.push({ id: `unpriced:${l.description}`, severity: "warn", title: "No price given", detail: `“${l.description}” has no price — ask for a fixed amount.` });
+    flags.push({
+      id: `unpriced:${l.description}`,
+      severity: "warn",
+      title: "No price given",
+      detail: `“${l.description}” has no price — ask for a fixed amount.`,
+    });
   }
 
   // GST.
@@ -128,7 +148,12 @@ export function analyzeQuote(
           : "The quote says GST is extra but doesn't state the rate — ask which rate applies.",
     });
   } else if (extraction.gst.status === "not_mentioned") {
-    flags.push({ id: "gst_unclear", severity: "warn", title: "GST not mentioned", detail: "Ask whether the prices include GST." });
+    flags.push({
+      id: "gst_unclear",
+      severity: "warn",
+      title: "GST not mentioned",
+      detail: "Ask whether the prices include GST.",
+    });
   }
 
   // Benchmarks.
@@ -145,9 +170,16 @@ export function analyzeQuote(
 
   // Hidden costs and missing items from the model's reading of the document.
   extraction.hiddenCosts.forEach((h, i) =>
-    flags.push({ id: `hidden:${i}`, severity: "warn", title: "Possible hidden cost", detail: `“${h.quote}” — ${h.concern}` }),
+    flags.push({
+      id: `hidden:${i}`,
+      severity: "warn",
+      title: "Possible hidden cost",
+      detail: `“${h.quote}” — ${h.concern}`,
+    }),
   );
-  extraction.missingItems.forEach((m, i) => flags.push({ id: `missing:${i}`, severity: "info", title: `Not mentioned: ${m.item}`, detail: m.why }));
+  extraction.missingItems.forEach((m, i) =>
+    flags.push({ id: `missing:${i}`, severity: "info", title: `Not mentioned: ${m.item}`, detail: m.why }),
+  );
 
   const rank = { critical: 0, warn: 1, info: 2 } as const;
   return {
@@ -160,7 +192,10 @@ export function analyzeQuote(
     unpricedLines: unpriced.length,
     gst: { status: extraction.gst.status, percent: extraction.gst.percent, amountPaise: gstAmount },
     totalWithGstPaise: base + (gstAmount ?? 0),
-    flags: flags.map((f, i) => ({ f, i })).sort((a, b) => rank[a.f.severity] - rank[b.f.severity] || a.i - b.i).map(({ f }) => f),
+    flags: flags
+      .map((f, i) => ({ f, i }))
+      .sort((a, b) => rank[a.f.severity] - rank[b.f.severity] || a.i - b.i)
+      .map(({ f }) => f),
     terms: extraction.terms,
   };
 }
@@ -177,8 +212,18 @@ export function negotiationFacts(a: QuoteAnalysis, ctx: { guestCount: number; ev
     above.length
       ? `Above typical city rates: ${above.map((l) => `${l.description} at ${formatINR(l.unitPricePaise!)} vs typical ${formatINR(l.benchmark!.midPaise)} (${l.benchmark!.diffPercent}% higher)`).join("; ")}.`
       : "Rates are within typical city ranges.",
-    `Questions to raise: ${a.flags.filter((f) => f.severity !== "info").map((f) => f.detail).join(" ") || "none"}`,
-    a.flags.some((f) => f.severity === "info") ? `Not mentioned in the quote: ${a.flags.filter((f) => f.severity === "info").map((f) => f.title.replace("Not mentioned: ", "")).join(", ")}.` : "",
+    `Questions to raise: ${
+      a.flags
+        .filter((f) => f.severity !== "info")
+        .map((f) => f.detail)
+        .join(" ") || "none"
+    }`,
+    a.flags.some((f) => f.severity === "info")
+      ? `Not mentioned in the quote: ${a.flags
+          .filter((f) => f.severity === "info")
+          .map((f) => f.title.replace("Not mentioned: ", ""))
+          .join(", ")}.`
+      : "",
   ]
     .filter(Boolean)
     .join("\n");

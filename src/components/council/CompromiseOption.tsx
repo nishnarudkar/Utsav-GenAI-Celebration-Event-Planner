@@ -11,10 +11,14 @@ interface CompromiseOptionProps {
 
 export function CompromiseOption({ option: o, chosen, disabled, onChoose }: CompromiseOptionProps) {
   return (
-    <article className={`flex flex-col gap-2 rounded-2xl border bg-white p-4 ${chosen ? "border-2 border-marigold" : "border-line"}`}>
+    <article
+      className={`flex flex-col gap-2 rounded-2xl border bg-white p-4 ${chosen ? "border-2 border-marigold" : "border-line"}`}
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h4 className="font-display text-lg text-maroon">{o.title}</h4>
-        <span className="text-sm tabular-nums text-ink">{o.costDeltaPaise === 0 ? "No cost change" : `${formatINRDelta(o.costDeltaPaise)} cost`}</span>
+        <span className="text-sm tabular-nums text-ink">
+          {o.costDeltaPaise === 0 ? "No cost change" : `${formatINRDelta(o.costDeltaPaise)} cost`}
+        </span>
       </div>
       <p className="text-sm text-ink">{o.description}</p>
       <dl className="flex flex-col gap-1 text-sm">

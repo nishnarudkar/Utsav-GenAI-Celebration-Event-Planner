@@ -58,7 +58,11 @@ describe("rescaleQuantity", () => {
 describe("checkVenueCapacity", () => {
   it("is critical when guests exceed the venue (demo: 350 in a 300-seat hall)", () => {
     expect(checkVenueCapacity(scaleFunctionGuests(DEMO, 250, 350))).toEqual([
-      { type: "venue_capacity", severity: "critical", message: "Biye (wedding ceremony): 350 guests expected but the venue holds 300." },
+      {
+        type: "venue_capacity",
+        severity: "critical",
+        message: "Biye (wedding ceremony): 350 guests expected but the venue holds 300.",
+      },
     ]);
   });
 
@@ -92,14 +96,24 @@ describe("timelineOverlaps", () => {
   it("flags overlapping functions, including ones that run past midnight", () => {
     const sangeet = fn("Sangeet", 100, { date: "2027-02-13", startTime: "20:00", endTime: "01:00" });
     const haldi = fn("Haldi", 50, { date: "2027-02-14", startTime: "00:30", endTime: "03:00" });
-    expect(timelineOverlaps([sangeet, haldi])).toEqual([{ type: "timeline_overlap", severity: "warn", message: "Sangeet and Haldi overlap in time." }]);
+    expect(timelineOverlaps([sangeet, haldi])).toEqual([
+      { type: "timeline_overlap", severity: "warn", message: "Sangeet and Haldi overlap in time." },
+    ]);
   });
 });
 
 describe("detectConflicts", () => {
   it("puts critical conflicts first", () => {
-    const functions = [...scaleFunctionGuests(DEMO, 250, 350), fn("Mehendi", 20, { startTime: "09:00", endTime: "11:00" })];
-    const conflicts = detectConflicts({ functions, totalEstimatePaise: rupees(17_10_000), budgetTotalPaise: rupees(15_00_000), budgetIsEstimate: false });
+    const functions = [
+      ...scaleFunctionGuests(DEMO, 250, 350),
+      fn("Mehendi", 20, { startTime: "09:00", endTime: "11:00" }),
+    ];
+    const conflicts = detectConflicts({
+      functions,
+      totalEstimatePaise: rupees(17_10_000),
+      budgetTotalPaise: rupees(15_00_000),
+      budgetIsEstimate: false,
+    });
     expect(conflicts.map((c) => [c.type, c.severity])).toEqual([
       ["over_budget", "critical"],
       ["venue_capacity", "critical"],
@@ -108,6 +122,8 @@ describe("detectConflicts", () => {
   });
 
   it("skips the over-budget check when Utsav is estimating the budget", () => {
-    expect(detectConflicts({ functions: [], totalEstimatePaise: 200, budgetTotalPaise: 100, budgetIsEstimate: true })).toEqual([]);
+    expect(
+      detectConflicts({ functions: [], totalEstimatePaise: 200, budgetTotalPaise: 100, budgetIsEstimate: true }),
+    ).toEqual([]);
   });
 });

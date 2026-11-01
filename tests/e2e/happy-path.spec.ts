@@ -53,7 +53,10 @@ test("the demo script works from start to finish", async ({ page, context, brows
   await page.getByRole("link", { name: "Family" }).click();
   await page.getByRole("button", { name: "Hold the council" }).click();
   await expect(page.getByText("Where the family differs")).toBeVisible();
-  await page.getByRole("button", { name: /^Choose:/ }).first().click();
+  await page
+    .getByRole("button", { name: /^Choose:/ })
+    .first()
+    .click();
   await expect(page.getByText(/Family Council chose/)).toBeVisible();
 
   // Quote X-Ray: the seeded quote, a real upload through the file picker, and Copy.
@@ -73,7 +76,10 @@ test("the plan downloads as a PDF and a calendar file", async ({ page }) => {
   await page.getByRole("button", { name: "Try the demo wedding" }).click();
   await page.waitForURL(/\/events\/[0-9a-f-]{36}$/);
 
-  for (const [link, file] of [["Download PDF", "utsav-ananya-rohan-s-wedding.pdf"], ["Add to calendar", "utsav-ananya-rohan-s-wedding.ics"]] as const) {
+  for (const [link, file] of [
+    ["Download PDF", "utsav-ananya-rohan-s-wedding.pdf"],
+    ["Add to calendar", "utsav-ananya-rohan-s-wedding.ics"],
+  ] as const) {
     const download = page.waitForEvent("download");
     await page.getByRole("link", { name: link }).click();
     expect((await download).suggestedFilename()).toBe(file);
@@ -108,7 +114,11 @@ test("a look can be made from a sample or a photo, and shows on the overview", a
   await expect(page.getByRole("heading", { name: "Lal Paar Heritage" })).toBeVisible();
   await expect(page.getByRole("list", { name: "Colour palette" }).getByRole("listitem")).toHaveCount(5);
 
-  await page.getByLabel(/^Photos/).setInputFiles({ name: "mandap.png", mimeType: "image/png", buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]) });
+  await page.getByLabel(/^Photos/).setInputFiles({
+    name: "mandap.png",
+    mimeType: "image/png",
+    buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+  });
   await page.getByRole("button", { name: "Make a new look" }).click();
   await expect(page.getByRole("button", { name: "Make a new look" })).toBeEnabled();
   await expect(page.getByRole("main").getByRole("alert")).toHaveCount(0);

@@ -9,12 +9,16 @@ import type { StoredEvent } from "@/lib/plan/types";
  * stable, so importing an updated plan replaces events instead of duplicating them.
  */
 
-type IcsEvent = Pick<StoredEvent, "id" | "title" | "version" | "updatedAt" | "answers" | "plan" | "rituals" | "timeline">;
+type IcsEvent = Pick<
+  StoredEvent,
+  "id" | "title" | "version" | "updatedAt" | "answers" | "plan" | "rituals" | "timeline"
+>;
 
 const CRLF = "\r\n";
 const MAX_LINE_BYTES = 75;
 
-const escapeText = (text: string) => text.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const escapeText = (text: string) =>
+  text.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 
 /** Split long lines at 75 bytes without breaking a character; continuation lines start with a space. */
 function foldLine(line: string): string {
@@ -36,10 +40,18 @@ function foldLine(line: string): string {
   return out.join(CRLF);
 }
 
-const utcStamp = (instant: Date) => instant.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const utcStamp = (instant: Date) =>
+  instant
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 const istInstant = (date: ISODate, hhmm: string) => new Date(`${date}T${hhmm}:00+05:30`);
 const dateValue = (date: ISODate) => date.replace(/-/g, "");
-const slug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const slug = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
 function functionEvent(event: IcsEvent, f: PlannedFunction, common: string[]): string[] {
   const start = istInstant(f.date, f.startTime);
@@ -48,7 +60,11 @@ function functionEvent(event: IcsEvent, f: PlannedFunction, common: string[]): s
   const end = sameDayEnd > start ? sameDayEnd : istInstant(addDays(f.date, 1), f.endTime);
 
   const rituals = f.ritualKeys.flatMap((key) => event.rituals.rituals.find((r) => r.key === key)?.name ?? []);
-  const description = [`${f.expectedGuests.toLocaleString("en-IN")} guests expected`, rituals.length ? `Rituals: ${rituals.join(", ")}` : null, f.notes ?? null]
+  const description = [
+    `${f.expectedGuests.toLocaleString("en-IN")} guests expected`,
+    rituals.length ? `Rituals: ${rituals.join(", ")}` : null,
+    f.notes ?? null,
+  ]
     .filter(Boolean)
     .join("\n");
 

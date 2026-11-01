@@ -17,7 +17,15 @@ export async function checkQuote(
   if (!event) return null;
 
   const extraction = await extractQuote(input.file, { category: input.category }, deps);
-  const analysis = analyzeQuote(extraction, { category: input.category, cityTier: event.cityTier, benchmarkRows: getPricing().rows });
-  const negotiationMessage = await draftNegotiation(analysis, { guestCount: event.answers.guestCount, eventLabel: event.title }, deps);
+  const analysis = analyzeQuote(extraction, {
+    category: input.category,
+    cityTier: event.cityTier,
+    benchmarkRows: getPricing().rows,
+  });
+  const negotiationMessage = await draftNegotiation(
+    analysis,
+    { guestCount: event.answers.guestCount, eventLabel: event.title },
+    deps,
+  );
   return repo.addQuote(id, { fileName: input.fileName, analysis, negotiationMessage });
 }

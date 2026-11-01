@@ -2,7 +2,7 @@ import { z } from "zod";
 
 /** The cascade engine's output (CLAUDE.md §8). Shared by the API, the diff panel and plan_changes. */
 
-export const ConflictSeverity = z.enum(["info", "warn", "critical"]);
+const ConflictSeverity = z.enum(["info", "warn", "critical"]);
 export type ConflictSeverity = z.infer<typeof ConflictSeverity>;
 
 export const Conflict = z.object({
@@ -24,7 +24,9 @@ export type RecoveryOption = z.infer<typeof RecoveryOption>;
 export const PlanDiff = z.object({
   version: z.number().int(),
   budgetDeltaPaise: z.number().int(),
-  changed: z.array(z.object({ nodeId: z.string(), label: z.string(), from: z.unknown(), to: z.unknown(), reason: z.string() })),
+  changed: z.array(
+    z.object({ nodeId: z.string(), label: z.string(), from: z.unknown(), to: z.unknown(), reason: z.string() }),
+  ),
   added: z.array(z.object({ nodeId: z.string(), label: z.string() })),
   removed: z.array(z.object({ nodeId: z.string(), label: z.string() })),
   conflicts: z.array(Conflict),

@@ -25,7 +25,12 @@ export function liveDate(event: Pick<StoredEvent, "plan" | "answers">, today: IS
 export function liveGroups(event: Pick<StoredEvent, "plan" | "rituals" | "live">, date: ISODate): LiveGroup[] {
   const groups: LiveGroup[] = [];
   for (const s of buildRunOfShow(event.plan.functions, event.rituals.rituals, date, event.live.shifts)) {
-    const row = { id: s.id, name: s.name, time: `${slotTime(s.startMin)} – ${slotTime(s.endMin)}`, delayMinutes: event.live.shifts[s.id] ?? 0 };
+    const row = {
+      id: s.id,
+      name: s.name,
+      time: `${slotTime(s.startMin)} – ${slotTime(s.endMin)}`,
+      delayMinutes: event.live.shifts[s.id] ?? 0,
+    };
     const last = groups.at(-1);
     if (last?.functionName === s.functionName) last.slots.push(row);
     else groups.push({ functionName: s.functionName, slots: [row] });

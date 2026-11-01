@@ -9,7 +9,13 @@ import { RitualPlan, type RitualPlan as RitualPlanT } from "@/lib/schemas/ritual
 const KB_DIR = path.join(process.cwd(), "kb");
 const FIXTURES_DIR = path.join(process.cwd(), "tests", "fixtures", "llm");
 
-const chunk = (id: string): RetrievedChunk => ({ id, sourcePath: id.split("#")[0]!, heading: id, content: `content of ${id}`, score: 1 });
+const chunk = (id: string): RetrievedChunk => ({
+  id,
+  sourcePath: id.split("#")[0]!,
+  heading: id,
+  content: `content of ${id}`,
+  score: 1,
+});
 
 const ritual = (key: string, order: number) => ({
   key,
@@ -35,11 +41,15 @@ describe("generateRitualPlan", () => {
   it("retrieves ritual docs for the tradition and event type", async () => {
     const { deps, retrieve } = fakeDeps(chunks, plan);
     await generateRitualPlan({ culture: "bengali_hindu", eventType: "wedding" }, deps);
-    expect(retrieve).toHaveBeenCalledWith(expect.stringContaining("bengali hindu wedding"), {
-      culture: "bengali_hindu",
-      eventType: "wedding",
-      docType: "ritual",
-    }, 24);
+    expect(retrieve).toHaveBeenCalledWith(
+      expect.stringContaining("bengali hindu wedding"),
+      {
+        culture: "bengali_hindu",
+        eventType: "wedding",
+        docType: "ritual",
+      },
+      24,
+    );
   });
 
   it("sends the versioned prompt and the excerpts as cached system blocks", async () => {
@@ -47,7 +57,11 @@ describe("generateRitualPlan", () => {
     await generateRitualPlan({ culture: "bengali_hindu", eventType: "wedding", notes: "Skip Bashor Raat" }, deps);
 
     const opts = structured.mock.calls[0]?.[0];
-    expect(opts).toMatchObject({ name: "emit_ritual_plan", fixtureKey: "emit_ritual_plan.bengali_hindu.wedding", model: "smart" });
+    expect(opts).toMatchObject({
+      name: "emit_ritual_plan",
+      fixtureKey: "emit_ritual_plan.bengali_hindu.wedding",
+      model: "smart",
+    });
     expect(Array.isArray(opts?.system) && opts.system).toHaveLength(2);
     const [prompt, excerpts] = opts!.system as Array<{ text: string; cache_control?: unknown }>;
     expect(prompt?.text).toContain("Cultural Ritual Engine");
@@ -79,7 +93,10 @@ describe("enforceGrounding", () => {
   });
 
   it("downgrades to low confidence when no valid source remains", () => {
-    const out = enforceGrounding({ rituals: [ritual("a", 1)], sources: ["kb/invented.md#0"], confidence: "high" }, supplied);
+    const out = enforceGrounding(
+      { rituals: [ritual("a", 1)], sources: ["kb/invented.md#0"], confidence: "high" },
+      supplied,
+    );
     expect(out.confidence).toBe("low");
   });
 
@@ -88,7 +105,11 @@ describe("enforceGrounding", () => {
       { rituals: [ritual("c", 7), ritual("a", 2), ritual("b", 5)], sources: ["kb/a.md#0"], confidence: "medium" },
       supplied,
     );
-    expect(out.rituals.map((r) => [r.key, r.order])).toEqual([["a", 1], ["b", 2], ["c", 3]]);
+    expect(out.rituals.map((r) => [r.key, r.order])).toEqual([
+      ["a", 1],
+      ["b", 2],
+      ["c", 3],
+    ]);
   });
 });
 

@@ -15,24 +15,47 @@ import type { PlanDiff } from "@/lib/schemas/diff";
 const rupees = (r: number) => r * 100;
 const params = (id: string) => ({ params: Promise.resolve({ id }) });
 const MISSING = "00000000-0000-0000-0000-000000000000";
-const req = (body?: unknown) => new Request("http://test", { method: "POST", ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+const req = (body?: unknown) =>
+  new Request("http://test", { method: "POST", ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
 const json = async <T>(res: Response) => (await res.json()) as T;
 
-const BODY = { eventType: "wedding", culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250, budgetTotalPaise: rupees(15_00_000) };
+const BODY = {
+  eventType: "wedding",
+  culture: "bengali_hindu",
+  city: "Kolkata",
+  startDate: "2027-02-14",
+  guestCount: 250,
+  budgetTotalPaise: rupees(15_00_000),
+};
 
 async function newEvent(body: Record<string, unknown> = BODY): Promise<StoredEvent> {
   return (await json<{ event: StoredEvent }>(await createEvent(req(body)))).event;
 }
-const read = async (id: string) => (await json<{ event: StoredEvent }>(await getEvent(new Request("http://test"), params(id)))).event;
+const read = async (id: string) =>
+  (await json<{ event: StoredEvent }>(await getEvent(new Request("http://test"), params(id)))).event;
 
 async function withFamily(): Promise<StoredEvent> {
   const event = await newEvent();
-  await addStakeholder(req({ name: "Ananya & Rohan", role: "couple", preferences: { guestCount: 150, venueStyle: "lawn" } }), params(event.id));
-  await addStakeholder(req({ name: "Mr & Mrs Sen", role: "bride_family", preferences: { guestCount: 350, venueStyle: "banquet_hall" } }), params(event.id));
-  await addStakeholder(req({ name: "Mr & Mrs Bose", role: "groom_family", preferences: { guestCount: 250, budgetMaxPaise: rupees(15_00_000) } }), params(event.id));
+  await addStakeholder(
+    req({ name: "Ananya & Rohan", role: "couple", preferences: { guestCount: 150, venueStyle: "lawn" } }),
+    params(event.id),
+  );
+  await addStakeholder(
+    req({ name: "Mr & Mrs Sen", role: "bride_family", preferences: { guestCount: 350, venueStyle: "banquet_hall" } }),
+    params(event.id),
+  );
+  await addStakeholder(
+    req({
+      name: "Mr & Mrs Bose",
+      role: "groom_family",
+      preferences: { guestCount: 250, budgetMaxPaise: rupees(15_00_000) },
+    }),
+    params(event.id),
+  );
   return read(event.id);
 }
-const hold = async (id: string) => (await json<{ council: CouncilResolution }>(await holdCouncil(req(), params(id)))).council;
+const hold = async (id: string) =>
+  (await json<{ council: CouncilResolution }>(await holdCouncil(req(), params(id)))).council;
 
 beforeEach(() => {
   vi.stubEnv("DEMO_MODE", "true");
@@ -44,14 +67,23 @@ afterEach(() => {
 describe("stakeholders", () => {
   it("adds with validation and removes", async () => {
     const event = await newEvent();
-    const res = await addStakeholder(req({ name: "Asha", role: "parent", preferences: { menu: "veg" } }), params(event.id));
+    const res = await addStakeholder(
+      req({ name: "Asha", role: "parent", preferences: { menu: "veg" } }),
+      params(event.id),
+    );
     expect(res.status).toBe(201);
     const { stakeholder } = await json<{ stakeholder: Stakeholder }>(res);
     expect(stakeholder).toMatchObject({ name: "Asha", weight: 1 });
 
-    expect((await addStakeholder(req({ name: "", role: "parent", preferences: {} }), params(event.id))).status).toBe(400);
-    expect((await addStakeholder(req({ name: "X", role: "uncle", preferences: {} }), params(event.id))).status).toBe(400);
-    expect((await addStakeholder(req({ name: "X", role: "parent", preferences: {} }), params(MISSING))).status).toBe(404);
+    expect((await addStakeholder(req({ name: "", role: "parent", preferences: {} }), params(event.id))).status).toBe(
+      400,
+    );
+    expect((await addStakeholder(req({ name: "X", role: "uncle", preferences: {} }), params(event.id))).status).toBe(
+      400,
+    );
+    expect((await addStakeholder(req({ name: "X", role: "parent", preferences: {} }), params(MISSING))).status).toBe(
+      404,
+    );
 
     const ctx = { params: Promise.resolve({ id: event.id, stakeholderId: stakeholder.id }) };
     expect((await removeStakeholder(new Request("http://test"), ctx)).status).toBe(204);
@@ -77,17 +109,26 @@ describe("holding a council", () => {
     const event = await withFamily();
     const council = await hold(event.id);
 
-    expect(council.conflicts.map((c) => [c.topic, c.severity])).toEqual([["Guest list", "high"], ["Venue", "medium"], ["Spending", "medium"]]);
+    expect(council.conflicts.map((c) => [c.topic, c.severity])).toEqual([
+      ["Guest list", "high"],
+      ["Venue", "medium"],
+      ["Spending", "medium"],
+    ]);
     expect(council.conflicts[0]?.positions[0]?.stakeholder).toBe("Ananya & Rohan");
     expect(council.options.map((o) => [o.id, o.costDeltaPaise])).toEqual([
       ["intimate_biye_big_reception", rupees(27_200)], // −100 + 100 plates, +100 gifts ₹200, +48 cards ₹150
       ["middle_ground_300", rupees(1_03_600)],
       ["keep_current", 0],
     ]);
-    expect(council.options[0]).toMatchObject({ satisfies: ["Ananya & Rohan", "Mr & Mrs Sen"], compromises: ["Mr & Mrs Bose"] });
+    expect(council.options[0]).toMatchObject({
+      satisfies: ["Ananya & Rohan", "Mr & Mrs Sen"],
+      compromises: ["Mr & Mrs Bose"],
+    });
     expect(council.options[2]?.conflictsAfter).toEqual([]);
 
-    const got = await json<{ stakeholders: Stakeholder[]; council: CouncilResolution }>(await getCouncil(new Request("http://test"), params(event.id)));
+    const got = await json<{ stakeholders: Stakeholder[]; council: CouncilResolution }>(
+      await getCouncil(new Request("http://test"), params(event.id)),
+    );
     expect(got.stakeholders).toHaveLength(3);
     expect(got.council.id).toBe(council.id);
   });
@@ -131,7 +172,10 @@ describe("applying a compromise", () => {
     await hold(event.id);
     expect((await applyOption(req({ optionId: "nope" }), params(event.id))).status).toBe(404);
 
-    await patchEvent(new Request("http://test", { method: "PATCH", body: JSON.stringify({ field: "guest_count", value: 260 }) }), params(event.id));
+    await patchEvent(
+      new Request("http://test", { method: "PATCH", body: JSON.stringify({ field: "guest_count", value: 260 }) }),
+      params(event.id),
+    );
     const stale = await applyOption(req({ optionId: "keep_current" }), params(event.id));
     expect(stale.status).toBe(409);
   });
@@ -150,10 +194,37 @@ describe("finalizeCouncil", () => {
   it("drops unknown refs, conflicts left with one side, and unknown functions", async () => {
     const event = await newEvent();
     const draft: CouncilDraft = {
-      conflicts: [{ topic: "Menu", severity: "low", positions: [{ ref: "parent", wants: "Veg" }, { ref: "ghost", wants: "Fish" }] }],
+      conflicts: [
+        {
+          topic: "Menu",
+          severity: "low",
+          positions: [
+            { ref: "parent", wants: "Veg" },
+            { ref: "ghost", wants: "Fish" },
+          ],
+        },
+      ],
       options: [
-        { id: "a", title: "A", description: "d", satisfies: ["parent", "ghost"], compromises: [], patch: { guestCount: null, functionGuests: [{ functionName: "Made up", guests: 900 }], budgetTotalPaise: null } },
-        { id: "b", title: "B", description: "d", satisfies: [], compromises: ["parent_2"], patch: { guestCount: null, functionGuests: [], budgetTotalPaise: null } },
+        {
+          id: "a",
+          title: "A",
+          description: "d",
+          satisfies: ["parent", "ghost"],
+          compromises: [],
+          patch: {
+            guestCount: null,
+            functionGuests: [{ functionName: "Made up", guests: 900 }],
+            budgetTotalPaise: null,
+          },
+        },
+        {
+          id: "b",
+          title: "B",
+          description: "d",
+          satisfies: [],
+          compromises: ["parent_2"],
+          patch: { guestCount: null, functionGuests: [], budgetTotalPaise: null },
+        },
       ],
     };
     const result = finalizeCouncil(draft, event, stakeholders, { version: 1, today: "2026-10-30" });
@@ -166,21 +237,50 @@ describe("finalizeCouncil", () => {
 describe("applyCouncilPatch", () => {
   it("raises the guest list when a function asks for more guests than the event has", async () => {
     const event = await newEvent();
-    const { state } = applyCouncilPatch(event, { guestCount: null, functionGuests: [{ functionName: "Bou Bhaat (reception)", guests: 400 }], budgetTotalPaise: null }, { version: 1, today: "2026-10-30" }, "x");
+    const { state } = applyCouncilPatch(
+      event,
+      {
+        guestCount: null,
+        functionGuests: [{ functionName: "Bou Bhaat (reception)", guests: 400 }],
+        budgetTotalPaise: null,
+      },
+      { version: 1, today: "2026-10-30" },
+      "x",
+    );
     expect(state.answers.guestCount).toBe(400);
   });
 
   it("adopts a budget limit and rescales targets", async () => {
     const event = await newEvent();
-    const { state, diff } = applyCouncilPatch(event, { guestCount: null, functionGuests: [], budgetTotalPaise: rupees(12_00_000) }, { version: 1, today: "2026-10-30" }, "x");
+    const { state, diff } = applyCouncilPatch(
+      event,
+      { guestCount: null, functionGuests: [], budgetTotalPaise: rupees(12_00_000) },
+      { version: 1, today: "2026-10-30" },
+      "x",
+    );
     expect(state.budget.budgetTotalPaise).toBe(rupees(12_00_000));
     expect(diff.conflicts[0]?.type).toBe("over_budget");
   });
 
   it("leaves a locked line alone and says so", async () => {
     const event = await newEvent();
-    const locked = { ...event, budget: { ...event.budget, lines: event.budget.lines.map((l) => (l.label === "Bou Bhaat feast" ? { ...l, locked: true } : l)) } };
-    const { state, diff } = applyCouncilPatch(locked, { guestCount: null, functionGuests: [{ functionName: "Bou Bhaat (reception)", guests: 100 }], budgetTotalPaise: null }, { version: 1, today: "2026-10-30" }, "x");
+    const locked = {
+      ...event,
+      budget: {
+        ...event.budget,
+        lines: event.budget.lines.map((l) => (l.label === "Bou Bhaat feast" ? { ...l, locked: true } : l)),
+      },
+    };
+    const { state, diff } = applyCouncilPatch(
+      locked,
+      {
+        guestCount: null,
+        functionGuests: [{ functionName: "Bou Bhaat (reception)", guests: 100 }],
+        budgetTotalPaise: null,
+      },
+      { version: 1, today: "2026-10-30" },
+      "x",
+    );
     expect(state.budget.lines.find((l) => l.label === "Bou Bhaat feast")?.basis.quantity).toBe(250);
     expect(diff.conflicts.map((c) => c.type)).toContain("locked_item");
   });

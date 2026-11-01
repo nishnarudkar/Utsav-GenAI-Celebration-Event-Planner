@@ -32,15 +32,21 @@ export function DiffPanel({ diff, busy, onAccept, onUndo, onApply }: DiffPanelPr
   const DeltaIcon = DIRECTION[deltaDir].icon;
 
   return (
-    <section aria-labelledby="diff-title" className="flex flex-col gap-4 rounded-2xl border-2 border-marigold bg-white p-5">
+    <section
+      aria-labelledby="diff-title"
+      className="flex flex-col gap-4 rounded-2xl border-2 border-marigold bg-white p-5"
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="diff-title" className="font-display text-xl text-maroon">
           What changed
         </h2>
         {delta !== 0 && (
-          <span className={`inline-flex items-center gap-1 text-sm font-medium tabular-nums ${DIRECTION[deltaDir].className}`}>
+          <span
+            className={`inline-flex items-center gap-1 text-sm font-medium tabular-nums ${DIRECTION[deltaDir].className}`}
+          >
             <DeltaIcon className="size-4" aria-hidden />
-            {formatINRDelta(delta)} <span className="font-normal text-muted">{delta > 0 ? "more" : "less"} in total</span>
+            {formatINRDelta(delta)}{" "}
+            <span className="font-normal text-muted">{delta > 0 ? "more" : "less"} in total</span>
           </span>
         )}
       </div>

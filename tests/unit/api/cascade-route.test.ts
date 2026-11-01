@@ -24,12 +24,18 @@ const params = (id: string) => ({ params: Promise.resolve({ id }) });
 const json = async <T>(res: Response) => (await res.json()) as T;
 
 async function newEvent(): Promise<StoredEvent> {
-  const res = await createEvent(new Request("http://test/api/events", { method: "POST", body: JSON.stringify(DEMO_BODY) }));
+  const res = await createEvent(
+    new Request("http://test/api/events", { method: "POST", body: JSON.stringify(DEMO_BODY) }),
+  );
   return (await json<{ event: StoredEvent }>(res)).event;
 }
 const patch = (id: string, body: unknown, query = "") =>
-  patchEvent(new Request(`http://test/api/events/${id}${query}`, { method: "PATCH", body: JSON.stringify(body) }), params(id));
-const read = async (id: string) => (await json<{ event: StoredEvent }>(await getEvent(new Request("http://test"), params(id)))).event;
+  patchEvent(
+    new Request(`http://test/api/events/${id}${query}`, { method: "PATCH", body: JSON.stringify(body) }),
+    params(id),
+  );
+const read = async (id: string) =>
+  (await json<{ event: StoredEvent }>(await getEvent(new Request("http://test"), params(id)))).event;
 const doUndo = (id: string) => undo(new Request("http://test", { method: "POST" }), params(id));
 
 beforeEach(() => {
@@ -46,7 +52,11 @@ describe("PATCH /api/events/:id", () => {
     expect(res.status).toBe(200);
     const { event: updated, diff } = await json<{ event: StoredEvent; diff: PlanDiff }>(res);
 
-    expect(updated).toMatchObject({ version: 2, answers: { guestCount: 350 }, budget: { totalEstimatePaise: 164720000 } });
+    expect(updated).toMatchObject({
+      version: 2,
+      answers: { guestCount: 350 },
+      budget: { totalEstimatePaise: 164720000 },
+    });
     expect(diff).toMatchObject({ version: 2, budgetDeltaPaise: 20720000 });
     expect(diff.conflicts.map((c) => c.type)).toEqual(["over_budget"]); // no venue capacity set on API-created events
     expect((await read(event.id)).answers.guestCount).toBe(350);
@@ -62,7 +72,9 @@ describe("PATCH /api/events/:id", () => {
     ]);
     // The demo explanation mentions the ₹1L "keep 300 guests" option, which doesn't exist without a
     // venue capacity — so the guard rejects it and the deterministic summary is used.
-    expect(diff.explanation).toBe("Guest count changed from 250 to 350. 4 budget items were recalculated (+₹2.1L). 1 conflict needs attention: over budget.");
+    expect(diff.explanation).toBe(
+      "Guest count changed from 250 to 350. 4 budget items were recalculated (+₹2.1L). 1 conflict needs attention: over budget.",
+    );
   });
 
   it("previews with ?dryRun=true without saving anything", async () => {
@@ -75,13 +87,17 @@ describe("PATCH /api/events/:id", () => {
 
     const stored = await read(event.id);
     expect(stored).toMatchObject({ version: 1, budget: { budgetTotalPaise: 150000000 } });
-    const { changes } = await json<{ changes: unknown[] }>(await listChanges(new Request("http://test"), params(event.id)));
+    const { changes } = await json<{ changes: unknown[] }>(
+      await listChanges(new Request("http://test"), params(event.id)),
+    );
     expect(changes).toEqual([]);
   });
 
   it("reports a no-op without bumping the version", async () => {
     const event = await newEvent();
-    const body = await json<{ noop: boolean; event: StoredEvent }>(await patch(event.id, { field: "city", value: "Kolkata" }));
+    const body = await json<{ noop: boolean; event: StoredEvent }>(
+      await patch(event.id, { field: "city", value: "Kolkata" }),
+    );
     expect(body.noop).toBe(true);
     expect((await read(event.id)).version).toBe(1);
   });
@@ -90,7 +106,9 @@ describe("PATCH /api/events/:id", () => {
     const event = await newEvent();
     expect((await patch(event.id, { field: "guest_count", value: -5 })).status).toBe(400);
     expect((await patch(event.id, { field: "venue", value: "Lawn" })).status).toBe(400);
-    expect((await patch("00000000-0000-0000-0000-000000000000", { field: "guest_count", value: 300 })).status).toBe(404);
+    expect((await patch("00000000-0000-0000-0000-000000000000", { field: "guest_count", value: 300 })).status).toBe(
+      404,
+    );
   });
 });
 
@@ -100,9 +118,9 @@ describe("change log and undo", () => {
     await patch(original.id, { field: "guest_count", value: 350 });
     await patch(original.id, { field: "start_date", value: "2027-02-21" });
 
-    const { changes } = await json<{ changes: Array<{ version: number; field: string; from: unknown; to: unknown; undone: boolean }> }>(
-      await listChanges(new Request("http://test"), params(original.id)),
-    );
+    const { changes } = await json<{
+      changes: Array<{ version: number; field: string; from: unknown; to: unknown; undone: boolean }>;
+    }>(await listChanges(new Request("http://test"), params(original.id)));
     expect(changes.map((c) => [c.version, c.field, c.from, c.to, c.undone])).toEqual([
       [3, "start_date", "2027-02-14", "2027-02-21", false],
       [2, "guest_count", 250, 350, false],
@@ -128,7 +146,10 @@ describe("change log and undo", () => {
 
   it("keeps ritual checklist ticks across changes and undo", async () => {
     const event = await newEvent();
-    await putItem(new Request("http://test", { method: "PUT", body: JSON.stringify({ itemId: "gaye_holud#0", procured: true }) }), params(event.id));
+    await putItem(
+      new Request("http://test", { method: "PUT", body: JSON.stringify({ itemId: "gaye_holud#0", procured: true }) }),
+      params(event.id),
+    );
     await patch(event.id, { field: "guest_count", value: 300 });
     await doUndo(event.id);
     expect((await read(event.id)).procuredItems).toEqual(["gaye_holud#0"]);
@@ -136,7 +157,9 @@ describe("change log and undo", () => {
 
   it("returns 404 for unknown events", async () => {
     expect((await doUndo("00000000-0000-0000-0000-000000000000")).status).toBe(404);
-    expect((await listChanges(new Request("http://test"), params("00000000-0000-0000-0000-000000000000"))).status).toBe(404);
+    expect((await listChanges(new Request("http://test"), params("00000000-0000-0000-0000-000000000000"))).status).toBe(
+      404,
+    );
   });
 });
 
@@ -183,9 +206,21 @@ describe("MemoryEventRepository.applyChange", () => {
     const { id: _i, status: _s, version: _v, procuredItems: _p, createdAt: _c, updatedAt: _u, ...plan } = created;
     const event = await repo.create(plan);
     const trigger = { field: "guest_count" as const, value: 300, from: 250 };
-    const diff = { version: 2, budgetDeltaPaise: 0, changed: [], added: [], removed: [], conflicts: [], recoveryOptions: [], explanation: "" };
+    const diff = {
+      version: 2,
+      budgetDeltaPaise: 0,
+      changed: [],
+      added: [],
+      removed: [],
+      conflicts: [],
+      recoveryOptions: [],
+      explanation: "",
+    };
     expect((await repo.applyChange(event.id, 1, plan, { trigger, diff })).ok).toBe(true);
-    expect(await repo.applyChange(event.id, 1, plan, { trigger, diff })).toEqual({ ok: false, error: "version_conflict" });
+    expect(await repo.applyChange(event.id, 1, plan, { trigger, diff })).toEqual({
+      ok: false,
+      error: "version_conflict",
+    });
     expect(await repo.applyChange("missing", 1, plan, { trigger, diff })).toEqual({ ok: false, error: "not_found" });
   });
 });

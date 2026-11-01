@@ -43,7 +43,9 @@ const INPUT: BudgetInput = {
   },
 };
 
-const line = (over: Partial<BudgetLineProposal> & Pick<BudgetLineProposal, "category" | "basis">): BudgetLineProposal => ({
+const line = (
+  over: Partial<BudgetLineProposal> & Pick<BudgetLineProposal, "category" | "basis">,
+): BudgetLineProposal => ({
   label: `${over.category} line`,
   rationale: "Because.",
   ...over,
@@ -54,7 +56,11 @@ describe("priceBudgetProposal", () => {
     const out = priceBudgetProposal(
       {
         lines: [
-          line({ category: "catering", functionName: "Biye", basis: { unit: "per_plate", quantity: 250, unitTier: "low" } }),
+          line({
+            category: "catering",
+            functionName: "Biye",
+            basis: { unit: "per_plate", quantity: 250, unitTier: "low" },
+          }),
           line({ category: "venue", functionName: "Biye", basis: { unit: "per_day", quantity: 1, unitTier: "mid" } }),
         ],
       },
@@ -77,7 +83,16 @@ describe("priceBudgetProposal", () => {
 
   it("steps a price tier down to fit the budget, and says so", () => {
     const out = priceBudgetProposal(
-      { lines: [line({ category: "catering", label: "Biye dinner", functionName: "Biye", basis: { unit: "per_plate", quantity: 500, unitTier: "high" } })] },
+      {
+        lines: [
+          line({
+            category: "catering",
+            label: "Biye dinner",
+            functionName: "Biye",
+            basis: { unit: "per_plate", quantity: 500, unitTier: "high" },
+          }),
+        ],
+      },
       { ...INPUT, answers: { ...ANSWERS, budgetTotalPaise: rupees(10_00_000) } },
     );
     expect(out.lines[0]?.basis).toMatchObject({ unitTier: "mid", quantity: 500 });
@@ -87,7 +102,15 @@ describe("priceBudgetProposal", () => {
 
   it("reports how far over budget when even the lowest prices don't fit", () => {
     const out = priceBudgetProposal(
-      { lines: [line({ category: "catering", functionName: "Biye", basis: { unit: "per_plate", quantity: 500, unitTier: "high" } })] },
+      {
+        lines: [
+          line({
+            category: "catering",
+            functionName: "Biye",
+            basis: { unit: "per_plate", quantity: 500, unitTier: "high" },
+          }),
+        ],
+      },
       { ...INPUT, answers: { ...ANSWERS, budgetTotalPaise: rupees(1_00_000) } },
     );
     expect(out.lines[0]?.basis.unitTier).toBe("low");
@@ -96,7 +119,18 @@ describe("priceBudgetProposal", () => {
   });
 
   it("leaves choices alone when the family asked for an estimate", () => {
-    const out = priceBudgetProposal({ lines: [line({ category: "catering", functionName: "Biye", basis: { unit: "per_plate", quantity: 500, unitTier: "high" } })] }, { ...INPUT, answers: { ...ANSWERS, budgetTotalPaise: null } });
+    const out = priceBudgetProposal(
+      {
+        lines: [
+          line({
+            category: "catering",
+            functionName: "Biye",
+            basis: { unit: "per_plate", quantity: 500, unitTier: "high" },
+          }),
+        ],
+      },
+      { ...INPUT, answers: { ...ANSWERS, budgetTotalPaise: null } },
+    );
     expect(out.lines[0]?.basis.unitTier).toBe("high");
   });
 
@@ -112,7 +146,16 @@ describe("priceBudgetProposal", () => {
 
   it("clears function names that don't exist", () => {
     const out = priceBudgetProposal(
-      { lines: [line({ category: "decor", label: "Mehendi décor", functionName: "Mehendi", basis: { unit: "flat", quantity: 1, unitTier: "low" } })] },
+      {
+        lines: [
+          line({
+            category: "decor",
+            label: "Mehendi décor",
+            functionName: "Mehendi",
+            basis: { unit: "flat", quantity: 1, unitTier: "low" },
+          }),
+        ],
+      },
       INPUT,
     );
     expect(out.lines[0]).not.toHaveProperty("functionName");
@@ -123,9 +166,22 @@ describe("priceBudgetProposal", () => {
     const out = priceBudgetProposal(
       {
         lines: [
-          line({ category: "gifts", label: "Return gifts", basis: { unit: "per_guest", quantity: 400, unitTier: "low" } }),
-          line({ category: "catering", label: "Breakfast", functionName: "Gaye Holud", basis: { unit: "per_plate", quantity: 200, unitTier: "low" } }),
-          line({ category: "catering", label: "All meals", basis: { unit: "per_plate", quantity: 2000, unitTier: "low" } }),
+          line({
+            category: "gifts",
+            label: "Return gifts",
+            basis: { unit: "per_guest", quantity: 400, unitTier: "low" },
+          }),
+          line({
+            category: "catering",
+            label: "Breakfast",
+            functionName: "Gaye Holud",
+            basis: { unit: "per_plate", quantity: 200, unitTier: "low" },
+          }),
+          line({
+            category: "catering",
+            label: "All meals",
+            basis: { unit: "per_plate", quantity: 2000, unitTier: "low" },
+          }),
         ],
       },
       INPUT,
@@ -140,7 +196,15 @@ describe("priceBudgetProposal", () => {
 
   it("returns lines without a benchmark as unpriced", () => {
     const out = priceBudgetProposal(
-      { lines: [line({ category: "priest", label: "Pandit hourly", basis: { unit: "per_hour", quantity: 3, unitTier: "mid" } })] },
+      {
+        lines: [
+          line({
+            category: "priest",
+            label: "Pandit hourly",
+            basis: { unit: "per_hour", quantity: 3, unitTier: "mid" },
+          }),
+        ],
+      },
       INPUT,
     );
     expect(out.lines).toEqual([]);
@@ -156,7 +220,10 @@ describe("proposeBudget", () => {
     }));
     await proposeBudget(INPUT, { structured });
     const opts = structured.mock.calls[0]?.[0];
-    expect(opts).toMatchObject({ name: "emit_budget_proposal", fixtureKey: "emit_budget_proposal.bengali_hindu.wedding" });
+    expect(opts).toMatchObject({
+      name: "emit_budget_proposal",
+      fixtureKey: "emit_budget_proposal.bengali_hindu.wedding",
+    });
     const [prompt, menu] = opts!.system as Array<{ text: string }>;
     expect(prompt?.text).toContain("Never write totals");
     expect(menu?.text).toContain('city_tier="1"');
@@ -170,14 +237,18 @@ describe("proposeBudget", () => {
 describe("renderPriceMenu", () => {
   it("lists only the requested tier with formatted prices", () => {
     const menu = renderPriceMenu(getPricing().rows, 2);
-    expect(menu).toContain("catering / per_plate: Per plate per meal, veg or non-veg buffet. low ₹700, mid ₹1,200, high ₹2,200");
+    expect(menu).toContain(
+      "catering / per_plate: Per plate per meal, veg or non-veg buffet. low ₹700, mid ₹1,200, high ₹2,200",
+    );
     expect(menu).not.toContain("₹900,"); // tier 1 low catering
   });
 });
 
 describe("demo wedding: Culture → Planner → Budget (no API key)", () => {
   it("fixture is a valid proposal", () => {
-    BudgetProposal.parse(JSON.parse(readFileSync(path.join(FIXTURES_DIR, "emit_budget_proposal.bengali_hindu.wedding.json"), "utf8")));
+    BudgetProposal.parse(
+      JSON.parse(readFileSync(path.join(FIXTURES_DIR, "emit_budget_proposal.bengali_hindu.wedding.json"), "utf8")),
+    );
   });
 
   it("prices every line, fits ₹15L and needs no corrections", async () => {
@@ -187,7 +258,10 @@ describe("demo wedding: Culture → Planner → Budget (no API key)", () => {
     };
     const structured = <S extends z.ZodType>(opts: CallStructuredOptions<S>) => callStructured(opts, structuredDeps);
 
-    const rituals = await generateRitualPlan({ culture: "bengali_hindu", eventType: "wedding" }, { retrieve: createLocalRetriever(KB_DIR), structured });
+    const rituals = await generateRitualPlan(
+      { culture: "bengali_hindu", eventType: "wedding" },
+      { retrieve: createLocalRetriever(KB_DIR), structured },
+    );
     const plan = await planEvent({ answers: ANSWERS, rituals: rituals.rituals }, { structured });
     const budget = await proposeBudget({ answers: ANSWERS, cityTier: 1, plan }, { structured });
 

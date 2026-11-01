@@ -10,7 +10,14 @@ describe("DEPENDENCIES", () => {
   it("guest count reaches catering, invites, gifts, transport, venue capacity and the budget check", () => {
     const targets = DEPENDENCIES.guest_count.map((r) => r.target);
     expect(targets).toEqual(
-      expect.arrayContaining(["budget:catering", "budget:invites", "budget:gifts", "budget:transport", "check:venue_capacity", "check:over_budget"]),
+      expect.arrayContaining([
+        "budget:catering",
+        "budget:invites",
+        "budget:gifts",
+        "budget:transport",
+        "check:venue_capacity",
+        "check:over_budget",
+      ]),
     );
     expect(targets).not.toContain("budget:venue");
   });
@@ -25,7 +32,9 @@ describe("DEPENDENCIES", () => {
 
 describe("computeImpact", () => {
   it("returns the field's rules", () => {
-    expect(computeImpact({ field: "budget_total", value: 12_00_000_00, from: 15_00_000_00 })).toEqual(DEPENDENCIES.budget_total);
+    expect(computeImpact({ field: "budget_total", value: 12_00_000_00, from: 15_00_000_00 })).toEqual(
+      DEPENDENCIES.budget_total,
+    );
   });
 
   it("returns nothing when the value is unchanged", () => {

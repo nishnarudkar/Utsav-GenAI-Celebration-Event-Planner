@@ -6,14 +6,24 @@ import type { StoredEvent } from "@/lib/plan/types";
 import { estimateCrowd } from "@/lib/rules/crowd";
 
 const rupees = (r: number) => r * 100;
-const COMMUNITY = { eventType: "community", culture: "generic", city: "Pune", startDate: "2027-01-26", guestCount: 500, budgetTotalPaise: rupees(5_00_000) };
+const COMMUNITY = {
+  eventType: "community",
+  culture: "generic",
+  city: "Pune",
+  startDate: "2027-01-26",
+  guestCount: 500,
+  budgetTotalPaise: rupees(5_00_000),
+};
 
 async function newEvent(): Promise<StoredEvent> {
   const res = await createEvent(new Request("http://test", { method: "POST", body: JSON.stringify(COMMUNITY) }));
   expect(res.status).toBe(201);
   return ((await res.json()) as { event: StoredEvent }).event;
 }
-const put = (id: string, body: unknown) => setPermit(new Request("http://test", { method: "PUT", body: JSON.stringify(body) }), { params: Promise.resolve({ id }) });
+const put = (id: string, body: unknown) =>
+  setPermit(new Request("http://test", { method: "PUT", body: JSON.stringify(body) }), {
+    params: Promise.resolve({ id }),
+  });
 
 beforeEach(() => {
   vi.stubEnv("DEMO_MODE", "true");
@@ -24,8 +34,19 @@ afterEach(() => {
 
 describe("estimateCrowd", () => {
   it("works out exits, volunteers, first aid and toilets", () => {
-    expect(estimateCrowd({ peakCrowd: 500 })).toEqual({ exitWidthNeededM: 3, minExits: 2, volunteers: 5, firstAidPosts: 1, toilets: 4 });
-    expect(estimateCrowd({ peakCrowd: 5000 })).toMatchObject({ exitWidthNeededM: 8, volunteers: 50, firstAidPosts: 5, toilets: 34 });
+    expect(estimateCrowd({ peakCrowd: 500 })).toEqual({
+      exitWidthNeededM: 3,
+      minExits: 2,
+      volunteers: 5,
+      firstAidPosts: 1,
+      toilets: 4,
+    });
+    expect(estimateCrowd({ peakCrowd: 5000 })).toMatchObject({
+      exitWidthNeededM: 8,
+      volunteers: 50,
+      firstAidPosts: 5,
+      toilets: 34,
+    });
   });
 
   it("never asks for less than two proper exits, however small the crowd", () => {
@@ -49,7 +70,10 @@ describe("estimateCrowd", () => {
   });
 
   it("judges density on the real figure, not the rounded one", () => {
-    expect(estimateCrowd({ peakCrowd: 1996, areaSqM: 1000 }).density).toMatchObject({ perSqM: 2, level: "comfortable" });
+    expect(estimateCrowd({ peakCrowd: 1996, areaSqM: 1000 }).density).toMatchObject({
+      perSqM: 2,
+      level: "comfortable",
+    });
   });
 
   it("reports an exit shortfall only when given a width", () => {
@@ -64,7 +88,9 @@ describe("permitRows", () => {
 
   it("has valid data, with unique ids", () => {
     expect(new Set(items.map((i) => i.id)).size).toBe(items.length);
-    expect(items.map((i) => i.id)).toEqual(expect.arrayContaining(["police_permission", "municipal_permission", "fire_noc", "loudspeaker_permission"]));
+    expect(items.map((i) => i.id)).toEqual(
+      expect.arrayContaining(["police_permission", "municipal_permission", "fire_noc", "loudspeaker_permission"]),
+    );
   });
 
   it("works out apply-by dates, soonest first", () => {

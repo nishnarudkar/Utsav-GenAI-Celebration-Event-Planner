@@ -52,7 +52,9 @@ export function CrowdEstimator({ peakCrowd: initialCrowd }: { peakCrowd: number 
   const peakCrowd = toNumber(crowd);
   const areaSqM = toNumber(area);
   const exitWidthM = toNumber(exits);
-  const estimate = peakCrowd ? estimateCrowd({ peakCrowd, ...(areaSqM ? { areaSqM } : {}), ...(exitWidthM ? { exitWidthM } : {}) }) : null;
+  const estimate = peakCrowd
+    ? estimateCrowd({ peakCrowd, ...(areaSqM ? { areaSqM } : {}), ...(exitWidthM ? { exitWidthM } : {}) })
+    : null;
   const level = estimate?.density ? LEVELS[estimate.density.level] : null;
 
   return (
@@ -61,7 +63,9 @@ export function CrowdEstimator({ peakCrowd: initialCrowd }: { peakCrowd: number 
         <h2 id="crowd-title" className="font-display text-xl text-maroon">
           Crowd safety
         </h2>
-        <p className="mt-1 text-sm text-muted">Rough planning numbers only, not a safety certificate. Your police and fire departments have the final say.</p>
+        <p className="mt-1 text-sm text-muted">
+          Rough planning numbers only, not a safety certificate. Your police and fire departments have the final say.
+        </p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -78,17 +82,22 @@ export function CrowdEstimator({ peakCrowd: initialCrowd }: { peakCrowd: number 
             <Stat label="First-aid posts" value={String(estimate.firstAidPosts)} />
             <Stat label="Toilets" value={String(estimate.toilets)} />
           </dl>
-          <p className="text-sm text-muted">Have at least {estimate.minExits} separate exits, so one blocked exit doesn&apos;t trap anyone.</p>
+          <p className="text-sm text-muted">
+            Have at least {estimate.minExits} separate exits, so one blocked exit doesn&apos;t trap anyone.
+          </p>
 
           {estimate.density && level && (
             <p className="flex gap-1.5 text-sm text-ink">
               {level.alert && <TriangleAlert className="mt-0.5 size-4 shrink-0 text-increased" aria-hidden />}
               <span>
-                <strong>{level.label}</strong> at {estimate.density.perSqM} people per sq m. {level.note} This space comfortably holds about {estimate.density.comfortableCapacity.toLocaleString("en-IN")}.
+                <strong>{level.label}</strong> at {estimate.density.perSqM} people per sq m. {level.note} This space
+                comfortably holds about {estimate.density.comfortableCapacity.toLocaleString("en-IN")}.
               </span>
             </p>
           )}
-          {!estimate.density && <p className="text-sm text-muted">Add your open space to check how crowded it will feel.</p>}
+          {!estimate.density && (
+            <p className="text-sm text-muted">Add your open space to check how crowded it will feel.</p>
+          )}
 
           {estimate.exitShortfallM !== undefined && estimate.exitShortfallM > 0 && (
             <p className="flex gap-1.5 text-sm text-ink">

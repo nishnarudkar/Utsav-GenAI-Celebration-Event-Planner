@@ -4,7 +4,7 @@ import { CATEGORY_LABELS } from "@/lib/labels";
 import { summarizeDashboard } from "@/lib/plan/dashboard";
 import type { EventPlan } from "@/lib/plan/types";
 import { addDays, type ISODate } from "@/lib/rules/dates";
-import type { AssistantChange, AssistantDraft, AssistantTool } from "@/lib/schemas/assistant";
+import { PLACEHOLDER, type AssistantChange, type AssistantDraft, type AssistantTool } from "@/lib/schemas/assistant";
 import type { BudgetCategory } from "@/lib/schemas/enums";
 
 /**
@@ -12,7 +12,8 @@ import type { BudgetCategory } from "@/lib/schemas/enums";
  * plan, and every relative request is worked out here, so the model never does arithmetic.
  */
 
-export type AssistantAction = { type: "change"; change: FieldChange; label: string } | { type: "open"; href: string; label: string };
+export type AssistantAction =
+  { type: "change"; change: FieldChange; label: string } | { type: "open"; href: string; label: string };
 
 export interface AssistantResponse {
   reply: string;
@@ -29,10 +30,14 @@ const TOOL_LINKS: Record<AssistantTool, { path: string; label: string }> = {
   community: { path: "/community", label: "Open Community tools" },
 };
 
-const NOT_UNDERSTOOD = "I didn't quite catch what to change. Could you say it another way, such as “make it 300 guests”?";
+const NOT_UNDERSTOOD =
+  "I didn't quite catch what to change. Could you say it another way, such as “make it 300 guests”?";
 
 /** Works out the new value from the current plan, or says why it can't. */
-export function resolveChange(request: AssistantChange | null, plan: EventPlan): { change: FieldChange } | { problem: string } {
+export function resolveChange(
+  request: AssistantChange | null,
+  plan: EventPlan,
+): { change: FieldChange } | { problem: string } {
   if (!request) return { problem: NOT_UNDERSTOOD };
   const { field, op, amount, text } = request;
   const { guestCount, startDate } = plan.answers;
@@ -51,7 +56,14 @@ export function resolveChange(request: AssistantChange | null, plan: EventPlan):
   } else if (field === "budget_total") {
     // Rupees for "set" and "add"; a percentage works on paise directly.
     const current = plan.budget.budgetTotalPaise;
-    const next = op === "percent" ? numeric(current) : amount === null ? null : op === "add" ? current + amount * 100 : amount * 100;
+    const next =
+      op === "percent"
+        ? numeric(current)
+        : amount === null
+          ? null
+          : op === "add"
+            ? current + amount * 100
+            : amount * 100;
     value = next === null ? null : Math.round(next / 100) * 100;
   } else if (field === "start_date") {
     if (op === "add" && amount !== null && Number.isInteger(amount)) value = addDays(startDate, amount);
@@ -109,22 +121,30 @@ export function fillPlaceholders(reply: string, plan: EventPlan, today: ISODate)
     days_to_go: String(summary.daysToGo),
     main_day: formatDate(answers.startDate),
     city: answers.city,
-    next_tasks: summary.nextTasks.map((t) => `${t.title} (by ${formatDate(t.dueDate)})`).join("; ") || "nothing outstanding",
+    next_tasks:
+      summary.nextTasks.map((t) => `${t.title} (by ${formatDate(t.dueDate)})`).join("; ") || "nothing outstanding",
     open_issues: summary.issues.map((i) => i.title).join("; ") || "no open problems",
   };
-  return reply.replace(/\{([a-z_:]+)\}/g, (_all, name: string) => {
-    if (name.startsWith("spend:")) return formatINR(budget.byCategory[name.slice(6) as BudgetCategory]?.estimatePaise ?? 0);
+  return reply.replace(PLACEHOLDER, (_all, name: string) => {
+    if (name.startsWith("spend:"))
+      return formatINR(budget.byCategory[name.slice(6) as BudgetCategory]?.estimatePaise ?? 0);
     return values[name] ?? "";
   });
 }
 
-export function finalizeAssistant(draft: AssistantDraft, plan: EventPlan, eventId: string, today: ISODate): AssistantResponse {
+export function finalizeAssistant(
+  draft: AssistantDraft,
+  plan: EventPlan,
+  eventId: string,
+  today: ISODate,
+): AssistantResponse {
   const reply = fillPlaceholders(draft.reply, plan, today);
 
   if (draft.intent === "change_plan") {
     const resolved = resolveChange(draft.change, plan);
     if ("problem" in resolved) return { reply: resolved.problem, action: null };
-    if (currentValue(resolved.change, plan) === resolved.change.value) return { reply: "That's already what the plan says, so there's nothing to change.", action: null };
+    if (currentValue(resolved.change, plan) === resolved.change.value)
+      return { reply: "That's already what the plan says, so there's nothing to change.", action: null };
     return { reply, action: { type: "change", change: resolved.change, label: describeChange(resolved.change, plan) } };
   }
 

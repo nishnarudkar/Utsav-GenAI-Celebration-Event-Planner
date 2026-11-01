@@ -49,7 +49,9 @@ describe("parseKbDoc", () => {
 
   it("rejects missing or invalid frontmatter with the source name", () => {
     expect(() => parseKbDoc("# No frontmatter", "x.md")).toThrow(/x\.md: missing frontmatter/);
-    expect(() => parseKbDoc(DOC.replace("bengali_hindu", "klingon"), "y.md")).toThrow(/y\.md: invalid frontmatter.*culture/);
+    expect(() => parseKbDoc(DOC.replace("bengali_hindu", "klingon"), "y.md")).toThrow(
+      /y\.md: invalid frontmatter.*culture/,
+    );
     expect(() => parseKbDoc(DOC.replace("doc_type: ritual", "doc_type: poem"))).toThrow(/doc_type/);
   });
 });
@@ -92,7 +94,11 @@ describe("splitList", () => {
 describe("chunkKbDoc", () => {
   it("makes one self-contained chunk per section plus the intro", () => {
     const chunks = chunkKbDoc(parseKbDoc(DOC));
-    expect(chunks.map((c) => c.heading)).toEqual(["Test wedding", "Test wedding › Gaye Holud", "Test wedding › Mala Badal"]);
+    expect(chunks.map((c) => c.heading)).toEqual([
+      "Test wedding",
+      "Test wedding › Gaye Holud",
+      "Test wedding › Mala Badal",
+    ]);
     expect(chunks.map((c) => c.chunkIndex)).toEqual([0, 1, 2]);
     for (const c of chunks) expect(c.content.startsWith("# Test wedding\n")).toBe(true);
     expect(chunks[1]?.content).toContain("## Gaye Holud");

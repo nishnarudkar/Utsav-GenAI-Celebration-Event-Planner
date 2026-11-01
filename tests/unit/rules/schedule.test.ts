@@ -4,7 +4,12 @@ import type { ProposedTask } from "@/lib/schemas/timeline";
 
 const CTX = { mainDate: "2027-02-14", today: "2026-10-29", functionNames: new Set(["Biye"]) };
 
-const task = (ref: string, dueOffsetDays: number, dependsOn: string[] = [], over: Partial<ProposedTask> = {}): ProposedTask => ({
+const task = (
+  ref: string,
+  dueOffsetDays: number,
+  dependsOn: string[] = [],
+  over: Partial<ProposedTask> = {},
+): ProposedTask => ({
   ref,
   title: ref.replace(/_/g, " "),
   dueOffsetDays,
@@ -14,7 +19,10 @@ const task = (ref: string, dueOffsetDays: number, dependsOn: string[] = [], over
 
 describe("scheduleTasks", () => {
   it("resolves offsets relative to the main day and sorts by due date", () => {
-    const { tasks, adjustments } = scheduleTasks([task("send_invites", -40), task("book_caterer", -100), task("thank_yous", 7)], CTX);
+    const { tasks, adjustments } = scheduleTasks(
+      [task("send_invites", -40), task("book_caterer", -100), task("thank_yous", 7)],
+      CTX,
+    );
     expect(tasks.map((t) => [t.ref, t.dueDate])).toEqual([
       ["book_caterer", "2026-11-06"],
       ["send_invites", "2027-01-05"],
@@ -35,7 +43,11 @@ describe("scheduleTasks", () => {
 
   it("moves a dependency earlier when it's due after the task that needs it", () => {
     const { tasks, adjustments } = scheduleTasks(
-      [task("design_invites", -75, ["book_venue"]), task("book_venue", -60), task("print_invites", -80, ["design_invites"])],
+      [
+        task("design_invites", -75, ["book_venue"]),
+        task("book_venue", -60),
+        task("print_invites", -80, ["design_invites"]),
+      ],
       CTX,
     );
     const due = Object.fromEntries(tasks.map((t) => [t.ref, t.idealDueDate]));
@@ -48,24 +60,36 @@ describe("scheduleTasks", () => {
   });
 
   it("propagates through long chains in one pass", () => {
-    const { tasks } = scheduleTasks([task("a", -10), task("b", -20, ["a"]), task("c", -30, ["b"]), task("d", -40, ["c"])], CTX);
+    const { tasks } = scheduleTasks(
+      [task("a", -10), task("b", -20, ["a"]), task("c", -30, ["b"]), task("d", -40, ["c"])],
+      CTX,
+    );
     expect(new Set(tasks.map((t) => t.idealDueDate))).toEqual(new Set(["2027-01-05"])); // all at T-40d
   });
 
   it("drops unknown, self and duplicate dependencies", () => {
     const { tasks, adjustments } = scheduleTasks([task("a", -10, ["a", "ghost", "b", "b"]), task("b", -20)], CTX);
     expect(tasks.find((t) => t.ref === "a")?.dependsOn).toEqual(["b"]);
-    expect(adjustments).toEqual(['"a": ignored a dependency on itself.', '"a": ignored dependency on unknown task "ghost".']);
+    expect(adjustments).toEqual([
+      '"a": ignored a dependency on itself.',
+      '"a": ignored dependency on unknown task "ghost".',
+    ]);
   });
 
   it("breaks cycles, keeping the earlier-listed dependency", () => {
-    const { tasks, adjustments } = scheduleTasks([task("a", -10, ["b"]), task("b", -20, ["c"]), task("c", -30, ["a"])], CTX);
+    const { tasks, adjustments } = scheduleTasks(
+      [task("a", -10, ["b"]), task("b", -20, ["c"]), task("c", -30, ["a"])],
+      CTX,
+    );
     expect(Object.fromEntries(tasks.map((t) => [t.ref, t.dependsOn]))).toEqual({ a: ["b"], b: ["c"], c: [] });
     expect(adjustments).toEqual(['"c": dropped dependency on "a" to avoid a circular dependency.']);
   });
 
   it("drops duplicate refs, keeping the first", () => {
-    const { tasks, adjustments } = scheduleTasks([task("a", -10, [], { title: "First" }), task("a", -5, [], { title: "Second" })], CTX);
+    const { tasks, adjustments } = scheduleTasks(
+      [task("a", -10, [], { title: "First" }), task("a", -5, [], { title: "Second" })],
+      CTX,
+    );
     expect(tasks.map((t) => t.title)).toEqual(["First"]);
     expect(adjustments).toEqual(['Dropped duplicate task id "a" ("Second").']);
   });
@@ -82,12 +106,24 @@ describe("scheduleTasks", () => {
 
 describe("topologicalOrder", () => {
   it("puts dependencies first and keeps input order for ties", () => {
-    const deps = new Map([["c", ["a"]], ["b", []], ["a", []]]);
+    const deps = new Map([
+      ["c", ["a"]],
+      ["b", []],
+      ["a", []],
+    ]);
     expect(topologicalOrder(["c", "b", "a"], deps)).toEqual(["b", "a", "c"]);
   });
 
   it("throws on a cycle", () => {
-    expect(() => topologicalOrder(["a", "b"], new Map([["a", ["b"]], ["b", ["a"]]]))).toThrow(/cycle/);
+    expect(() =>
+      topologicalOrder(
+        ["a", "b"],
+        new Map([
+          ["a", ["b"]],
+          ["b", ["a"]],
+        ]),
+      ),
+    ).toThrow(/cycle/);
   });
 });
 

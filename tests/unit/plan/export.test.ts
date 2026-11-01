@@ -40,14 +40,23 @@ describe("eventToICS", () => {
   });
 
   it("converts IST to UTC and carries overnight functions into the next day", () => {
-    const fn = { ...demo.plan.functions[0]!, name: "Bashor Raat", date: "2027-02-14", startTime: "23:30", endTime: "04:00", ritualKeys: [] };
+    const fn = {
+      ...demo.plan.functions[0]!,
+      name: "Bashor Raat",
+      date: "2027-02-14",
+      startTime: "23:30",
+      endTime: "04:00",
+      ritualKeys: [],
+    };
     const { events } = parse(eventToICS({ ...demo, plan: { ...demo.plan, functions: [fn] } }));
     expect(events[0]).toMatchObject({ DTSTART: "20270214T180000Z", DTEND: "20270214T223000Z", SUMMARY: "Bashor Raat" });
   });
 
   it("makes tasks all-day, ending the next day, and not busy", () => {
     const task = { ...demo.timeline.tasks[0]!, title: "Pay, then confirm; soon", dueDate: "2027-01-31" };
-    const { events } = parse(eventToICS({ ...demo, plan: { ...demo.plan, functions: [] }, timeline: { ...demo.timeline, tasks: [task] } }));
+    const { events } = parse(
+      eventToICS({ ...demo, plan: { ...demo.plan, functions: [] }, timeline: { ...demo.timeline, tasks: [task] } }),
+    );
     expect(events[0]).toMatchObject({
       "DTSTART;VALUE=DATE": "20270131",
       "DTEND;VALUE=DATE": "20270201",
@@ -81,17 +90,29 @@ describe("eventToPDF", () => {
 
 describe("GET /api/events/:id/export", () => {
   const params = (id: string) => ({ params: Promise.resolve({ id }) });
-  const get = (id: string, format: string) => exportPlan(new Request(`http://test/api/events/${id}/export?format=${format}`), params(id));
-  const BODY = { eventType: "wedding", culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250, budgetTotalPaise: 150000000 };
+  const get = (id: string, format: string) =>
+    exportPlan(new Request(`http://test/api/events/${id}/export?format=${format}`), params(id));
+  const BODY = {
+    eventType: "wedding",
+    culture: "bengali_hindu",
+    city: "Kolkata",
+    startDate: "2027-02-14",
+    guestCount: 250,
+    budgetTotalPaise: 150000000,
+  };
 
   it("downloads the calendar file, and rejects bad requests", async () => {
-    const res = await createEvent(new Request("http://test/api/events", { method: "POST", body: JSON.stringify(BODY) }));
+    const res = await createEvent(
+      new Request("http://test/api/events", { method: "POST", body: JSON.stringify(BODY) }),
+    );
     const { event } = (await res.json()) as { event: StoredEvent };
 
     const ics = await get(event.id, "ics");
     expect(ics.status).toBe(200);
     expect(ics.headers.get("Content-Type")).toContain("text/calendar");
-    expect(ics.headers.get("Content-Disposition")).toBe('attachment; filename="utsav-bengali-hindu-wedding-in-kolkata.ics"');
+    expect(ics.headers.get("Content-Disposition")).toBe(
+      'attachment; filename="utsav-bengali-hindu-wedding-in-kolkata.ics"',
+    );
     expect(await ics.text()).toContain("BEGIN:VCALENDAR");
 
     expect((await get(event.id, "docx")).status).toBe(400);

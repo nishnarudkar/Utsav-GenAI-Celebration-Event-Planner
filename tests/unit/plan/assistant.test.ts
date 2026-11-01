@@ -2,7 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST as ask } from "@/app/api/events/[id]/assistant/route";
 import { POST as createDemo } from "@/app/api/demo/route";
 import { askAssistant, messageSlug } from "@/lib/ai/agents/assistant";
-import { assistantContext, describeChange, fillPlaceholders, finalizeAssistant, resolveChange } from "@/lib/plan/assistant-view";
+import {
+  assistantContext,
+  describeChange,
+  fillPlaceholders,
+  finalizeAssistant,
+  resolveChange,
+} from "@/lib/plan/assistant-view";
 import type { StoredEvent } from "@/lib/plan/types";
 import { ASSISTANT_SUGGESTIONS, AssistantDraft, AssistantRequest, type AssistantChange } from "@/lib/schemas/assistant";
 
@@ -10,9 +16,15 @@ const TODAY = "2026-11-01";
 const rupees = (r: number) => r * 100;
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) });
-const post = (id: string, body: unknown) => ask(new Request("http://test", { method: "POST", body: JSON.stringify(body) }), params(id));
+const post = (id: string, body: unknown) =>
+  ask(new Request("http://test", { method: "POST", body: JSON.stringify(body) }), params(id));
 const newEvent = async () => ((await (await createDemo()).json()) as { event: StoredEvent }).event;
-const change = (over: Partial<AssistantChange> & Pick<AssistantChange, "field">): AssistantChange => ({ op: "set", amount: null, text: null, ...over });
+const change = (over: Partial<AssistantChange> & Pick<AssistantChange, "field">): AssistantChange => ({
+  op: "set",
+  amount: null,
+  text: null,
+  ...over,
+});
 const answer = (reply: string): AssistantDraft => ({ intent: "answer", reply, change: null, tool: null });
 
 let event: StoredEvent;
@@ -73,7 +85,9 @@ describe("describeChange", () => {
   it("shows the before and after", () => {
     expect(describeChange({ field: "guest_count", value: 350 }, event)).toBe("Guests: 250 → 350");
     expect(describeChange({ field: "budget_total", value: rupees(12_00_000) }, event)).toBe("Budget: ₹15L → ₹12L");
-    expect(describeChange({ field: "start_date", value: "2027-02-21" }, event)).toBe("Main day: 14 Feb 2027 → 21 Feb 2027");
+    expect(describeChange({ field: "start_date", value: "2027-02-21" }, event)).toBe(
+      "Main day: 14 Feb 2027 → 21 Feb 2027",
+    );
     expect(describeChange({ field: "city", value: "Pune" }, event)).toBe("City: Kolkata → Pune");
   });
 });
@@ -81,7 +95,9 @@ describe("describeChange", () => {
 describe("fillPlaceholders", () => {
   it("uses the plan's real figures", () => {
     const left = event.budget.budgetTotalPaise - event.budget.totalEstimatePaise;
-    expect(fillPlaceholders("{guest_count} in {city} on {main_day}", event, TODAY)).toBe("250 in Kolkata on 14 Feb 2027");
+    expect(fillPlaceholders("{guest_count} in {city} on {main_day}", event, TODAY)).toBe(
+      "250 in Kolkata on 14 Feb 2027",
+    );
     expect(fillPlaceholders("{budget_position}", event, TODAY)).toMatch(/^₹[\d,]+ left$/);
     expect(left).toBeGreaterThan(0);
     expect(fillPlaceholders("{spend:catering}", event, TODAY)).toMatch(/^₹[\d,]+$/);
@@ -98,12 +114,17 @@ describe("fillPlaceholders", () => {
 });
 
 describe("AssistantDraft", () => {
-  it.each(["You have ₹5 lakh left.", "There are 250 guests.", "Your {guest_total} is fine."])("rejects figures the model wrote itself: %s", (reply) => {
-    expect(AssistantDraft.safeParse(answer(reply)).success).toBe(false);
-  });
+  it.each(["You have ₹5 lakh left.", "There are 250 guests.", "Your {guest_total} is fine."])(
+    "rejects figures the model wrote itself: %s",
+    (reply) => {
+      expect(AssistantDraft.safeParse(answer(reply)).success).toBe(false);
+    },
+  );
 
   it("accepts placeholders", () => {
-    expect(AssistantDraft.safeParse(answer("You have {budget_position}, and {spend:catering} goes on food.")).success).toBe(true);
+    expect(
+      AssistantDraft.safeParse(answer("You have {budget_position}, and {spend:catering} goes on food.")).success,
+    ).toBe(true);
   });
 });
 
@@ -111,7 +132,9 @@ describe("AssistantRequest", () => {
   it("limits message and history length", () => {
     expect(AssistantRequest.safeParse({ message: "x".repeat(301) }).success).toBe(false);
     expect(AssistantRequest.safeParse({ message: " " }).success).toBe(false);
-    expect(AssistantRequest.safeParse({ message: "hi", history: Array(7).fill({ role: "user", text: "x" }) }).success).toBe(false);
+    expect(
+      AssistantRequest.safeParse({ message: "hi", history: Array(7).fill({ role: "user", text: "x" }) }).success,
+    ).toBe(false);
   });
 });
 
@@ -119,20 +142,43 @@ describe("finalizeAssistant", () => {
   const finalize = (draft: AssistantDraft, plan = event) => finalizeAssistant(draft, plan, "id-1", TODAY);
 
   it("proposes a change without making it", () => {
-    const response = finalize({ intent: "change_plan", reply: "I can do that.", change: change({ field: "guest_count", op: "add", amount: 100 }), tool: null });
-    expect(response.action).toEqual({ type: "change", change: { field: "guest_count", value: 350 }, label: "Guests: 250 → 350" });
+    const response = finalize({
+      intent: "change_plan",
+      reply: "I can do that.",
+      change: change({ field: "guest_count", op: "add", amount: 100 }),
+      tool: null,
+    });
+    expect(response.action).toEqual({
+      type: "change",
+      change: { field: "guest_count", value: 350 },
+      label: "Guests: 250 → 350",
+    });
   });
 
   it("replaces an unusable proposal with the reason", () => {
-    expect(finalize({ intent: "change_plan", reply: "Done!", change: null, tool: null })).toEqual({ reply: expect.stringMatching(/didn't quite catch/), action: null });
+    expect(finalize({ intent: "change_plan", reply: "Done!", change: null, tool: null })).toEqual({
+      reply: expect.stringMatching(/didn't quite catch/),
+      action: null,
+    });
   });
 
   it("doesn't propose a change to the same value", () => {
-    expect(finalize({ intent: "change_plan", reply: "Sure.", change: change({ field: "guest_count", amount: 250 }), tool: null })).toEqual({ reply: expect.stringMatching(/already what the plan says/), action: null });
+    expect(
+      finalize({
+        intent: "change_plan",
+        reply: "Sure.",
+        change: change({ field: "guest_count", amount: 250 }),
+        tool: null,
+      }),
+    ).toEqual({ reply: expect.stringMatching(/already what the plan says/), action: null });
   });
 
   it("links to a tool", () => {
-    expect(finalize({ intent: "open_tool", reply: "Try this.", change: null, tool: "council" }).action).toEqual({ type: "open", href: "/events/id-1/council", label: "Open Family Council" });
+    expect(finalize({ intent: "open_tool", reply: "Try this.", change: null, tool: "council" }).action).toEqual({
+      type: "open",
+      href: "/events/id-1/council",
+      label: "Open Family Council",
+    });
   });
 
   it("doesn't link to community tools on other events", () => {
@@ -152,7 +198,12 @@ describe("assistantContext", () => {
 describe("askAssistant", () => {
   it("includes recent turns, and treats the message as data", async () => {
     const structured = vi.fn(async () => answer("Happy to help."));
-    await askAssistant(event, { message: "make it 400", history: [{ role: "user", text: "add guests" }] }, { eventId: event.id, today: TODAY }, { structured });
+    await askAssistant(
+      event,
+      { message: "make it 400", history: [{ role: "user", text: "add guests" }] },
+      { eventId: event.id, today: TODAY },
+      { structured },
+    );
     const prompt = JSON.stringify(structured.mock.calls[0]);
     expect(prompt).toContain("Family: add guests");
     expect(prompt).toContain("Latest message: make it 400");
@@ -165,7 +216,11 @@ describe("askAssistant", () => {
 });
 
 describe("POST /api/events/:id/assistant", () => {
-  const reply = async (id: string, message: string) => (await post(id, { message })).json() as Promise<{ reply: string; action: { type: string; label?: string; href?: string } | null }>;
+  const reply = async (id: string, message: string) =>
+    (await post(id, { message })).json() as Promise<{
+      reply: string;
+      action: { type: string; label?: string; href?: string } | null;
+    }>;
 
   it("proposes a change and leaves the plan alone", async () => {
     const response = await reply(event.id, "Mom wants 100 more guests");
@@ -178,7 +233,10 @@ describe("POST /api/events/:id/assistant", () => {
   });
 
   it("points to the right tool", async () => {
-    expect((await reply(event.id, "The family disagrees on the guest list")).action).toMatchObject({ type: "open", href: `/events/${event.id}/council` });
+    expect((await reply(event.id, "The family disagrees on the guest list")).action).toMatchObject({
+      type: "open",
+      href: `/events/${event.id}/council`,
+    });
   });
 
   it("answers the suggested questions without the AI, even outside demo mode", async () => {
@@ -201,6 +259,8 @@ describe("POST /api/events/:id/assistant", () => {
 
   it("rejects bad requests and unknown events", async () => {
     expect((await post(event.id, { message: "" })).status).toBe(400);
-    expect((await post("00000000-0000-0000-0000-000000000000", { message: "How much budget is left?" })).status).toBe(404);
+    expect((await post("00000000-0000-0000-0000-000000000000", { message: "How much budget is left?" })).status).toBe(
+      404,
+    );
   });
 });

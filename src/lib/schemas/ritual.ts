@@ -2,7 +2,7 @@ import { z } from "zod";
 
 /** Output of the Culture agent (CLAUDE.md §8). */
 
-export const RitualItem = z.object({
+const RitualItem = z.object({
   item: z.string().min(1),
   quantity: z.string().optional(),
 });

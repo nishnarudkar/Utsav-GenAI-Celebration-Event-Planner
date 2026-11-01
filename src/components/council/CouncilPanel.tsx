@@ -43,19 +43,26 @@ export function CouncilPanel({ eventId, version, stakeholders, council }: Counci
     return result.data;
   }
 
-  const add = async (input: StakeholderInput) => (await run(`${base}/stakeholders`, { method: "POST", body: JSON.stringify(input) })) !== null;
+  const add = async (input: StakeholderInput) =>
+    (await run(`${base}/stakeholders`, { method: "POST", body: JSON.stringify(input) })) !== null;
   const remove = (id: string) => run(`${base}/stakeholders/${id}`, { method: "DELETE" });
   const hold = () => run(`${base}/council`, { method: "POST" });
 
   async function choose(optionId: string) {
-    const data = await run<{ diff: PlanDiff }>(`${base}/council/apply`, { method: "POST", body: JSON.stringify({ optionId }) });
+    const data = await run<{ diff: PlanDiff }>(`${base}/council/apply`, {
+      method: "POST",
+      body: JSON.stringify({ optionId }),
+    });
     if (data) setDiff(data.diff);
   }
   async function undo() {
     if (await run(`${base}/undo`, { method: "POST" })) setDiff(null);
   }
   async function applyRecovery(optionId: string) {
-    const data = await run<{ diff: PlanDiff }>(`${base}/recovery`, { method: "POST", body: JSON.stringify({ optionId }) });
+    const data = await run<{ diff: PlanDiff }>(`${base}/recovery`, {
+      method: "POST",
+      body: JSON.stringify({ optionId }),
+    });
     if (data) setDiff(data.diff);
   }
 
@@ -64,7 +71,9 @@ export function CouncilPanel({ eventId, version, stakeholders, council }: Counci
       <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5">
         <div>
           <h2 className="font-display text-xl text-maroon">Family Council</h2>
-          <p className="mt-1 text-sm text-muted">Add what each person hopes for. Utsav finds where they differ and suggests fair compromises.</p>
+          <p className="mt-1 text-sm text-muted">
+            Add what each person hopes for. Utsav finds where they differ and suggests fair compromises.
+          </p>
         </div>
 
         {stakeholders.length > 0 && (
@@ -103,7 +112,9 @@ export function CouncilPanel({ eventId, version, stakeholders, council }: Counci
             {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Users className="size-4" aria-hidden />}
             {council ? "Hold the council again" : "Hold the council"}
           </button>
-          {stakeholders.length < MIN_PEOPLE && <span className="text-sm text-muted">Add at least {MIN_PEOPLE} people first.</span>}
+          {stakeholders.length < MIN_PEOPLE && (
+            <span className="text-sm text-muted">Add at least {MIN_PEOPLE} people first.</span>
+          )}
         </div>
         <div aria-live="polite">
           {error && (
@@ -114,7 +125,15 @@ export function CouncilPanel({ eventId, version, stakeholders, council }: Counci
         </div>
       </section>
 
-      {diff && <DiffPanel diff={diff} busy={busy} onAccept={() => setDiff(null)} onUndo={() => void undo()} onApply={(id) => void applyRecovery(id)} />}
+      {diff && (
+        <DiffPanel
+          diff={diff}
+          busy={busy}
+          onAccept={() => setDiff(null)}
+          onUndo={() => void undo()}
+          onApply={(id) => void applyRecovery(id)}
+        />
+      )}
 
       {council && (
         <>
@@ -127,7 +146,8 @@ export function CouncilPanel({ eventId, version, stakeholders, council }: Counci
             <h3 className="font-display text-xl text-maroon">Possible compromises</h3>
             {stale && !diff && (
               <p role="status" className="rounded-xl border border-conflict/40 bg-white p-3 text-sm text-ink">
-                The plan has changed since this council, so these costs may be out of date. Hold the council again to choose.
+                The plan has changed since this council, so these costs may be out of date. Hold the council again to
+                choose.
               </p>
             )}
             {council.options.map((o) => (

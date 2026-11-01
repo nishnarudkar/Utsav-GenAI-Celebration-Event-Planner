@@ -17,7 +17,17 @@ const MAX_RETRY_DELAY_MS = 30_000;
 const RETRYABLE = new Set([408, 429, 500, 502, 503, 504]);
 /** Google's 429 for a used-up daily allowance, which retrying can't help. */
 const DAILY_LIMIT = /per day|daily/i;
-const LIMIT_KEYWORDS = ["pattern", "minLength", "maxLength", "minItems", "maxItems", "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum"] as const;
+const LIMIT_KEYWORDS = [
+  "pattern",
+  "minLength",
+  "maxLength",
+  "minItems",
+  "maxItems",
+  "minimum",
+  "maximum",
+  "exclusiveMinimum",
+  "exclusiveMaximum",
+] as const;
 
 const DEFAULT_MODELS: Record<ModelTier, string> = {
   smart: "gemini-3.6-flash",
@@ -96,7 +106,9 @@ function replyFrom(outputName: string, interaction: Interaction): GeminiReply {
   }
   // Earlier steps may be thoughts or drafts; the answer is the last model output.
   const output = interaction.steps?.findLast((step) => step.type === "model_output");
-  const text = (output?.content ?? []).flatMap((part) => (part.type === "text" && part.text ? [part.text] : [])).join("");
+  const text = (output?.content ?? [])
+    .flatMap((part) => (part.type === "text" && part.text ? [part.text] : []))
+    .join("");
   return { text, cutOff: interaction.status === "incomplete" };
 }
 
@@ -119,7 +131,10 @@ export async function generateGemini(req: GeminiRequest, deps: GeminiDeps): Prom
     system_instruction: toGeminiSystem(req.system),
     input: toGeminiParts(req.messages),
     response_format: { type: "text", mime_type: "application/json", schema: toGeminiSchema(req.schema) },
-    generation_config: { max_output_tokens: req.maxOutputTokens, ...(req.effort ? { thinking_level: req.effort } : {}) },
+    generation_config: {
+      max_output_tokens: req.maxOutputTokens,
+      ...(req.effort ? { thinking_level: req.effort } : {}),
+    },
     store: false,
   });
 

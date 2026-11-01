@@ -6,7 +6,7 @@ import { BUDGET_UNITS } from "@/lib/schemas/enums";
  * (amounts in rupees, as written); code does every check and comparison.
  */
 
-export const QuoteUnit = z.enum([...BUDGET_UNITS, "other"]);
+const QuoteUnit = z.enum([...BUDGET_UNITS, "other"]);
 export type QuoteUnit = z.infer<typeof QuoteUnit>;
 
 export const QuoteLineItem = z.object({

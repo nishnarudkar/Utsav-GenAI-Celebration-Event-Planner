@@ -75,7 +75,7 @@ export function splitSections(body: string): { title: string | null; intro: stri
   return { title, intro: intro.join("\n").trim(), sections };
 }
 
-export const RitualSection = z.object({
+const RitualSection = z.object({
   name: z.string().min(1),
   key: z.string().regex(/^[a-z][a-z0-9_]*$/, "key must be snake_case"),
   when: z.string().min(1),
@@ -180,7 +180,8 @@ function splitToBudget(text: string, budgetTokens: number, overlapTokens: number
       pieces.push(cur.join("\n"));
       // carry trailing lines as overlap
       const overlap: string[] = [];
-      for (let i = cur.length - 1; i >= 0 && size([cur[i] ?? "", ...overlap]) <= overlapTokens; i--) overlap.unshift(cur[i] ?? "");
+      for (let i = cur.length - 1; i >= 0 && size([cur[i] ?? "", ...overlap]) <= overlapTokens; i--)
+        overlap.unshift(cur[i] ?? "");
       cur = overlap;
     }
     cur.push(line);

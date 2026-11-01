@@ -40,10 +40,18 @@ describe("extractQuote", () => {
     await extractQuote({ mediaType: "image/jpeg", base64: "/9j/" }, { category: "decor" }, deps);
 
     const [pdfCall, imgCall] = extract.mock.calls.map((c) => c[0]);
-    expect(pdfCall).toMatchObject({ name: "emit_quote_extraction", fixtureKey: "emit_quote_extraction.catering", model: "smart" });
+    expect(pdfCall).toMatchObject({
+      name: "emit_quote_extraction",
+      fixtureKey: "emit_quote_extraction.catering",
+      model: "smart",
+    });
     const pdfContent = pdfCall?.messages[0]?.content as Array<{ type: string; source?: { media_type: string } }>;
     expect(pdfContent[0]).toMatchObject({ type: "document", source: { media_type: "application/pdf" } });
-    const imgContent = imgCall?.messages[0]?.content as Array<{ type: string; text?: string; source?: { media_type: string } }>;
+    const imgContent = imgCall?.messages[0]?.content as Array<{
+      type: string;
+      text?: string;
+      source?: { media_type: string };
+    }>;
     expect(imgContent[0]).toMatchObject({ type: "image", source: { media_type: "image/jpeg" } });
     expect(imgContent[1]?.text).toContain("décor");
   });
@@ -51,10 +59,14 @@ describe("extractQuote", () => {
 
 describe("draftNegotiation", () => {
   const analysis = analyzeQuote(SMALL, CTX);
-  const negotiate = (message: string) => vi.fn(async (_o: CallStructuredOptions<typeof NegotiationDraft>) => ({ message }));
+  const negotiate = (message: string) =>
+    vi.fn(async (_o: CallStructuredOptions<typeof NegotiationDraft>) => ({ message }));
 
   it("uses the model's message when every amount is grounded", async () => {
-    const deps = { extract: vi.fn(), negotiate: negotiate("Namaste ji, could the ₹2,000 per plate come closer to ₹1,500?") } as unknown as QuoteDeps;
+    const deps = {
+      extract: vi.fn(),
+      negotiate: negotiate("Namaste ji, could the ₹2,000 per plate come closer to ₹1,500?"),
+    } as unknown as QuoteDeps;
     expect(await draftNegotiation(analysis, EVENT, deps)).toContain("₹1,500");
   });
 
@@ -79,7 +91,11 @@ describe("draftNegotiation", () => {
 describe("demo: caterer quote end to end (no API key)", () => {
   it("extracts, analyses and drafts a grounded negotiation message", async () => {
     const deps = demoDeps();
-    const extraction = await extractQuote({ mediaType: "application/pdf", base64: "JVBERi0=" }, { category: "catering" }, deps);
+    const extraction = await extractQuote(
+      { mediaType: "application/pdf", base64: "JVBERi0=" },
+      { category: "catering" },
+      deps,
+    );
     const analysis = analyzeQuote(extraction, CTX);
     const message = await draftNegotiation(analysis, EVENT, deps);
 

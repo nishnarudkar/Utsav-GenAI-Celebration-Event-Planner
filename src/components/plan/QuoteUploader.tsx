@@ -64,7 +64,9 @@ export function QuoteUploader({ eventId }: { eventId: string }) {
   return (
     <section aria-label="Check a quote" className="rounded-2xl border border-line bg-white p-5">
       <h2 className="font-display text-xl text-maroon">Quote X-Ray</h2>
-      <p className="mt-1 text-sm text-muted">Upload a vendor&apos;s quote. Utsav checks the sums, spots hidden costs and drafts a polite reply.</p>
+      <p className="mt-1 text-sm text-muted">
+        Upload a vendor&apos;s quote. Utsav checks the sums, spots hidden costs and drafts a polite reply.
+      </p>
       <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor={categoryId} className="text-sm font-medium text-ink">
@@ -101,7 +103,11 @@ export function QuoteUploader({ eventId }: { eventId: string }) {
             disabled={busy}
             className="inline-flex items-center gap-1.5 rounded-full bg-maroon px-5 py-2.5 font-medium text-cream hover:bg-maroon-dark disabled:opacity-50"
           >
-            {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <FileSearch className="size-4" aria-hidden />}
+            {busy ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+            ) : (
+              <FileSearch className="size-4" aria-hidden />
+            )}
             {busy ? "Checking…" : "Check this quote"}
           </button>
           <button

@@ -41,27 +41,47 @@ async function demoEvent(): Promise<{ repo: MemoryEventRepository; event: Stored
 
 describe("finalizeCouncil", () => {
   const draft = (functionName: string): CouncilDraft => {
-    const option = (id: string, name: string) => ({ id, title: id, description: "d", satisfies: [], compromises: [], patch: { guestCount: null, functionGuests: [{ functionName: name, guests: 150 }], budgetTotalPaise: null } });
+    const option = (id: string, name: string) => ({
+      id,
+      title: id,
+      description: "d",
+      satisfies: [],
+      compromises: [],
+      patch: { guestCount: null, functionGuests: [{ functionName: name, guests: 150 }], budgetTotalPaise: null },
+    });
     return { conflicts: [], options: [option("a", functionName), option("b", functionName)] };
   };
 
   it("applies a shortened function name, so the option does what it says", async () => {
     const { event } = await demoEvent();
-    const [option] = finalizeCouncil(draft("Biye"), event, event.stakeholders, { version: 1, today: "2026-11-01" }).options;
+    const [option] = finalizeCouncil(draft("Biye"), event, event.stakeholders, {
+      version: 1,
+      today: "2026-11-01",
+    }).options;
     expect(option?.patch.functionGuests[0]?.functionName).toBe("Biye (wedding ceremony)");
     expect(option?.costDeltaPaise).toBeLessThan(0);
   });
 
   it("says so when part of an option can't be applied", async () => {
     const { event } = await demoEvent();
-    const [option] = finalizeCouncil(draft("Sangeet"), event, event.stakeholders, { version: 1, today: "2026-11-01" }).options;
+    const [option] = finalizeCouncil(draft("Sangeet"), event, event.stakeholders, {
+      version: 1,
+      today: "2026-11-01",
+    }).options;
     expect(option?.patch.functionGuests).toEqual([]);
     expect(option?.conflictsAfter[0]).toContain("“Sangeet” isn't in the plan");
   });
 });
 
 describe("upcomingSlots", () => {
-  const slot = (id: string, startMin: number, endMin: number): RunSlot => ({ id, name: id, functionName: "f", isRitual: true, startMin, endMin });
+  const slot = (id: string, startMin: number, endMin: number): RunSlot => ({
+    id,
+    name: id,
+    functionName: "f",
+    isRitual: true,
+    startMin,
+    endMin,
+  });
   const DAY = [slot("dawn", 330, 360), slot("evening", 1110, 1140)];
 
   it("leaves out what has finished, and keeps what's under way", () => {
@@ -75,12 +95,23 @@ describe("upcomingSlots", () => {
 });
 
 describe("proposeReshuffle", () => {
-  const draftFor = (fromSlotId: string): ReshuffleDraft => ({ summary: "The photographer is late.", fromSlotId, delayMinutes: 30, notify: [] });
+  const draftFor = (fromSlotId: string): ReshuffleDraft => ({
+    summary: "The photographer is late.",
+    fromSlotId,
+    delayMinutes: 30,
+    notify: [],
+  });
 
   it("offers the model only slots still to come on the day", async () => {
     const { repo, event } = await demoEvent();
     const structured = vi.fn(async () => draftFor("bor_boron"));
-    await proposeReshuffle(repo, event.id, "Photographer late", { today: event.answers.startDate, nowMinutes: 18 * 60 }, { structured });
+    await proposeReshuffle(
+      repo,
+      event.id,
+      "Photographer late",
+      { today: event.answers.startDate, nowMinutes: 18 * 60 },
+      { structured },
+    );
     const prompt = JSON.stringify(structured.mock.calls[0]);
     expect(prompt).toContain("bor_boron");
     expect(prompt).not.toContain("dodhi_mangal");
@@ -89,7 +120,13 @@ describe("proposeReshuffle", () => {
   it("shows the whole order when rehearsing before the day", async () => {
     const { repo, event } = await demoEvent();
     const structured = vi.fn(async () => draftFor("bor_boron"));
-    await proposeReshuffle(repo, event.id, "Photographer late", { today: "2026-11-01", nowMinutes: 23 * 60 }, { structured });
+    await proposeReshuffle(
+      repo,
+      event.id,
+      "Photographer late",
+      { today: "2026-11-01", nowMinutes: 23 * 60 },
+      { structured },
+    );
     expect(JSON.stringify(structured.mock.calls[0])).toContain("bor_boron");
   });
 });

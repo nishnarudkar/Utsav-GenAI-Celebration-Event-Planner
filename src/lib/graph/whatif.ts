@@ -31,7 +31,11 @@ function droppable(state: EventPlan, names: readonly string[], notes: Conflict[]
   for (const name of names) {
     if (!known.has(name)) continue;
     if (state.budget.lines.some((l) => l.locked && l.functionName === name)) {
-      notes.push({ type: "locked_item", severity: "info", message: `${name} has locked budget items, so it was kept.` });
+      notes.push({
+        type: "locked_item",
+        severity: "info",
+        message: `${name} has locked budget items, so it was kept.`,
+      });
     } else {
       drops.add(name);
     }
@@ -39,7 +43,11 @@ function droppable(state: EventPlan, names: readonly string[], notes: Conflict[]
   if (drops.size >= known.size) {
     const keep = state.plan.functions.find((f) => drops.has(f.name))!.name;
     drops.delete(keep);
-    notes.push({ type: "function_kept", severity: "info", message: `An event needs at least one function, so ${keep} was kept.` });
+    notes.push({
+      type: "function_kept",
+      severity: "info",
+      message: `An event needs at least one function, so ${keep} was kept.`,
+    });
   }
   return drops;
 }
@@ -50,7 +58,9 @@ function dropFunctions(state: EventPlan, drops: ReadonlySet<string>): EventPlan 
   const removed = state.plan.functions.filter((f) => drops.has(f.name));
   const functions = state.plan.functions.filter((f) => !drops.has(f.name));
   const lines = state.budget.lines.filter((l) => !l.functionName || !drops.has(l.functionName));
-  const tasks = state.timeline.tasks.filter((t) => t.source === "user" || !t.functionName || !drops.has(t.functionName));
+  const tasks = state.timeline.tasks.filter(
+    (t) => t.source === "user" || !t.functionName || !drops.has(t.functionName),
+  );
   const taskRefs = new Set(tasks.map((t) => t.ref));
   const dates = functions.map((f) => f.date).sort();
   return {
@@ -63,7 +73,10 @@ function dropFunctions(state: EventPlan, drops: ReadonlySet<string>): EventPlan 
       unassignedRitualKeys: [...state.plan.unassignedRitualKeys, ...removed.flatMap((f) => f.ritualKeys)],
     },
     budget: retotal(state.budget, lines, state.plan.allocationPaise, state.budget.budgetTotalPaise),
-    timeline: { ...state.timeline, tasks: tasks.map((t) => ({ ...t, dependsOn: t.dependsOn.filter((d) => taskRefs.has(d)) })) },
+    timeline: {
+      ...state.timeline,
+      tasks: tasks.map((t) => ({ ...t, dependsOn: t.dependsOn.filter((d) => taskRefs.has(d)) })),
+    },
   };
 }
 
@@ -76,7 +89,8 @@ export function applyScenario(
   const notes: Conflict[] = [];
   let state = start;
 
-  if (scenario.guestCount !== undefined) state = runCascade(state, { field: "guest_count", value: scenario.guestCount }, ctx).state;
+  if (scenario.guestCount !== undefined)
+    state = runCascade(state, { field: "guest_count", value: scenario.guestCount }, ctx).state;
   const updates = tierUpdates(state, scenario.tiers);
   if (updates.length > 0) state = applyRecoveryPatch(state, { kind: "lines", updates }, ctx).state;
 
@@ -90,7 +104,9 @@ export function applyScenario(
   const keptFn = <T extends { name: string }>(f: T) => !drops.has(f.name);
   const changedLines = diffBudgetLines(keptStart, keptMid, () => "What-If change");
   const removed = [
-    ...start.plan.functions.filter((f) => drops.has(f.name)).map((f) => ({ nodeId: `function:${f.name}`, label: f.name })),
+    ...start.plan.functions
+      .filter((f) => drops.has(f.name))
+      .map((f) => ({ nodeId: `function:${f.name}`, label: f.name })),
     ...start.budget.lines.filter((l) => !keptLine(l)).map((l) => ({ nodeId: `line:${l.label}`, label: l.label })),
   ];
 
@@ -109,7 +125,10 @@ export function applyScenario(
     diff: {
       version: ctx.version + 1,
       budgetDeltaPaise: delta,
-      changed: [...diffFunctions(start.plan.functions.filter(keptFn), midpoint.plan.functions.filter(keptFn), "What-If change"), ...changedLines],
+      changed: [
+        ...diffFunctions(start.plan.functions.filter(keptFn), midpoint.plan.functions.filter(keptFn), "What-If change"),
+        ...changedLines,
+      ],
       added: [],
       removed,
       conflicts,
@@ -132,7 +151,12 @@ export function projectScenario(start: EventPlan, scenario: WhatIfScenario, ctx:
   const before = totals(start.budget.lines);
   const after = totals(budget.lines);
   const categories = [...new Set([...before.keys(), ...after.keys()])]
-    .map((category) => ({ category, label: CATEGORY_LABELS[category], beforePaise: before.get(category) ?? 0, afterPaise: after.get(category) ?? 0 }))
+    .map((category) => ({
+      category,
+      label: CATEGORY_LABELS[category],
+      beforePaise: before.get(category) ?? 0,
+      afterPaise: after.get(category) ?? 0,
+    }))
     .filter((c) => c.beforePaise !== c.afterPaise)
     .sort((a, b) => Math.abs(b.afterPaise - b.beforePaise) - Math.abs(a.afterPaise - a.beforePaise));
 
@@ -145,7 +169,11 @@ export function projectScenario(start: EventPlan, scenario: WhatIfScenario, ctx:
     remainingPaise: budget.remainingPaise,
     categories,
     conflicts: diff.conflicts,
-    savings: generateRecoveryOptions(state, ctx, { evenWithinBudget: true }).map(({ id, title, savesPaise }) => ({ id, title, savesPaise })),
+    savings: generateRecoveryOptions(state, ctx, { evenWithinBudget: true }).map(({ id, title, savesPaise }) => ({
+      id,
+      title,
+      savesPaise,
+    })),
   };
 }
 
@@ -153,7 +181,9 @@ export function projectScenario(start: EventPlan, scenario: WhatIfScenario, ctx:
 export function describeScenario(s: WhatIfScenario): string {
   const parts = [
     s.guestCount !== undefined ? `${s.guestCount} guests` : null,
-    ...Object.entries(s.tiers).map(([category, tier]) => `${CATEGORY_LABELS[category as BudgetCategory].toLowerCase()} ${tier}`),
+    ...Object.entries(s.tiers).map(
+      ([category, tier]) => `${CATEGORY_LABELS[category as BudgetCategory].toLowerCase()} ${tier}`,
+    ),
     s.dropFunctions.length ? `without ${s.dropFunctions.join(", ")}` : null,
   ].filter(Boolean);
   return parts.join(", ") || "No changes";

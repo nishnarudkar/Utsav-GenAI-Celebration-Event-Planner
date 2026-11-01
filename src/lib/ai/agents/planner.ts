@@ -109,12 +109,14 @@ export function finalizeEventPlan(draft: EventPlanDraft, input: PlannerInput): P
   for (const { category, percent } of draft.allocation) weights[category] = (weights[category] ?? 0) + percent;
   const weightSum = Object.values(weights).reduce((s, w) => s + (w ?? 0), 0);
   if (weightSum <= 0) throw new RangeError("Planner allocation has no positive percentages");
-  if (Math.abs(weightSum - 100) > 0.5) adjustments.push(`Budget split summed to ${round1(weightSum)}%; scaled to 100%.`);
+  if (Math.abs(weightSum - 100) > 0.5)
+    adjustments.push(`Budget split summed to ${round1(weightSum)}%; scaled to 100%.`);
   const allocationPercent = Object.fromEntries(
     Object.entries(weights).map(([k, w]) => [k, round1(((w ?? 0) * 100) / weightSum)]),
   ) as Partial<Record<BudgetCategory, number>>;
 
-  const allocationPaise = answers.budgetTotalPaise === null ? null : allocateByWeight(answers.budgetTotalPaise, weights);
+  const allocationPaise =
+    answers.budgetTotalPaise === null ? null : allocateByWeight(answers.budgetTotalPaise, weights);
 
   const dates = functions.map((f) => f.date).sort();
   return {

@@ -25,7 +25,10 @@ const offsetLabel = (days: number) => (days === 0 ? "the main day" : days < 0 ? 
  * 3. Resolve offsets to dates; anything ideally due before today is scheduled for today (overdue).
  * Every repair is described in `adjustments`.
  */
-export function scheduleTasks(proposed: readonly ProposedTask[], ctx: ScheduleContext): { tasks: ScheduledTask[]; adjustments: string[] } {
+export function scheduleTasks(
+  proposed: readonly ProposedTask[],
+  ctx: ScheduleContext,
+): { tasks: ScheduledTask[]; adjustments: string[] } {
   const adjustments: string[] = [];
 
   // 1a. unique refs
@@ -62,7 +65,9 @@ export function scheduleTasks(proposed: readonly ProposedTask[], ctx: ScheduleCo
       } else if (!byRef.has(d)) {
         adjustments.push(`"${t.title}": ignored dependency on unknown task "${d}".`);
       } else if (reaches(d, t.ref)) {
-        adjustments.push(`"${t.title}": dropped dependency on "${byRef.get(d)?.title}" to avoid a circular dependency.`);
+        adjustments.push(
+          `"${t.title}": dropped dependency on "${byRef.get(d)?.title}" to avoid a circular dependency.`,
+        );
       } else {
         deps.get(t.ref)!.push(d);
       }
@@ -72,7 +77,10 @@ export function scheduleTasks(proposed: readonly ProposedTask[], ctx: ScheduleCo
   // 2. dependencies must be due no later than their dependents.
   // Visit dependents before their dependencies (reverse topological order).
   const offset = new Map(tasks.map((t) => [t.ref, t.dueOffsetDays]));
-  for (const ref of topologicalOrder(tasks.map((t) => t.ref), deps).reverse()) {
+  for (const ref of topologicalOrder(
+    tasks.map((t) => t.ref),
+    deps,
+  ).reverse()) {
     const due = offset.get(ref)!;
     for (const d of deps.get(ref)!) {
       const depDue = offset.get(d)!;

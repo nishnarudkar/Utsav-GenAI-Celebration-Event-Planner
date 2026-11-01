@@ -34,7 +34,11 @@ export function buildBudgetView(event: Pick<EventPlan, "budget">): BudgetView {
   const linesBy = new Map<BudgetCategory, PricedLine[]>();
   for (const line of budget.lines) linesBy.set(line.category, [...(linesBy.get(line.category) ?? []), line]);
 
-  const rows: CategoryRow[] = (Object.entries(budget.byCategory) as Array<[BudgetCategory, { allocatedPaise: number | null; estimatePaise: number } | undefined]>)
+  const rows: CategoryRow[] = (
+    Object.entries(budget.byCategory) as Array<
+      [BudgetCategory, { allocatedPaise: number | null; estimatePaise: number } | undefined]
+    >
+  )
     .filter((e): e is [BudgetCategory, { allocatedPaise: number | null; estimatePaise: number }] => e[1] !== undefined)
     .map(([category, c]) => ({
       category,
@@ -79,6 +83,10 @@ export function basisText(basis: ResolvedBasis): string {
 /** The most used price tier in a category (by line count; the cheaper wins a tie), or undefined if it has no lines. */
 export function dominantTier(lines: readonly PricedLine[], category: BudgetCategory): PriceTier | undefined {
   const counts = new Map<PriceTier, number>();
-  for (const l of lines) if (l.category === category) counts.set(l.basis.unitTier, (counts.get(l.basis.unitTier) ?? 0) + 1);
-  return (["low", "mid", "high"] as const).reduce<PriceTier | undefined>((best, tier) => ((counts.get(tier) ?? 0) > (best ? (counts.get(best) ?? 0) : 0) ? tier : best), undefined);
+  for (const l of lines)
+    if (l.category === category) counts.set(l.basis.unitTier, (counts.get(l.basis.unitTier) ?? 0) + 1);
+  return (["low", "mid", "high"] as const).reduce<PriceTier | undefined>(
+    (best, tier) => ((counts.get(tier) ?? 0) > (best ? (counts.get(best) ?? 0) : 0) ? tier : best),
+    undefined,
+  );
 }

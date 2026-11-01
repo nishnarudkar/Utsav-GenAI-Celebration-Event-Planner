@@ -12,8 +12,17 @@ export const ROLE_LABELS: Record<StakeholderRole, string> = {
   parent: "Parent",
 };
 
-const VENUE_LABELS = { banquet_hall: "Banquet hall", lawn: "Lawn", home: "Home", community_hall: "Community hall" } as const;
-const FUNCTION_LABELS = { fewer: "Fewer functions", as_planned: "Functions as planned", more: "More functions" } as const;
+const VENUE_LABELS = {
+  banquet_hall: "Banquet hall",
+  lawn: "Lawn",
+  home: "Home",
+  community_hall: "Community hall",
+} as const;
+const FUNCTION_LABELS = {
+  fewer: "Fewer functions",
+  as_planned: "Functions as planned",
+  more: "More functions",
+} as const;
 const MENU_LABELS = { veg: "Vegetarian menu", non_veg: "Non-vegetarian menu", mixed: "Mixed menu" } as const;
 
 export const VENUE_OPTIONS = Object.entries(VENUE_LABELS).map(([value, label]) => ({ value, label }));
@@ -31,16 +40,28 @@ export interface StakeholderFormValues {
   notes: string;
 }
 
-export const EMPTY_FORM: StakeholderFormValues = { name: "", role: "couple", guestCount: "", budgetMax: "", venueStyle: "", functions: "", menu: "", notes: "" };
+export const EMPTY_FORM: StakeholderFormValues = {
+  name: "",
+  role: "couple",
+  guestCount: "",
+  budgetMax: "",
+  venueStyle: "",
+  functions: "",
+  menu: "",
+  notes: "",
+};
 
 /** Turn the form into an API body, or a friendly message. Blank preference fields are left out. */
-export function parseStakeholderForm(f: StakeholderFormValues): { ok: true; value: StakeholderInput } | { ok: false; message: string } {
+export function parseStakeholderForm(
+  f: StakeholderFormValues,
+): { ok: true; value: StakeholderInput } | { ok: false; message: string } {
   if (!f.name.trim()) return { ok: false, message: "Add a name, such as “Bride's parents”." };
 
   const preferences: Record<string, unknown> = {};
   if (f.guestCount.trim()) {
     const n = Number(f.guestCount.replace(/[,\s]/g, ""));
-    if (!Number.isInteger(n) || n < 1 || n > 5000) return { ok: false, message: "Guests should be a whole number between 1 and 5,000." };
+    if (!Number.isInteger(n) || n < 1 || n > 5000)
+      return { ok: false, message: "Guests should be a whole number between 1 and 5,000." };
     preferences.guestCount = n;
   }
   if (f.budgetMax.trim()) {
@@ -54,7 +75,9 @@ export function parseStakeholderForm(f: StakeholderFormValues): { ok: true; valu
   if (f.notes.trim()) preferences.notes = f.notes.trim();
 
   const parsed = StakeholderInput.safeParse({ name: f.name, role: f.role, preferences, weight: 1 });
-  return parsed.success ? { ok: true, value: parsed.data } : { ok: false, message: "Please check the details and try again." };
+  return parsed.success
+    ? { ok: true, value: parsed.data }
+    : { ok: false, message: "Please check the details and try again." };
 }
 
 /** Preferences as short phrases for the stakeholder card. */

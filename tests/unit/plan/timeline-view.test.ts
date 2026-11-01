@@ -13,7 +13,14 @@ let cited: CitedChunk[];
 beforeAll(async () => {
   vi.stubEnv("DEMO_MODE", "true");
   const plan = await buildEventPlan(
-    { eventType: "wedding", culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250, budgetTotalPaise: 15_00_000_00 },
+    {
+      eventType: "wedding",
+      culture: "bengali_hindu",
+      city: "Kolkata",
+      startDate: "2027-02-14",
+      guestCount: 250,
+      budgetTotalPaise: 15_00_000_00,
+    },
     { today: "2026-10-29" },
   );
   demo = await new MemoryEventRepository().create(plan);
@@ -79,7 +86,10 @@ describe("ritualGroups", () => {
       plan: { ...demo.plan, functions: demo.plan.functions.filter((f) => f.name !== "Bashor Raat") },
     };
     const groups = ritualGroups(event, cited);
-    expect(groups.at(-1)).toMatchObject({ functionName: null, rituals: [expect.objectContaining({ key: "bashor_raat" })] });
+    expect(groups.at(-1)).toMatchObject({
+      functionName: null,
+      rituals: [expect.objectContaining({ key: "bashor_raat" })],
+    });
     expect(groups.flatMap((g) => g.rituals).find((r) => r.key === "gaye_holud")?.items[0]?.procured).toBe(true);
   });
 

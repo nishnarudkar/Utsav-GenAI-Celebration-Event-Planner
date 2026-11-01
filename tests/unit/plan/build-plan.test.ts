@@ -40,7 +40,11 @@ describe("buildEventPlan", () => {
 
     expect(log.slice(0, 2)).toEqual(["culture", "planner"]);
     expect(steps).toEqual(["rituals", "structure", "budget", "timeline"]);
-    expect(deps.culture).toHaveBeenCalledWith({ culture: "bengali_hindu", eventType: "wedding", notes: "Keep Bashor Raat" });
+    expect(deps.culture).toHaveBeenCalledWith({
+      culture: "bengali_hindu",
+      eventType: "wedding",
+      notes: "Keep Bashor Raat",
+    });
     expect(deps.budget).toHaveBeenCalledWith({ answers: ANSWERS, cityTier: 1, plan: PLAN });
     expect(deps.timeline).toHaveBeenCalledWith({ answers: ANSWERS, plan: PLAN, rituals: [], today: "2026-10-29" });
     expect(plan).toMatchObject({ title: "Bengali Hindu wedding in Kolkata", cityTier: 1, cityTierKnown: true });
@@ -60,7 +64,10 @@ describe("buildEventPlan", () => {
   });
 
   it("flags unknown cities and uses the given title", async () => {
-    const plan = await buildEventPlan({ ...ANSWERS, city: "Shantiniketan", title: "  Ananya & Rohan  " }, { deps: fakeDeps([]) });
+    const plan = await buildEventPlan(
+      { ...ANSWERS, city: "Shantiniketan", title: "  Ananya & Rohan  " },
+      { deps: fakeDeps([]) },
+    );
     expect(plan).toMatchObject({ title: "Ananya & Rohan", cityTier: 2, cityTierKnown: false });
   });
 });
@@ -76,7 +83,16 @@ describe("defaultTitle", () => {
 });
 
 describe("MemoryEventRepository", () => {
-  const plan = { title: "T", answers: ANSWERS, cityTier: 1, cityTierKnown: true, rituals: RITUALS, plan: PLAN, budget: BUDGET, timeline: TIMELINE } as const;
+  const plan = {
+    title: "T",
+    answers: ANSWERS,
+    cityTier: 1,
+    cityTierKnown: true,
+    rituals: RITUALS,
+    plan: PLAN,
+    budget: BUDGET,
+    timeline: TIMELINE,
+  } as const;
 
   it("creates, gets and lists events newest first", async () => {
     let t = Date.parse("2026-10-29T00:00:00Z");

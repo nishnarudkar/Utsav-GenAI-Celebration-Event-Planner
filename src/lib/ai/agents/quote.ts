@@ -51,7 +51,10 @@ export async function extractQuote(
     messages: [
       {
         role: "user",
-        content: [fileBlock(file), { type: "text", text: `This is a quote for ${CATEGORY_LABELS[ctx.category].toLowerCase()}. Transcribe it.` }],
+        content: [
+          fileBlock(file),
+          { type: "text", text: `This is a quote for ${CATEGORY_LABELS[ctx.category].toLowerCase()}. Transcribe it.` },
+        ],
       },
     ],
   });
@@ -59,7 +62,10 @@ export async function extractQuote(
 
 /** Deterministic fallback when the model fails or writes an amount that isn't in the facts. */
 export function fallbackNegotiation(a: QuoteAnalysis): string {
-  const asks = a.flags.filter((f) => f.severity !== "info").slice(0, 4).map((f) => `- ${f.detail}`);
+  const asks = a.flags
+    .filter((f) => f.severity !== "info")
+    .slice(0, 4)
+    .map((f) => `- ${f.detail}`);
   return [
     `Namaste${a.vendorName ? ` ${a.vendorName} ji` : " Ji"},`,
     "Thank you for the quotation. Before we confirm, could you please help with a few points:",

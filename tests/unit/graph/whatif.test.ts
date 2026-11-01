@@ -13,8 +13,19 @@ import type { WhatIfProjection } from "@/lib/schemas/whatif";
 
 const CTX = { version: 1, today: "2026-10-30" };
 const rupees = (r: number) => r * 100;
-const BODY = { eventType: "wedding", culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250, budgetTotalPaise: rupees(15_00_000) };
-const scenario = (over: Partial<Parameters<typeof projectScenario>[1]> = {}) => ({ tiers: {}, dropFunctions: [], ...over });
+const BODY = {
+  eventType: "wedding",
+  culture: "bengali_hindu",
+  city: "Kolkata",
+  startDate: "2027-02-14",
+  guestCount: 250,
+  budgetTotalPaise: rupees(15_00_000),
+};
+const scenario = (over: Partial<Parameters<typeof projectScenario>[1]> = {}) => ({
+  tiers: {},
+  dropFunctions: [],
+  ...over,
+});
 
 let demo: EventPlan;
 
@@ -31,7 +42,10 @@ describe("projectScenario", () => {
     const before = structuredClone(demo);
     const p = projectScenario(demo, scenario({ guestCount: 300, tiers: { catering: "mid" } }), CTX);
     // 300 × 2 feasts at ₹1,500 + breakfast and lunch re-tiered to ₹1,500
-    expect(p.categories.find((c) => c.category === "catering")).toMatchObject({ beforePaise: rupees(5_40_000), afterPaise: rupees(10_50_000) });
+    expect(p.categories.find((c) => c.category === "catering")).toMatchObject({
+      beforePaise: rupees(5_40_000),
+      afterPaise: rupees(10_50_000),
+    });
     expect(p.deltaPaise).toBe(p.totalEstimatePaise - rupees(14_40_000));
     expect(p.overBudgetPaise).toBe(p.totalEstimatePaise - rupees(15_00_000));
     expect(p.conflicts[0]?.type).toBe("over_budget");
@@ -62,9 +76,16 @@ describe("dropping a function", () => {
     expect(next.plan.functions.map((f) => f.name)).not.toContain("Gaye Holud");
     expect(next.budget.lines.some((l) => l.functionName === "Gaye Holud")).toBe(false);
     expect(next.timeline.tasks.filter((t) => t.functionName === "Gaye Holud").map((t) => t.ref)).toEqual(["mine"]);
-    expect(next.plan.unassignedRitualKeys).toEqual(expect.arrayContaining(["gaye_holud", "dodhi_mangal", "shankha_porana"]));
+    expect(next.plan.unassignedRitualKeys).toEqual(
+      expect.arrayContaining(["gaye_holud", "dodhi_mangal", "shankha_porana"]),
+    );
     expect(next.budget.totalEstimatePaise).toBe(sumPaise(next.budget.lines.map((l) => l.estimatePaise)));
-    expect(diff.removed.map((r) => r.label)).toEqual(["Gaye Holud", "Gaye Holud breakfast", "Gaye Holud floral setup", "Tattva gift trays"]);
+    expect(diff.removed.map((r) => r.label)).toEqual([
+      "Gaye Holud",
+      "Gaye Holud breakfast",
+      "Gaye Holud floral setup",
+      "Tattva gift trays",
+    ]);
     expect(diffRows(diff).at(-1)).toMatchObject({ from: "Planned", to: "Removed" });
   });
 
@@ -76,7 +97,13 @@ describe("dropping a function", () => {
   });
 
   it("keeps a function with locked lines and never drops every function", () => {
-    const locked = { ...demo, budget: { ...demo.budget, lines: demo.budget.lines.map((l) => (l.functionName === "Gaye Holud" ? { ...l, locked: true } : l)) } };
+    const locked = {
+      ...demo,
+      budget: {
+        ...demo.budget,
+        lines: demo.budget.lines.map((l) => (l.functionName === "Gaye Holud" ? { ...l, locked: true } : l)),
+      },
+    };
     const a = applyScenario(locked, scenario({ dropFunctions: ["Gaye Holud"] }), CTX);
     expect(a.state.plan.functions.map((f) => f.name)).toContain("Gaye Holud");
     expect(a.diff.conflicts.map((c) => c.type)).toContain("locked_item");
@@ -94,14 +121,22 @@ describe("dropping a function", () => {
 
 describe("tiers", () => {
   it("skips locked lines", () => {
-    const locked = { ...demo, budget: { ...demo.budget, lines: demo.budget.lines.map((l) => (l.category === "decor" ? { ...l, locked: true } : l)) } };
+    const locked = {
+      ...demo,
+      budget: {
+        ...demo.budget,
+        lines: demo.budget.lines.map((l) => (l.category === "decor" ? { ...l, locked: true } : l)),
+      },
+    };
     expect(applyScenario(locked, scenario({ tiers: { decor: "high" } }), CTX).diff.budgetDeltaPaise).toBe(0);
   });
 });
 
 describe("describeScenario", () => {
   it("summarises for the change log", () => {
-    expect(describeScenario(scenario({ guestCount: 300, tiers: { catering: "low" }, dropFunctions: ["Gaye Holud"] }))).toBe("300 guests, catering low, without Gaye Holud");
+    expect(
+      describeScenario(scenario({ guestCount: 300, tiers: { catering: "low" }, dropFunctions: ["Gaye Holud"] })),
+    ).toBe("300 guests, catering low, without Gaye Holud");
     expect(describeScenario(scenario())).toBe("No changes");
   });
 });
@@ -120,7 +155,8 @@ describe("POST /api/events/:id/whatif", () => {
   async function newEvent(): Promise<StoredEvent> {
     return ((await (await createEvent(req(BODY))).json()) as { event: StoredEvent }).event;
   }
-  const read = async (id: string) => ((await (await getEvent(new Request("http://test"), params(id))).json()) as { event: StoredEvent }).event;
+  const read = async (id: string) =>
+    ((await (await getEvent(new Request("http://test"), params(id))).json()) as { event: StoredEvent }).event;
 
   it("projects without saving", async () => {
     const event = await newEvent();
@@ -132,7 +168,10 @@ describe("POST /api/events/:id/whatif", () => {
 
   it("applies as a logged change that Undo restores exactly", async () => {
     const event = await newEvent();
-    const res = await whatif(req({ scenario: { guestCount: 300, dropFunctions: ["Gaye Holud"] }, apply: true }), params(event.id));
+    const res = await whatif(
+      req({ scenario: { guestCount: 300, dropFunctions: ["Gaye Holud"] }, apply: true }),
+      params(event.id),
+    );
     expect(res.status).toBe(200);
     const { event: updated, diff } = (await res.json()) as { event: StoredEvent; diff: PlanDiff };
     expect(updated.version).toBe(2);

@@ -32,7 +32,10 @@ function getDefaultDeps(): CultureDeps {
   return defaultDeps;
 }
 
-export async function generateRitualPlan(input: CultureInput, deps: CultureDeps = getDefaultDeps()): Promise<RitualPlan> {
+export async function generateRitualPlan(
+  input: CultureInput,
+  deps: CultureDeps = getDefaultDeps(),
+): Promise<RitualPlan> {
   const chunks = await deps.retrieve(
     `${input.culture.replace(/_/g, " ")} ${input.eventType} rituals sequence ${input.notes ?? ""}`,
     { culture: input.culture, eventType: input.eventType, docType: "ritual" },

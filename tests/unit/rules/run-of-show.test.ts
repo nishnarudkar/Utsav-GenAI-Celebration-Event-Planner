@@ -4,7 +4,13 @@ import type { PlannedFunction } from "@/lib/schemas/event";
 import type { Ritual } from "@/lib/schemas/ritual";
 
 const DATE = "2027-02-14";
-const fn = (name: string, startTime: string, endTime: string, ritualKeys: string[] = [], date = DATE): PlannedFunction => ({
+const fn = (
+  name: string,
+  startTime: string,
+  endTime: string,
+  ritualKeys: string[] = [],
+  date = DATE,
+): PlannedFunction => ({
   name,
   date,
   startTime,
@@ -12,10 +18,22 @@ const fn = (name: string, startTime: string, endTime: string, ritualKeys: string
   ritualKeys,
   expectedGuests: 100,
 });
-const ritual = (key: string, durationMinutes: number): Ritual => ({ key, name: key.toUpperCase(), order: 1, durationMinutes, participants: [], items: [], significance: "" });
+const ritual = (key: string, durationMinutes: number): Ritual => ({
+  key,
+  name: key.toUpperCase(),
+  order: 1,
+  durationMinutes,
+  participants: [],
+  items: [],
+  significance: "",
+});
 
 const RITUALS = [ritual("a", 60), ritual("b", 30), ritual("c", 180)];
-const FUNCTIONS = [fn("Night", "22:00", "01:00", ["c"]), fn("Evening", "18:00", "21:00", ["a", "b"]), fn("Other day", "10:00", "11:00", [], "2027-02-15")];
+const FUNCTIONS = [
+  fn("Night", "22:00", "01:00", ["c"]),
+  fn("Evening", "18:00", "21:00", ["a", "b"]),
+  fn("Other day", "10:00", "11:00", [], "2027-02-15"),
+];
 const slots = buildRunOfShow(FUNCTIONS, RITUALS, DATE);
 
 describe("buildRunOfShow", () => {
@@ -52,7 +70,11 @@ describe("applyDelay", () => {
   });
 
   it("doesn't add to an overlap that was already there", () => {
-    const tight = buildRunOfShow([fn("Evening", "18:00", "21:00", ["a"]), fn("Night", "18:30", "22:00", ["b"])], RITUALS, DATE);
+    const tight = buildRunOfShow(
+      [fn("Evening", "18:00", "21:00", ["a"]), fn("Night", "18:30", "22:00", ["b"])],
+      RITUALS,
+      DATE,
+    );
     expect(applyDelay(tight, "a", 10)).toEqual({ a: 10, b: 10 });
   });
 
@@ -73,6 +95,8 @@ describe("overruns", () => {
   it("names functions pushed past their planned finish, including overnight ones", () => {
     expect(overruns(FUNCTIONS, slots)).toEqual([]);
     const late = slots.map((s) => (s.id === "c" ? { ...s, endMin: s.endMin + 30 } : s));
-    expect(overruns(FUNCTIONS, late)).toEqual(["Night now runs until 1:30 AM (next day), past its planned finish of 1:00 AM (next day)."]);
+    expect(overruns(FUNCTIONS, late)).toEqual([
+      "Night now runs until 1:30 AM (next day), past its planned finish of 1:00 AM (next day).",
+    ]);
   });
 });

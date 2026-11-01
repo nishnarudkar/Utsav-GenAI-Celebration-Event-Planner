@@ -33,8 +33,14 @@ describe("step parsers", () => {
   it("date must be a real upcoming date within 3 years", () => {
     expect(parseStartDate("2027-02-14", TODAY)).toEqual({ ok: true, value: "2027-02-14", display: "Sun, 14 Feb 2027" });
     expect(parseStartDate(TODAY, TODAY).ok).toBe(true);
-    expect(parseStartDate("2026-10-28", TODAY)).toMatchObject({ ok: false, message: expect.stringContaining("passed") });
-    expect(parseStartDate("2030-01-01", TODAY)).toMatchObject({ ok: false, message: expect.stringContaining("3 years") });
+    expect(parseStartDate("2026-10-28", TODAY)).toMatchObject({
+      ok: false,
+      message: expect.stringContaining("passed"),
+    });
+    expect(parseStartDate("2030-01-01", TODAY)).toMatchObject({
+      ok: false,
+      message: expect.stringContaining("3 years"),
+    });
     expect(parseStartDate("2027-02-30", TODAY).ok).toBe(false);
   });
 
@@ -113,13 +119,22 @@ describe("applyAnswer / toOnboardingAnswers", () => {
   });
 
   it("keeps an 'estimate for me' budget as null, not missing", () => {
-    const base: CollectedAnswers = { eventType: "birthday", culture: "generic", city: "Pune", startDate: "2027-01-10", guestCount: 60 };
+    const base: CollectedAnswers = {
+      eventType: "birthday",
+      culture: "generic",
+      city: "Pune",
+      startDate: "2027-01-10",
+      guestCount: 60,
+    };
     const r = applyAnswer("budget", "estimate", base, TODAY);
     expect(r.ok && toOnboardingAnswers(r.answers)).toMatchObject({ budgetTotalPaise: null });
   });
 
   it("returns the friendly message and leaves answers unchanged on bad input", () => {
     const answers: CollectedAnswers = { eventType: "wedding" };
-    expect(applyAnswer("guestCount", "lots", answers, TODAY)).toEqual({ ok: false, message: "Just a number, like 250." });
+    expect(applyAnswer("guestCount", "lots", answers, TODAY)).toEqual({
+      ok: false,
+      message: "Just a number, like 250.",
+    });
   });
 });

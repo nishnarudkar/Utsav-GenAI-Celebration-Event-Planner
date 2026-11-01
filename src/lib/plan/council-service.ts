@@ -14,7 +14,12 @@ export const MIN_STAKEHOLDERS = 2;
 
 export type RunOutcome = { kind: "not_found" } | { kind: "too_few" } | { kind: "ok"; council: CouncilResolution };
 
-export async function holdCouncil(repo: EventRepository, id: string, opts: { today: ISODate }, deps?: CouncilDeps): Promise<RunOutcome> {
+export async function holdCouncil(
+  repo: EventRepository,
+  id: string,
+  opts: { today: ISODate },
+  deps?: CouncilDeps,
+): Promise<RunOutcome> {
   const event = await repo.get(id);
   if (!event) return { kind: "not_found" };
   if (event.stakeholders.length < MIN_STAKEHOLDERS) return { kind: "too_few" };
@@ -32,7 +37,12 @@ export type ApplyOutcome =
   | { kind: "applied"; event: StoredEvent; diff: PlanDiff };
 
 /** Apply a compromise as a logged change (so Undo works) and record the family's decision. */
-export async function applyCompromise(repo: EventRepository, id: string, optionId: string, opts: { today: ISODate }): Promise<ApplyOutcome> {
+export async function applyCompromise(
+  repo: EventRepository,
+  id: string,
+  optionId: string,
+  opts: { today: ISODate },
+): Promise<ApplyOutcome> {
   const event = await repo.get(id);
   if (!event) return { kind: "not_found" };
   const option = event.council?.options.find((o) => o.id === optionId);
@@ -49,5 +59,9 @@ export async function applyCompromise(repo: EventRepository, id: string, optionI
   });
   if (!applied.ok) return { kind: applied.error };
   await repo.setChosenOption(id, optionId);
-  return { kind: "applied", event: { ...applied.event, council: { ...event.council, chosenOptionId: optionId } }, diff };
+  return {
+    kind: "applied",
+    event: { ...applied.event, council: { ...event.council, chosenOptionId: optionId } },
+    diff,
+  };
 }

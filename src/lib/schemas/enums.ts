@@ -58,7 +58,7 @@ export const PRICE_TIERS = ["low", "mid", "high"] as const;
 export const PriceTier = z.enum(PRICE_TIERS);
 export type PriceTier = z.infer<typeof PriceTier>;
 
-export const TASK_STATUSES =["todo", "doing", "done", "blocked"] as const;
+export const TASK_STATUSES = ["todo", "doing", "done", "blocked"] as const;
 export const TaskStatus = z.enum(TASK_STATUSES);
 export type TaskStatus = z.infer<typeof TaskStatus>;
 

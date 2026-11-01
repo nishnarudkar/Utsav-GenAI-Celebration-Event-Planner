@@ -38,7 +38,8 @@ export interface CrowdEstimate {
 }
 
 /** The largest number of people expected at any one function. */
-export const peakCrowdOf = (functions: readonly { expectedGuests: number }[]) => Math.max(...functions.map((f) => f.expectedGuests));
+export const peakCrowdOf = (functions: readonly { expectedGuests: number }[]) =>
+  Math.max(...functions.map((f) => f.expectedGuests));
 
 function densityLevel(perSqM: number): CrowdLevel {
   if (perSqM >= DENSITY.unsafe) return "unsafe";
@@ -59,7 +60,15 @@ export function estimateCrowd({ peakCrowd, areaSqM, exitWidthM }: CrowdInput): C
     volunteers: Math.ceil(peakCrowd / PEOPLE_PER.volunteer),
     firstAidPosts: Math.ceil(peakCrowd / PEOPLE_PER.firstAidPost),
     toilets: Math.max(2, Math.ceil(peakCrowd / PEOPLE_PER.toilet)),
-    ...(hasArea ? { density: { perSqM, level: densityLevel(peakCrowd / areaSqM), comfortableCapacity: Math.floor(areaSqM * DENSITY.busy) } } : {}),
+    ...(hasArea
+      ? {
+          density: {
+            perSqM,
+            level: densityLevel(peakCrowd / areaSqM),
+            comfortableCapacity: Math.floor(areaSqM * DENSITY.busy),
+          },
+        }
+      : {}),
     ...(exitWidthM !== undefined ? { exitShortfallM: Math.max(0, exitWidthNeededM - exitWidthM) } : {}),
   };
 }

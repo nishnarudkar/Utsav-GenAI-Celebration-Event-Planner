@@ -24,7 +24,7 @@ export const BenchmarkRow = z
   });
 export type BenchmarkRow = z.infer<typeof BenchmarkRow>;
 
-export const PricingFile = z.object({
+const PricingFile = z.object({
   version: z.number().int(),
   currency: z.literal("INR"),
   updated: z.string(),

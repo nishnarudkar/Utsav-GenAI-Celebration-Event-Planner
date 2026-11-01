@@ -1,6 +1,7 @@
 import { CalendarPlus, FileDown } from "lucide-react";
 
-const LINK = "inline-flex items-center gap-1.5 rounded-full border border-maroon px-4 py-2 text-sm font-medium text-maroon hover:bg-maroon/5";
+const LINK =
+  "inline-flex items-center gap-1.5 rounded-full border border-maroon px-4 py-2 text-sm font-medium text-maroon hover:bg-maroon/5";
 
 /** Download the plan as a PDF, or as a calendar file for Google Calendar and others. */
 export function ExportLinks({ eventId }: { eventId: string }) {

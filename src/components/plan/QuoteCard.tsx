@@ -22,7 +22,9 @@ export function QuoteCard({ quote }: { quote: StoredQuote }) {
         </div>
         <p className="text-right">
           <span className="block font-medium tabular-nums text-ink">{formatINR(total)}</span>
-          <span className="text-xs text-muted">{a.gst.amountPaise !== null ? "including GST" : GST_NOTE[a.gst.status]}</span>
+          <span className="text-xs text-muted">
+            {a.gst.amountPaise !== null ? "including GST" : GST_NOTE[a.gst.status]}
+          </span>
         </p>
       </header>
 
@@ -45,7 +47,11 @@ export function QuoteCard({ quote }: { quote: StoredQuote }) {
                 {l.arithmeticOk === false && <span className="block text-xs text-increased">Doesn&apos;t add up</span>}
               </span>
               <span className="shrink-0 tabular-nums text-ink">
-                {l.amountPaise === null ? "No price" : l.amountPaise === 0 ? (l.notes ?? "Included") : formatINR(l.amountPaise)}
+                {l.amountPaise === null
+                  ? "No price"
+                  : l.amountPaise === 0
+                    ? (l.notes ?? "Included")
+                    : formatINR(l.amountPaise)}
               </span>
             </li>
           ))}

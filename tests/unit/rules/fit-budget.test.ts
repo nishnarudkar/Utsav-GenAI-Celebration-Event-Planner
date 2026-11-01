@@ -4,10 +4,21 @@ import { fitTiersToBudget, indexBenchmarks, type ProposedLine } from "@/lib/rule
 
 const rupees = (r: number) => r * 100;
 const row = (category: BenchmarkRow["category"], low: number, mid: number, high: number) =>
-  ({ category, unit: "flat", city_tier: 1, label: category, low_paise: rupees(low), mid_paise: rupees(mid), high_paise: rupees(high) }) as BenchmarkRow;
+  ({
+    category,
+    unit: "flat",
+    city_tier: 1,
+    label: category,
+    low_paise: rupees(low),
+    mid_paise: rupees(mid),
+    high_paise: rupees(high),
+  }) as BenchmarkRow;
 
 const INDEX = indexBenchmarks([row("venue", 100, 200, 400), row("decor", 50, 80, 300)]);
-const flat = (category: ProposedLine["category"], unitTier: ProposedLine["basis"]["unitTier"]): ProposedLine => ({ category, basis: { unit: "flat", quantity: 1, unitTier } });
+const flat = (category: ProposedLine["category"], unitTier: ProposedLine["basis"]["unitTier"]): ProposedLine => ({
+  category,
+  basis: { unit: "flat", quantity: 1, unitTier },
+});
 const fit = (lines: ProposedLine[], budget: number) => fitTiersToBudget(lines, INDEX, 1, rupees(budget));
 
 describe("fitTiersToBudget", () => {

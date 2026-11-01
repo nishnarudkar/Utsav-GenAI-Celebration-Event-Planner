@@ -1,7 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { AIProviderError, AIValidationError } from "@/lib/ai/errors";
-import { generateGemini, resolveGeminiModel, toGeminiParts, toGeminiSchema, toGeminiSystem, type GeminiDeps, type GeminiRequest } from "@/lib/ai/gemini";
+import {
+  generateGemini,
+  resolveGeminiModel,
+  toGeminiParts,
+  toGeminiSchema,
+  toGeminiSystem,
+  type GeminiDeps,
+  type GeminiRequest,
+} from "@/lib/ai/gemini";
 import { callStructured, defaultStructuredDeps, type StructuredDeps } from "@/lib/ai/structured";
 import { apiError, errorResponse } from "@/lib/api/errors";
 import { VibeProfile } from "@/lib/schemas/vibe";
@@ -10,9 +18,20 @@ const Idea = z.object({ title: z.string(), guests: z.number().int().positive() }
 const VALID = { title: "Marigold mandap", guests: 250 };
 
 const interaction = (text: string, status = "completed") =>
-  Response.json({ id: "v1_test", status, steps: [{ type: "thought" }, { type: "model_output", content: [{ type: "text", text }] }] });
+  Response.json({
+    id: "v1_test",
+    status,
+    steps: [{ type: "thought" }, { type: "model_output", content: [{ type: "text", text }] }],
+  });
 
-const request: GeminiRequest = { outputName: "emit_idea", model: "test-model", system: "Plan well.", messages: [{ role: "user", content: "Hello" }], schema: Idea, maxOutputTokens: 500 };
+const request: GeminiRequest = {
+  outputName: "emit_idea",
+  model: "test-model",
+  system: "Plan well.",
+  messages: [{ role: "user", content: "Hello" }],
+  schema: Idea,
+  maxOutputTokens: 500,
+};
 
 function makeDeps(...responses: (Response | Error)[]) {
   const queue = [...responses];
@@ -49,19 +68,27 @@ describe("translating requests", () => {
   });
 
   it("joins cached system blocks into one instruction", () => {
-    expect(toGeminiSystem([{ type: "text", text: "One", cache_control: { type: "ephemeral" } }, { type: "text", text: "Two" }])).toBe("One\n\nTwo");
+    expect(
+      toGeminiSystem([
+        { type: "text", text: "One", cache_control: { type: "ephemeral" } },
+        { type: "text", text: "Two" },
+      ]),
+    ).toBe("One\n\nTwo");
   });
 
   it("keeps the schema's shape but drops limits, which Gemini can reject", () => {
     const schema = toGeminiSchema(VibeProfile);
     const text = JSON.stringify(schema);
     expect(schema).toMatchObject({ type: "object", required: expect.arrayContaining(["theme", "palette"]) });
-    for (const keyword of ["pattern", "maxLength", "minItems", "maxItems", "$schema", "$ref"]) expect(text).not.toContain(`"${keyword}"`);
+    for (const keyword of ["pattern", "maxLength", "minItems", "maxItems", "$schema", "$ref"])
+      expect(text).not.toContain(`"${keyword}"`);
     expect(JSON.stringify(toGeminiSchema(z.object({ guests: z.number().int().positive() })))).not.toMatch(/imum/);
   });
 
   it("keeps a property that happens to be named like a limit", () => {
-    expect(toGeminiSchema(z.object({ maximum: z.string() }))).toMatchObject({ properties: { maximum: { type: "string" } } });
+    expect(toGeminiSchema(z.object({ maximum: z.string() }))).toMatchObject({
+      properties: { maximum: { type: "string" } },
+    });
   });
 
   it("sends the key in a header, and stores nothing", async () => {
@@ -92,7 +119,11 @@ describe("generateGemini", () => {
   });
 
   it("retries rate limits and server errors, honouring Retry-After", async () => {
-    const { deps, sleep, fetchMock } = makeDeps(new Response(null, { status: 429, headers: { "retry-after": "7" } }), new Response(null, { status: 503 }), interaction("{}"));
+    const { deps, sleep, fetchMock } = makeDeps(
+      new Response(null, { status: 429, headers: { "retry-after": "7" } }),
+      new Response(null, { status: 503 }),
+      interaction("{}"),
+    );
     await generateGemini(request, deps);
     expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(sleep.mock.calls.map(([ms]) => ms)).toEqual([7000, 2000]);
@@ -105,7 +136,8 @@ describe("generateGemini", () => {
   });
 
   it("stops at once when the daily allowance is gone, and says so", async () => {
-    const message = "Rate limit exceeded for model x (limit: 20 requests per day on Free Tier). Please retry in 16h32m14s";
+    const message =
+      "Rate limit exceeded for model x (limit: 20 requests per day on Free Tier). Please retry in 16h32m14s";
     const { deps, fetchMock, sleep } = makeDeps(Response.json({ error: { message } }, { status: 429 }));
     const failure = await generateGemini(request, deps).catch((err: unknown) => err);
     expect(failure).toMatchObject({ dailyLimit: true, status: 429 });
@@ -157,11 +189,22 @@ describe("generateGemini", () => {
 });
 
 describe("callStructured with Gemini", () => {
-  const opts = { schema: Idea, name: "emit_idea", system: "Plan well.", messages: [{ role: "user" as const, content: "Hello" }] };
+  const opts = {
+    schema: Idea,
+    name: "emit_idea",
+    system: "Plan well.",
+    messages: [{ role: "user" as const, content: "Hello" }],
+  };
   const base = (replies: { text: string; cutOff: boolean }[]) => {
     const gemini = vi.fn(async (_request: GeminiRequest) => replies.shift() ?? { text: "", cutOff: false });
     const createMessage = vi.fn();
-    const deps: StructuredDeps = { createMessage, resolveModel: () => "gemini-test", demoMode: false, fixturesDir: "/nonexistent", gemini };
+    const deps: StructuredDeps = {
+      createMessage,
+      resolveModel: () => "gemini-test",
+      demoMode: false,
+      fixturesDir: "/nonexistent",
+      gemini,
+    };
     return { deps, gemini, createMessage };
   };
 
@@ -209,6 +252,8 @@ describe("errorResponse", () => {
     const res = errorResponse(new AIProviderError("emit_idea", 429, "quota"), "test");
     expect(res.status).toBe(429);
     expect(((await res.json()) as { error: { message: string } }).error.message).toMatch(/wait a minute/);
-    expect(errorResponse(new AIProviderError("emit_idea", 500, "boom"), "test").status).toBe(apiError(502, "AI_FAILED", "").status);
+    expect(errorResponse(new AIProviderError("emit_idea", 500, "boom"), "test").status).toBe(
+      apiError(502, "AI_FAILED", "").status,
+    );
   });
 });

@@ -40,14 +40,29 @@ function functionValue(v: unknown): string {
 }
 
 export function diffRows(diff: PlanDiff): DiffRow[] {
-  const removed = diff.removed.map((r): DiffRow => ({ key: `removed:${r.nodeId}`, label: r.label, from: "Planned", to: "Removed", direction: "neutral", reason: "Taken out of the plan" }));
+  const removed = diff.removed.map((r): DiffRow => ({
+    key: `removed:${r.nodeId}`,
+    label: r.label,
+    from: "Planned",
+    to: "Removed",
+    direction: "neutral",
+    reason: "Taken out of the plan",
+  }));
   const changed = diff.changed.map((c): DiffRow => {
     if (c.nodeId.startsWith("field:")) {
       const field = c.nodeId.slice("field:".length);
       const a = num(c.from);
       const b = num(c.to);
-      const direction: Direction = a !== null && b !== null && field !== "start_date" ? (b > a ? "up" : b < a ? "down" : "neutral") : "neutral";
-      return { key: c.nodeId, label: c.label, from: fieldValue(field, c.from), to: fieldValue(field, c.to), direction, reason: c.reason };
+      const direction: Direction =
+        a !== null && b !== null && field !== "start_date" ? (b > a ? "up" : b < a ? "down" : "neutral") : "neutral";
+      return {
+        key: c.nodeId,
+        label: c.label,
+        from: fieldValue(field, c.from),
+        to: fieldValue(field, c.to),
+        direction,
+        reason: c.reason,
+      };
     }
     if (c.nodeId.startsWith("line:") && isRecord(c.from) && isRecord(c.to)) {
       const a = num(c.from.estimatePaise) ?? 0;
@@ -63,11 +78,25 @@ export function diffRows(diff: PlanDiff): DiffRow[] {
       };
     }
     if (c.nodeId.startsWith("function:")) {
-      return { key: c.nodeId, label: c.label, from: functionValue(c.from), to: functionValue(c.to), direction: "neutral", reason: c.reason };
+      return {
+        key: c.nodeId,
+        label: c.label,
+        from: functionValue(c.from),
+        to: functionValue(c.to),
+        direction: "neutral",
+        reason: c.reason,
+      };
     }
     // timeline:all and anything else
     const show = (v: unknown) => (typeof v === "string" && isISODate(v) ? formatDate(v) : String(v ?? "—"));
-    return { key: c.nodeId, label: c.label, from: show(c.from), to: show(c.to), direction: "neutral", reason: c.reason };
+    return {
+      key: c.nodeId,
+      label: c.label,
+      from: show(c.from),
+      to: show(c.to),
+      direction: "neutral",
+      reason: c.reason,
+    };
   });
   return [...changed, ...removed];
 }

@@ -47,7 +47,8 @@ export function VibePanel({ eventId, vibe: initial, demoMode }: VibePanelProps) 
     const images = [...(fileRef.current?.files ?? [])];
     if (images.length === 0 && !notes.trim()) return setError("Add a photo, or describe the look you want.");
     if (images.length > MAX_VIBE_IMAGES) return setError(`Choose up to ${MAX_VIBE_IMAGES} photos.`);
-    if (images.reduce((sum, f) => sum + f.size, 0) > MAX_VIBE_TOTAL_BYTES) return setError("Photos can be up to 4 MB in total.");
+    if (images.reduce((sum, f) => sum + f.size, 0) > MAX_VIBE_TOTAL_BYTES)
+      return setError("Photos can be up to 4 MB in total.");
     void send(notes, images);
   }
 
@@ -57,8 +58,14 @@ export function VibePanel({ eventId, vibe: initial, demoMode }: VibePanelProps) 
         <h2 id="vibe-title" className="font-display text-xl text-maroon">
           Look &amp; feel
         </h2>
-        <p className="mt-1 text-sm text-muted">Share photos you love, or describe them. Utsav turns them into colours, décor ideas and search terms.</p>
-        {demoMode && <p className="mt-2 text-sm text-muted">Demo mode shows a saved sample look. It doesn&apos;t read your photos or notes.</p>}
+        <p className="mt-1 text-sm text-muted">
+          Share photos you love, or describe them. Utsav turns them into colours, décor ideas and search terms.
+        </p>
+        {demoMode && (
+          <p className="mt-2 text-sm text-muted">
+            Demo mode shows a saved sample look. It doesn&apos;t read your photos or notes.
+          </p>
+        )}
 
         <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
@@ -94,7 +101,11 @@ export function VibePanel({ eventId, vibe: initial, demoMode }: VibePanelProps) 
               disabled={busy}
               className="inline-flex items-center gap-1.5 rounded-full bg-maroon px-5 py-2.5 font-medium text-cream hover:bg-maroon-dark disabled:opacity-50"
             >
-              {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Palette className="size-4" aria-hidden />}
+              {busy ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <Palette className="size-4" aria-hidden />
+              )}
               {busy ? "Working on it…" : vibe ? "Make a new look" : "Find our look"}
             </button>
             <button
@@ -117,7 +128,9 @@ export function VibePanel({ eventId, vibe: initial, demoMode }: VibePanelProps) 
       {vibe ? (
         <VibeResult vibe={vibe} />
       ) : (
-        <p className="rounded-2xl border border-dashed border-line p-5 text-sm text-muted">Your look will appear here, ready to share with your decorator.</p>
+        <p className="rounded-2xl border border-dashed border-line p-5 text-sm text-muted">
+          Your look will appear here, ready to share with your decorator.
+        </p>
       )}
     </div>
   );
@@ -139,7 +152,11 @@ function VibeResult({ vibe }: { vibe: VibeProfile }) {
 
       <ul aria-label="Colour palette" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {vibe.palette.map((c) => (
-          <li key={c.hex} style={{ backgroundColor: c.hex, color: readableTextOn(c.hex) }} className="rounded-xl border border-line p-3 text-sm">
+          <li
+            key={c.hex}
+            style={{ backgroundColor: c.hex, color: readableTextOn(c.hex) }}
+            className="rounded-xl border border-line p-3 text-sm"
+          >
             <span className="block font-medium">{c.name}</span>
             <span className="block text-xs uppercase">{c.hex}</span>
           </li>
@@ -150,7 +167,10 @@ function VibeResult({ vibe }: { vibe: VibeProfile }) {
         <h3 className="text-sm font-semibold text-ink">Décor ideas</h3>
         <ul className="mt-1 flex flex-col">
           {vibe.decor.map((d) => (
-            <li key={d.item} className="flex flex-wrap justify-between gap-x-3 border-b border-line py-1.5 text-sm last:border-0">
+            <li
+              key={d.item}
+              className="flex flex-wrap justify-between gap-x-3 border-b border-line py-1.5 text-sm last:border-0"
+            >
               <span className="text-ink">{d.item}</span>
               <span className="text-muted">{d.where}</span>
             </li>

@@ -3,7 +3,7 @@ import { BudgetCategory, type TaskSource } from "@/lib/schemas/enums";
 
 /** Timeline agent output (CLAUDE.md §7.3): tasks with relative due dates and dependencies. */
 
-export const TaskRef = z.string().regex(/^[a-z][a-z0-9_]{0,59}$/, "ref must be snake_case");
+const TaskRef = z.string().regex(/^[a-z][a-z0-9_]{0,59}$/, "ref must be snake_case");
 
 export const ProposedTask = z.object({
   /** Short id used only to express dependencies inside this proposal. */

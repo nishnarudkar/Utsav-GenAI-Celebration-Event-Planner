@@ -102,9 +102,12 @@ export interface CitedChunk {
   content: string;
 }
 
-export const ritualItemId = (ritualKey: string, index: number) => `${ritualKey}#${index}`;
+const ritualItemId = (ritualKey: string, index: number) => `${ritualKey}#${index}`;
 
-export function ritualGroups(event: Pick<StoredEvent, "rituals" | "plan" | "procuredItems">, cited: readonly CitedChunk[]): RitualGroup[] {
+export function ritualGroups(
+  event: Pick<StoredEvent, "rituals" | "plan" | "procuredItems">,
+  cited: readonly CitedChunk[],
+): RitualGroup[] {
   const procured = new Set(event.procuredItems);
   const citedIds = new Set(event.rituals.sources);
   const relevant = cited.filter((c) => citedIds.has(c.id));

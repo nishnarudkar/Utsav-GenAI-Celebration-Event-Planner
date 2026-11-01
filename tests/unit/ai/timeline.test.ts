@@ -28,7 +28,14 @@ const INPUT: TimelineInput = {
   today: TODAY,
   plan: {
     functions: [
-      { name: "Gaye Holud", ritualKeys: ["gaye_holud"], date: "2027-02-14", startTime: "06:00", endTime: "10:00", expectedGuests: 60 },
+      {
+        name: "Gaye Holud",
+        ritualKeys: ["gaye_holud"],
+        date: "2027-02-14",
+        startTime: "06:00",
+        endTime: "10:00",
+        expectedGuests: 60,
+      },
     ],
     highLevelTasks: [{ title: "Book the venue", category: "venue" }],
   },
@@ -37,7 +44,10 @@ const INPUT: TimelineInput = {
 
 describe("buildTimeline", () => {
   it("schedules model tasks and adds ritual prep tasks from the ritual items", () => {
-    const plan = buildTimeline({ tasks: [{ ref: "book_venue", title: "Book the venue", dueOffsetDays: -90, dependsOn: [] }] }, { ...INPUT, today: TODAY });
+    const plan = buildTimeline(
+      { tasks: [{ ref: "book_venue", title: "Book the venue", dueOffsetDays: -90, dependsOn: [] }] },
+      { ...INPUT, today: TODAY },
+    );
     expect(plan.tasks.map((t) => [t.ref, t.dueDate, t.source])).toEqual([
       ["book_venue", "2026-11-16", "ai"],
       ["prep_gaye_holud", "2027-02-07", "ritual_kb"],
@@ -61,7 +71,11 @@ describe("planTimeline", () => {
     }));
     await planTimeline(INPUT, { structured });
     const opts = structured.mock.calls[0]?.[0];
-    expect(opts).toMatchObject({ name: "emit_timeline", fixtureKey: "emit_timeline.bengali_hindu.wedding", model: "smart" });
+    expect(opts).toMatchObject({
+      name: "emit_timeline",
+      fixtureKey: "emit_timeline.bengali_hindu.wedding",
+      model: "smart",
+    });
     const msg = String(opts?.messages[0]?.content);
     expect(msg).toContain("Main day: 14 Feb 2027 — 108 days from today.");
     expect(msg).toContain("- Gaye Holud: 14 Feb 2027");
@@ -71,7 +85,9 @@ describe("planTimeline", () => {
 
 describe("demo wedding: all four agents (no API key)", () => {
   it("fixture is a valid proposal", () => {
-    TimelineProposal.parse(JSON.parse(readFileSync(path.join(FIXTURES_DIR, "emit_timeline.bengali_hindu.wedding.json"), "utf8")));
+    TimelineProposal.parse(
+      JSON.parse(readFileSync(path.join(FIXTURES_DIR, "emit_timeline.bengali_hindu.wedding.json"), "utf8")),
+    );
   });
 
   it("produces 20+ dated tasks with consistent dependencies", async () => {
@@ -81,15 +97,23 @@ describe("demo wedding: all four agents (no API key)", () => {
     };
     const structured = <S extends z.ZodType>(opts: CallStructuredOptions<S>) => callStructured(opts, structuredDeps);
 
-    const rituals = await generateRitualPlan({ culture: "bengali_hindu", eventType: "wedding" }, { retrieve: createLocalRetriever(KB_DIR), structured });
+    const rituals = await generateRitualPlan(
+      { culture: "bengali_hindu", eventType: "wedding" },
+      { retrieve: createLocalRetriever(KB_DIR), structured },
+    );
     const plan = await planEvent({ answers: ANSWERS, rituals: rituals.rituals }, { structured });
-    const timeline = await planTimeline({ answers: ANSWERS, plan, rituals: rituals.rituals, today: TODAY }, { structured });
+    const timeline = await planTimeline(
+      { answers: ANSWERS, plan, rituals: rituals.rituals, today: TODAY },
+      { structured },
+    );
 
     // CLAUDE.md F1 acceptance: at least 20 tasks with due dates
     expect(timeline.tasks.length).toBeGreaterThanOrEqual(20);
     expect(timeline.tasks.filter((t) => t.source === "ritual_kb")).toHaveLength(6); // one per function
     // only the "already late" note: the fixture's dependencies are consistent
-    expect(timeline.adjustments).toEqual(["7 tasks were ideally due before today (29 Oct 2026) and are scheduled for today."]);
+    expect(timeline.adjustments).toEqual([
+      "7 tasks were ideally due before today (29 Oct 2026) and are scheduled for today.",
+    ]);
 
     const byRef = new Map(timeline.tasks.map((t) => [t.ref, t]));
     for (const t of timeline.tasks) {

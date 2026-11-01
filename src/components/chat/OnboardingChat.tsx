@@ -83,7 +83,11 @@ export function OnboardingChat({ today }: { today: ISODate }) {
     setPhase({ kind: "building", progress: 0 });
     // Progress is paced on the client: the API returns once, when the whole plan is ready.
     const timer = setInterval(() => {
-      setPhase((p) => (p.kind === "building" ? { kind: "building", progress: Math.min(p.progress + 1, BUILD_PROGRESS_LABELS.length - 1) } : p));
+      setPhase((p) =>
+        p.kind === "building"
+          ? { kind: "building", progress: Math.min(p.progress + 1, BUILD_PROGRESS_LABELS.length - 1) }
+          : p,
+      );
     }, STEP_INTERVAL_MS);
     try {
       const res = await fetch("/api/events", {
@@ -98,7 +102,10 @@ export function OnboardingChat({ today }: { today: ISODate }) {
       setPhase({ kind: "building", progress: BUILD_PROGRESS_LABELS.length });
       router.push(`/events/${id}`);
     } catch (err) {
-      const message = err instanceof TypeError ? "Couldn't reach Utsav — check your connection and try again." : (err as Error).message;
+      const message =
+        err instanceof TypeError
+          ? "Couldn't reach Utsav — check your connection and try again."
+          : (err as Error).message;
       setPhase({ kind: "error", message });
     } finally {
       clearInterval(timer);
@@ -203,7 +210,8 @@ export function OnboardingChat({ today }: { today: ISODate }) {
 function errorMessage(json: unknown): string | undefined {
   if (typeof json === "object" && json !== null && "error" in json) {
     const err = (json as { error: unknown }).error;
-    if (typeof err === "object" && err !== null && "message" in err && typeof err.message === "string") return err.message;
+    if (typeof err === "object" && err !== null && "message" in err && typeof err.message === "string")
+      return err.message;
   }
   return undefined;
 }

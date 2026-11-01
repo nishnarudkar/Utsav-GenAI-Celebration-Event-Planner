@@ -12,7 +12,11 @@ export function Gantt({ days, bars }: { days: GanttDay[]; bars: GanttBar[] }) {
       {/* Day ruler */}
       <div className="relative ml-0 h-5 text-[11px] text-muted" aria-hidden>
         {days.map((d, i) => (
-          <span key={d.date} className="absolute top-0 truncate border-l border-line pl-1" style={{ left: `${i * dayWidth}%`, width: `${dayWidth}%` }}>
+          <span
+            key={d.date}
+            className="absolute top-0 truncate border-l border-line pl-1"
+            style={{ left: `${i * dayWidth}%`, width: `${dayWidth}%` }}
+          >
             {d.label}
           </span>
         ))}
@@ -35,7 +39,11 @@ export function Gantt({ days, bars }: { days: GanttDay[]; bars: GanttBar[] }) {
             </div>
             <div className="relative h-3 rounded-full bg-cream" aria-hidden>
               {days.slice(1).map((d, i) => (
-                <span key={d.date} className="absolute inset-y-0 w-px bg-line" style={{ left: `${(i + 1) * dayWidth}%` }} />
+                <span
+                  key={d.date}
+                  className="absolute inset-y-0 w-px bg-line"
+                  style={{ left: `${(i + 1) * dayWidth}%` }}
+                />
               ))}
               <span
                 className="absolute inset-y-0 min-w-1.5 rounded-full bg-maroon"

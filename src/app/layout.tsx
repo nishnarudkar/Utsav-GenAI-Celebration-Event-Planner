@@ -7,7 +7,8 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 
 export const metadata: Metadata = {
   title: "Utsav — Celebration Planner",
-  description: "AI planning for weddings, birthdays and community events: budgets, timelines, rituals and vendors, all connected.",
+  description:
+    "AI planning for weddings, birthdays and community events: budgets, timelines, rituals and vendors, all connected.",
 };
 
 export const viewport: Viewport = {
@@ -20,7 +21,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en-IN" className={`${inter.variable} ${playfair.variable}`}>
       <body className="min-h-dvh antialiased">
-        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-maroon focus:px-4 focus:py-2 focus:text-cream">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-maroon focus:px-4 focus:py-2 focus:text-cream"
+        >
           Skip to content
         </a>
         {children}

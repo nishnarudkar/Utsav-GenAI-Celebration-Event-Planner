@@ -7,7 +7,7 @@ import { addDays, type ISODate } from "@/lib/rules/dates";
  * Fixed data with dates worked out in code, so no AI is involved. Always shown with its disclaimer.
  */
 
-export const PermitItem = z.object({
+const PermitItem = z.object({
   id: z.string().regex(/^[a-z][a-z0-9_]*$/),
   title: z.string().min(1),
   authority: z.string().min(1),
@@ -18,7 +18,11 @@ export const PermitItem = z.object({
 });
 export type PermitItem = z.infer<typeof PermitItem>;
 
-export const PermitsFile = z.object({ version: z.number().int(), disclaimer: z.string().min(1), items: z.array(PermitItem).min(1) });
+const PermitsFile = z.object({
+  version: z.number().int(),
+  disclaimer: z.string().min(1),
+  items: z.array(PermitItem).min(1),
+});
 export type PermitsFile = z.infer<typeof PermitsFile>;
 
 export const getPermits = (): PermitsFile => PermitsFile.parse(raw);
@@ -31,7 +35,12 @@ export interface PermitRow extends PermitItem {
 }
 
 /** The checklist for an event, soonest apply-by date first. */
-export function permitRows(items: readonly PermitItem[], startDate: ISODate, today: ISODate, done: readonly string[]): PermitRow[] {
+export function permitRows(
+  items: readonly PermitItem[],
+  startDate: ISODate,
+  today: ISODate,
+  done: readonly string[],
+): PermitRow[] {
   const ticked = new Set(done);
   return items
     .map((p) => {

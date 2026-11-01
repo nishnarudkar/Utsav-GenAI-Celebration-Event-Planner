@@ -3,7 +3,14 @@ import { BUDGET_PROMPT_V1, renderPriceMenu } from "@/lib/ai/prompts/budget";
 import { callStructured, type CallStructuredOptions } from "@/lib/ai/structured";
 import { formatDate, formatINR } from "@/lib/format";
 import { getPricing } from "@/lib/kb/pricing";
-import { fitTiersToBudget, indexBenchmarks, resolveBudgetLines, sumPaise, summarizeBudget, type ResolvedLine } from "@/lib/rules/budget-math";
+import {
+  fitTiersToBudget,
+  indexBenchmarks,
+  resolveBudgetLines,
+  sumPaise,
+  summarizeBudget,
+  type ResolvedLine,
+} from "@/lib/rules/budget-math";
 import { BudgetProposal, type BudgetLineProposal } from "@/lib/schemas/budget";
 import type { BudgetCategory, CityTier } from "@/lib/schemas/enums";
 import type { OnboardingAnswers, PlannedEvent } from "@/lib/schemas/event";
@@ -128,11 +135,16 @@ export function priceBudgetProposal(
   });
 
   const index = indexBenchmarks(benchmarkRows);
-  const fitted = answers.budgetTotalPaise === null ? { lines: checked, steps: [] } : fitTiersToBudget(checked, index, cityTier, answers.budgetTotalPaise);
-  for (const { line, from, to } of fitted.steps) adjustments.push(`"${line.label}": moved from ${from} to ${to} price to fit the budget.`);
+  const fitted =
+    answers.budgetTotalPaise === null
+      ? { lines: checked, steps: [] }
+      : fitTiersToBudget(checked, index, cityTier, answers.budgetTotalPaise);
+  for (const { line, from, to } of fitted.steps)
+    adjustments.push(`"${line.label}": moved from ${from} to ${to} price to fit the budget.`);
 
   const { lines, unpriced } = resolveBudgetLines(fitted.lines, index, cityTier);
-  for (const u of unpriced) adjustments.push(`"${u.label}": no benchmark for ${u.category} ${u.basis.unit}; needs a quote.`);
+  for (const u of unpriced)
+    adjustments.push(`"${u.label}": no benchmark for ${u.category} ${u.basis.unit}; needs a quote.`);
 
   const totalEstimatePaise = sumPaise(lines.map((l) => l.estimatePaise));
   const budgetIsEstimate = answers.budgetTotalPaise === null;

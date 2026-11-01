@@ -2,7 +2,8 @@ import { BookOpen, Clock, Users } from "lucide-react";
 import { RitualChecklist } from "@/components/plan/RitualChecklist";
 import type { RitualCardData } from "@/lib/plan/timeline-view";
 
-const duration = (min: number) => (min < 60 ? `${min} min` : min % 60 === 0 ? `${min / 60} hr` : `${Math.floor(min / 60)} hr ${min % 60} min`);
+const duration = (min: number) =>
+  min < 60 ? `${min} min` : min % 60 === 0 ? `${min / 60} hr` : `${Math.floor(min / 60)} hr ${min % 60} min`;
 
 export function RitualCard({ eventId, ritual }: { eventId: string; ritual: RitualCardData }) {
   return (

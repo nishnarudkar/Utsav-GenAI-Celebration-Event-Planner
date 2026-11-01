@@ -35,7 +35,31 @@ interface IndexedChunk extends Omit<RetrievedChunk, "score"> {
   tokens: Set<string>;
 }
 
-const STOPWORDS = new Set(["the", "and", "for", "with", "from", "this", "that", "are", "was", "but", "not", "you", "your", "of", "to", "in", "on", "a", "an", "is", "or", "at", "by"]);
+const STOPWORDS = new Set([
+  "the",
+  "and",
+  "for",
+  "with",
+  "from",
+  "this",
+  "that",
+  "are",
+  "was",
+  "but",
+  "not",
+  "you",
+  "your",
+  "of",
+  "to",
+  "in",
+  "on",
+  "a",
+  "an",
+  "is",
+  "or",
+  "at",
+  "by",
+]);
 
 export function tokenize(text: string): string[] {
   return text

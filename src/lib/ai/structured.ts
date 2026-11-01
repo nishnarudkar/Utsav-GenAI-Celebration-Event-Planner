@@ -7,7 +7,13 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { z } from "zod";
 import { getAnthropic, resolveModel, type Env, type ModelTier } from "@/lib/ai/client";
 import { AIFixtureMissingError, AIProviderError, AIRefusalError, AIValidationError } from "@/lib/ai/errors";
-import { defaultGeminiDeps, generateGemini, resolveGeminiModel, type GeminiReply, type GeminiRequest } from "@/lib/ai/gemini";
+import {
+  defaultGeminiDeps,
+  generateGemini,
+  resolveGeminiModel,
+  type GeminiReply,
+  type GeminiRequest,
+} from "@/lib/ai/gemini";
 
 /**
  * The single entry point for every LLM call (CLAUDE.md §7.1 rule 2).
@@ -83,7 +89,8 @@ export async function callStructured<T extends z.ZodType>(
     throw new RangeError(`Invalid structured output name: ${fixtureKey}`);
   }
 
-  if (deps.demoMode || savedAnswers.getStore()) return loadFixture(opts.schema, opts.name, fixtureKey, deps.fixturesDir);
+  if (deps.demoMode || savedAnswers.getStore())
+    return loadFixture(opts.schema, opts.name, fixtureKey, deps.fixturesDir);
 
   try {
     return await callModel(opts, deps);
@@ -96,7 +103,10 @@ export async function callStructured<T extends z.ZodType>(
   }
 }
 
-async function callModel<T extends z.ZodType>(opts: CallStructuredOptions<T>, deps: StructuredDeps): Promise<z.infer<T>> {
+async function callModel<T extends z.ZodType>(
+  opts: CallStructuredOptions<T>,
+  deps: StructuredDeps,
+): Promise<z.infer<T>> {
   const send = deps.gemini ? geminiSender(opts, deps, deps.gemini) : anthropicSender(opts, deps);
 
   let issues = "";
@@ -111,7 +121,11 @@ async function callModel<T extends z.ZodType>(opts: CallStructuredOptions<T>, de
 
 type Send = (messages: MessageParam[]) => Promise<GeminiReply>;
 
-function geminiSender<T extends z.ZodType>(opts: CallStructuredOptions<T>, deps: StructuredDeps, gemini: NonNullable<StructuredDeps["gemini"]>): Send {
+function geminiSender<T extends z.ZodType>(
+  opts: CallStructuredOptions<T>,
+  deps: StructuredDeps,
+  gemini: NonNullable<StructuredDeps["gemini"]>,
+): Send {
   return (messages) =>
     gemini({
       outputName: opts.name,
@@ -211,6 +225,7 @@ async function loadFixture<T extends z.ZodType>(
     throw new AIFixtureMissingError(name, file);
   }
   const parsed = schema.safeParse(JSON.parse(raw));
-  if (!parsed.success) throw new AIValidationError(name, `Demo fixture ${file} is invalid:\n${formatIssues(parsed.error)}`);
+  if (!parsed.success)
+    throw new AIValidationError(name, `Demo fixture ${file} is invalid:\n${formatIssues(parsed.error)}`);
   return parsed.data;
 }

@@ -29,11 +29,16 @@ export function BudgetTable({ rows }: { rows: CategoryRow[] }) {
         <li key={row.category}>
           <details className="group py-3" open={i === 0}>
             <summary className="flex cursor-pointer list-none items-start gap-3 [&::-webkit-details-marker]:hidden">
-              <ChevronDown className="mt-1 size-4 shrink-0 text-muted transition-transform group-open:rotate-180" aria-hidden />
+              <ChevronDown
+                className="mt-1 size-4 shrink-0 text-muted transition-transform group-open:rotate-180"
+                aria-hidden
+              />
               <span className="flex flex-1 flex-col gap-0.5">
                 <span className="font-medium text-ink">{row.label}</span>
                 <span className="flex flex-wrap gap-x-2 text-xs text-muted">
-                  {row.allocatedPaise !== null && <span className="tabular-nums">Target {formatINR(row.allocatedPaise)}</span>}
+                  {row.allocatedPaise !== null && (
+                    <span className="tabular-nums">Target {formatINR(row.allocatedPaise)}</span>
+                  )}
                   <TargetDelta row={row} />
                 </span>
               </span>
@@ -54,7 +59,9 @@ export function BudgetTable({ rows }: { rows: CategoryRow[] }) {
                       <span className="shrink-0 tabular-nums text-ink">{formatINR(line.estimatePaise)}</span>
                     </div>
                     <details className="text-xs">
-                      <summary className="w-fit cursor-pointer text-marigold-ink underline-offset-2 hover:underline">Why?</summary>
+                      <summary className="w-fit cursor-pointer text-marigold-ink underline-offset-2 hover:underline">
+                        Why?
+                      </summary>
                       <div className="mt-1 rounded-lg bg-cream p-2 text-muted">
                         <p className="tabular-nums text-ink">{basisText(line.basis)}</p>
                         {line.rationale && <p className="mt-1">{line.rationale}</p>}

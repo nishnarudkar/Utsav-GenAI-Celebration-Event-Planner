@@ -45,7 +45,11 @@ export function WhatIfSimulator({ eventId, guestCount, currentTiers, functions }
 
   const guestMax = Math.max(guestCount * 2, 100);
   const changed = guests !== guestCount || Object.keys(tiers).length > 0 || dropped.length > 0;
-  const scenario: WhatIfScenario = { ...(guests !== guestCount ? { guestCount: guests } : {}), tiers, dropFunctions: dropped };
+  const scenario: WhatIfScenario = {
+    ...(guests !== guestCount ? { guestCount: guests } : {}),
+    tiers,
+    dropFunctions: dropped,
+  };
   const scenarioKey = JSON.stringify(scenario);
 
   useEffect(() => setGuests(guestCount), [guestCount]);
@@ -107,7 +111,10 @@ export function WhatIfSimulator({ eventId, guestCount, currentTiers, functions }
   }
 
   async function apply() {
-    const data = await run<{ diff: PlanDiff }>(`/api/events/${eventId}/whatif`, { method: "POST", body: JSON.stringify({ scenario, apply: true }) });
+    const data = await run<{ diff: PlanDiff }>(`/api/events/${eventId}/whatif`, {
+      method: "POST",
+      body: JSON.stringify({ scenario, apply: true }),
+    });
     if (data) {
       setDiff(data.diff);
       setTiers({});
@@ -118,7 +125,10 @@ export function WhatIfSimulator({ eventId, guestCount, currentTiers, functions }
     if (await run(`/api/events/${eventId}/undo`, { method: "POST" })) setDiff(null);
   }
   async function applyRecovery(optionId: string) {
-    const data = await run<{ diff: PlanDiff }>(`/api/events/${eventId}/recovery`, { method: "POST", body: JSON.stringify({ optionId }) });
+    const data = await run<{ diff: PlanDiff }>(`/api/events/${eventId}/recovery`, {
+      method: "POST",
+      body: JSON.stringify({ optionId }),
+    });
     if (data) setDiff(data.diff);
   }
 
@@ -126,7 +136,10 @@ export function WhatIfSimulator({ eventId, guestCount, currentTiers, functions }
 
   return (
     <div className="flex flex-col gap-4">
-      <section aria-labelledby="whatif-title" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5">
+      <section
+        aria-labelledby="whatif-title"
+        className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5"
+      >
         <div>
           <h2 id="whatif-title" className="font-display text-xl text-maroon">
             What if…?
@@ -179,7 +192,9 @@ export function WhatIfSimulator({ eventId, guestCount, currentTiers, functions }
                     type="checkbox"
                     checked={keep}
                     disabled={lastOne}
-                    onChange={(e) => setDropped((d) => (e.target.checked ? d.filter((n) => n !== f.name) : [...d, f.name]))}
+                    onChange={(e) =>
+                      setDropped((d) => (e.target.checked ? d.filter((n) => n !== f.name) : [...d, f.name]))
+                    }
                     className="size-4 accent-maroon"
                   />
                   <span>
@@ -203,16 +218,24 @@ export function WhatIfSimulator({ eventId, guestCount, currentTiers, functions }
               <dl className={`grid grid-cols-2 gap-3 transition-opacity ${loading ? "opacity-60" : ""}`}>
                 <div>
                   <dt className="text-sm text-muted">Projected cost</dt>
-                  <dd className="font-display text-2xl text-maroon lining-nums tabular-nums">{formatINRCompact(projection.totalEstimatePaise)}</dd>
-                  <dd className="text-xs tabular-nums text-muted">{formatINRDelta(projection.deltaPaise)} vs your plan</dd>
+                  <dd className="font-display text-2xl text-maroon lining-nums tabular-nums">
+                    {formatINRCompact(projection.totalEstimatePaise)}
+                  </dd>
+                  <dd className="text-xs tabular-nums text-muted">
+                    {formatINRDelta(projection.deltaPaise)} vs your plan
+                  </dd>
                 </div>
                 {!projection.budgetIsEstimate && (
                   <div>
                     <dt className="text-sm text-muted">{over ? "Over budget" : "Left in budget"}</dt>
-                    <dd className={`font-display text-2xl lining-nums tabular-nums ${over ? "text-increased" : "text-saved"}`}>
+                    <dd
+                      className={`font-display text-2xl lining-nums tabular-nums ${over ? "text-increased" : "text-saved"}`}
+                    >
                       {formatINRCompact(over ? projection.overBudgetPaise : projection.remainingPaise)}
                     </dd>
-                    <dd className="text-xs tabular-nums text-muted">of {formatINRCompact(projection.budgetTotalPaise)}</dd>
+                    <dd className="text-xs tabular-nums text-muted">
+                      of {formatINRCompact(projection.budgetTotalPaise)}
+                    </dd>
                   </div>
                 )}
               </dl>
@@ -223,7 +246,8 @@ export function WhatIfSimulator({ eventId, guestCount, currentTiers, functions }
                     <li key={c.category} className="flex flex-wrap items-center justify-between gap-x-3">
                       <span className="text-ink">{c.label}</span>
                       <span className="inline-flex items-center gap-1 tabular-nums text-muted">
-                        {formatINR(c.beforePaise)} <ArrowRight className="size-3" aria-label="to" /> <span className="text-ink">{formatINR(c.afterPaise)}</span>
+                        {formatINR(c.beforePaise)} <ArrowRight className="size-3" aria-label="to" />{" "}
+                        <span className="text-ink">{formatINR(c.afterPaise)}</span>
                       </span>
                     </li>
                   ))}
@@ -274,12 +298,28 @@ export function WhatIfSimulator({ eventId, guestCount, currentTiers, functions }
         </div>
       </section>
 
-      {diff && <DiffPanel diff={diff} busy={applying} onAccept={() => setDiff(null)} onUndo={() => void undo()} onApply={(id) => void applyRecovery(id)} />}
+      {diff && (
+        <DiffPanel
+          diff={diff}
+          busy={applying}
+          onAccept={() => setDiff(null)}
+          onUndo={() => void undo()}
+          onApply={(id) => void applyRecovery(id)}
+        />
+      )}
     </div>
   );
 }
 
-function TierSlider({ label, value, onChange }: { label: string; value: PriceTier; onChange: (tier: PriceTier) => void }) {
+function TierSlider({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: PriceTier;
+  onChange: (tier: PriceTier) => void;
+}) {
   const id = useId();
   return (
     <div className="flex flex-col gap-1.5">

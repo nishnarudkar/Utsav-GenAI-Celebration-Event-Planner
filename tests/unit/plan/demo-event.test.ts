@@ -25,8 +25,17 @@ const demo = () => createDemoEvent(new MemoryEventRepository(), { today });
 describe("createDemoEvent", () => {
   it("creates the wedding from the demo script, within budget", async () => {
     const event = await demo();
-    expect(event.answers).toMatchObject({ culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250 });
-    expect(event.budget).toMatchObject({ budgetTotalPaise: rupees(15_00_000), totalEstimatePaise: rupees(14_40_000), overBudgetPaise: 0 });
+    expect(event.answers).toMatchObject({
+      culture: "bengali_hindu",
+      city: "Kolkata",
+      startDate: "2027-02-14",
+      guestCount: 250,
+    });
+    expect(event.budget).toMatchObject({
+      budgetTotalPaise: rupees(15_00_000),
+      totalEstimatePaise: rupees(14_40_000),
+      overBudgetPaise: 0,
+    });
     expect(event.plan.functions.find((f) => f.name === DEMO_VENUE.functionName)?.venueCapacity).toBe(300);
   });
 
@@ -44,7 +53,9 @@ describe("createDemoEvent", () => {
     const { state, diff } = runCascade(event, { field: "guest_count", value: 350 }, ctx);
     expect(diff.budgetDeltaPaise).toBe(rupees(2_07_200));
     expect(state.budget.overBudgetPaise).toBe(rupees(1_47_200));
-    expect(diff.conflicts.some((c) => c.severity === "critical" && c.message.includes("the venue holds 300"))).toBe(true);
+    expect(diff.conflicts.some((c) => c.severity === "critical" && c.message.includes("the venue holds 300"))).toBe(
+      true,
+    );
     expect(generateRecoveryOptions(state, ctx).length).toBeGreaterThanOrEqual(3);
   });
 

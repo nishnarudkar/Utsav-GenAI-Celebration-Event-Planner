@@ -18,22 +18,53 @@ const LINE = "#E5E0D5";
 // The built-in PDF fonts have no ₹. Noto Sans has it in the latin-ext subset, so latin text falls
 // through to that family only for the characters it lacks.
 const fontFile = (subset: string, weight: number) =>
-  path.join(process.cwd(), "node_modules", "@fontsource", "noto-sans", "files", `noto-sans-${subset}-${weight}-normal.woff`);
+  path.join(
+    process.cwd(),
+    "node_modules",
+    "@fontsource",
+    "noto-sans",
+    "files",
+    `noto-sans-${subset}-${weight}-normal.woff`,
+  );
 
-for (const [family, subset] of [["NotoLatin", "latin"], ["NotoExt", "latin-ext"]] as const) {
-  Font.register({ family, fonts: [{ src: fontFile(subset, 400), fontWeight: 400 }, { src: fontFile(subset, 700), fontWeight: 700 }] });
+for (const [family, subset] of [
+  ["NotoLatin", "latin"],
+  ["NotoExt", "latin-ext"],
+] as const) {
+  Font.register({
+    family,
+    fonts: [
+      { src: fontFile(subset, 400), fontWeight: 400 },
+      { src: fontFile(subset, 700), fontWeight: 700 },
+    ],
+  });
 }
 Font.registerHyphenationCallback((word) => [word]);
 
 const styles = StyleSheet.create({
-  page: { fontFamily: ["NotoLatin", "NotoExt"], fontSize: 10, color: INK, paddingHorizontal: 40, paddingTop: 40, paddingBottom: 56, lineHeight: 1.4 },
+  page: {
+    fontFamily: ["NotoLatin", "NotoExt"],
+    fontSize: 10,
+    color: INK,
+    paddingHorizontal: 40,
+    paddingTop: 40,
+    paddingBottom: 56,
+    lineHeight: 1.4,
+  },
   brand: { fontSize: 10, fontWeight: 700, color: "#92400E", letterSpacing: 2 },
   title: { fontSize: 24, fontWeight: 700, color: MAROON, marginTop: 4, lineHeight: 1.3 },
   facts: { color: MUTED, marginTop: 4 },
   rule: { height: 2, backgroundColor: MARIGOLD, marginTop: 10 },
   h2: { fontSize: 14, fontWeight: 700, color: MAROON, marginTop: 20, marginBottom: 6 },
   h3: { fontSize: 11, fontWeight: 700, color: MAROON, marginTop: 10, marginBottom: 3 },
-  row: { flexDirection: "row", justifyContent: "space-between", gap: 12, paddingVertical: 3, borderBottomWidth: 0.5, borderBottomColor: LINE },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+    paddingVertical: 3,
+    borderBottomWidth: 0.5,
+    borderBottomColor: LINE,
+  },
   rowText: { flex: 1 },
   strong: { fontWeight: 700 },
   muted: { color: MUTED },
@@ -41,7 +72,16 @@ const styles = StyleSheet.create({
   check: { flexDirection: "row", gap: 6, paddingVertical: 1.5 },
   box: { width: 9, height: 9, borderWidth: 0.75, borderColor: MUTED, marginTop: 2 },
   boxDone: { backgroundColor: MAROON, borderColor: MAROON },
-  footer: { position: "absolute", left: 40, right: 40, bottom: 28, flexDirection: "row", justifyContent: "space-between", fontSize: 8, color: MUTED },
+  footer: {
+    position: "absolute",
+    left: 40,
+    right: 40,
+    bottom: 28,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    fontSize: 8,
+    color: MUTED,
+  },
 });
 
 function Check({ done = false, children }: { done?: boolean; children: ReactNode }) {
@@ -89,7 +129,11 @@ function Budget({ event }: { event: StoredEvent }) {
       </View>
       {!view.isEstimate && (
         <View style={styles.row} wrap={false}>
-          <Text style={styles.rowText}>{view.overBudgetPaise > 0 ? `Over your ${formatINR(view.budgetTotalPaise)} budget by` : `Left from your ${formatINR(view.budgetTotalPaise)} budget`}</Text>
+          <Text style={styles.rowText}>
+            {view.overBudgetPaise > 0
+              ? `Over your ${formatINR(view.budgetTotalPaise)} budget by`
+              : `Left from your ${formatINR(view.budgetTotalPaise)} budget`}
+          </Text>
           <Text>{formatINR(view.overBudgetPaise > 0 ? view.overBudgetPaise : view.remainingPaise)}</Text>
         </View>
       )}
@@ -102,7 +146,9 @@ function Rituals({ event }: { event: StoredEvent }) {
   return (
     <View break>
       <Text style={styles.h2}>Rituals and what to arrange</Text>
-      {event.rituals.confidence === "low" && <Text style={styles.note}>General suggestion — verify with your family priest or elders.</Text>}
+      {event.rituals.confidence === "low" && (
+        <Text style={styles.note}>General suggestion — verify with your family priest or elders.</Text>
+      )}
       {ritualGroups(event, []).map((group) => (
         <View key={group.functionName ?? "unplaced"}>
           <Text style={styles.h3}>{group.functionName ?? "Not yet scheduled"}</Text>
@@ -147,7 +193,10 @@ function Tasks({ event }: { event: StoredEvent }) {
 
 function PlanDocument({ event }: { event: StoredEvent }) {
   const { plan, answers } = event;
-  const dates = plan.endDate === plan.startDate ? formatDate(plan.startDate) : `${formatDate(plan.startDate)} – ${formatDate(plan.endDate)}`;
+  const dates =
+    plan.endDate === plan.startDate
+      ? formatDate(plan.startDate)
+      : `${formatDate(plan.startDate)} – ${formatDate(plan.endDate)}`;
   return (
     <Document title={event.title} author="Utsav">
       <Page size="A4" style={styles.page}>

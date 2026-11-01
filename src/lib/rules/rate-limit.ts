@@ -16,7 +16,12 @@ interface Window {
 /** Above this many tracked clients, expired entries are dropped so memory stays bounded. */
 const MAX_TRACKED = 5_000;
 
-export function checkRateLimit(windows: Map<string, Window>, key: string, now: number, limit: RateLimit): { allowed: boolean; retryAfterSeconds: number } {
+export function checkRateLimit(
+  windows: Map<string, Window>,
+  key: string,
+  now: number,
+  limit: RateLimit,
+): { allowed: boolean; retryAfterSeconds: number } {
   if (windows.size >= MAX_TRACKED) {
     for (const [k, w] of windows) if (w.resetAt <= now) windows.delete(k);
     if (windows.size >= MAX_TRACKED) windows.clear();
@@ -34,5 +39,8 @@ export function checkRateLimit(windows: Map<string, Window>, key: string, now: n
 /** Routes that spend AI quota. Everything else is cheap and left alone. */
 export function spendsAIQuota(method: string, pathname: string): boolean {
   if (method !== "POST") return false;
-  return pathname === "/api/events" || /^\/api\/events\/[^/]+\/(quotes|vibe|council|live|sponsorship|assistant)$/.test(pathname);
+  return (
+    pathname === "/api/events" ||
+    /^\/api\/events\/[^/]+\/(quotes|vibe|council|live|sponsorship|assistant)$/.test(pathname)
+  );
 }

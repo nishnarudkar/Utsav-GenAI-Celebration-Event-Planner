@@ -43,7 +43,9 @@ describe("db schema", () => {
   });
 
   it("stores every money column as integer paise (bigint), never float", () => {
-    const moneyCols = tables.flatMap((t) => t.columns.filter((c) => c.name.endsWith("_paise")).map((c) => [t.name, c] as const));
+    const moneyCols = tables.flatMap((t) =>
+      t.columns.filter((c) => c.name.endsWith("_paise")).map((c) => [t.name, c] as const),
+    );
     expect(moneyCols.length).toBeGreaterThanOrEqual(5);
     for (const [, col] of moneyCols) expect(col.getSQLType()).toBe("bigint");
   });
@@ -52,7 +54,8 @@ describe("db schema", () => {
     for (const t of tables) {
       for (const fk of t.foreignKeys) {
         const ref = fk.reference();
-        if (getTableConfig(ref.foreignTable).name === "events") expect(fk.onDelete, `${t.name}.event_id`).toBe("cascade");
+        if (getTableConfig(ref.foreignTable).name === "events")
+          expect(fk.onDelete, `${t.name}.event_id`).toBe("cascade");
       }
     }
   });

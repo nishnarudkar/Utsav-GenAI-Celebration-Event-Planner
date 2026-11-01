@@ -28,7 +28,7 @@ export function matchFunctionName(name: string, known: readonly string[]): strin
 }
 
 /** Set guests at specific functions, rescaling that function's guest-driven lines. */
-export function applyFunctionGuests(
+function applyFunctionGuests(
   state: EventPlan,
   updates: CouncilPatch["functionGuests"],
 ): { state: EventPlan; notes: Conflict[] } {
@@ -48,10 +48,18 @@ export function applyFunctionGuests(
     const quantity = rescaleQuantity(line.basis.quantity, from, to);
     if (quantity === line.basis.quantity) return line;
     if (line.locked) {
-      notes.push({ type: "locked_item", severity: "info", message: `"${line.label}" is locked, so it wasn't changed — it would need ${quantity} instead of ${line.basis.quantity}.` });
+      notes.push({
+        type: "locked_item",
+        severity: "info",
+        message: `"${line.label}" is locked, so it wasn't changed — it would need ${quantity} instead of ${line.basis.quantity}.`,
+      });
       return line;
     }
-    return { ...line, basis: { ...line.basis, quantity }, estimatePaise: lineEstimatePaise(quantity, line.basis.unitPaise) };
+    return {
+      ...line,
+      basis: { ...line.basis, quantity },
+      estimatePaise: lineEstimatePaise(quantity, line.basis.unitPaise),
+    };
   });
 
   return {

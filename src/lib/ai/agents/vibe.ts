@@ -28,7 +28,11 @@ function imageBlock(image: VibeImage): Anthropic.Beta.BetaContentBlockParam {
   return { type: "image", source: { type: "base64", media_type: image.mediaType, data: image.base64 } };
 }
 
-export async function generateVibe(state: EventPlan, input: { images: readonly VibeImage[]; notes: string }, deps: VibeDeps = defaultDeps): Promise<VibeProfile> {
+export async function generateVibe(
+  state: EventPlan,
+  input: { images: readonly VibeImage[]; notes: string },
+  deps: VibeDeps = defaultDeps,
+): Promise<VibeProfile> {
   const { eventType, culture, city } = state.answers;
   const context = [
     `Event: ${eventType} in ${city}.`,

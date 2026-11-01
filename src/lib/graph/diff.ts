@@ -17,7 +17,11 @@ export interface LineSnapshot {
   estimatePaise: number;
 }
 
-const snapshot = (l: PricedLine): LineSnapshot => ({ quantity: l.basis.quantity, unitPaise: l.basis.unitPaise, estimatePaise: l.estimatePaise });
+const snapshot = (l: PricedLine): LineSnapshot => ({
+  quantity: l.basis.quantity,
+  unitPaise: l.basis.unitPaise,
+  estimatePaise: l.estimatePaise,
+});
 
 /** One entry per budget line whose estimate or basis changed. */
 export function diffBudgetLines(
@@ -29,14 +33,23 @@ export function diffBudgetLines(
   const out: ChangedEntry[] = [];
   before.forEach((b, i) => {
     const a = after[i]!;
-    if (b.estimatePaise === a.estimatePaise && b.basis.quantity === a.basis.quantity && b.basis.unitPaise === a.basis.unitPaise) return;
+    if (
+      b.estimatePaise === a.estimatePaise &&
+      b.basis.quantity === a.basis.quantity &&
+      b.basis.unitPaise === a.basis.unitPaise
+    )
+      return;
     out.push({ nodeId: `line:${i}`, label: a.label, from: snapshot(b), to: snapshot(a), reason: reason(b, a, i) });
   });
   return out;
 }
 
 /** One entry per function whose guests, date or times changed. */
-export function diffFunctions(before: readonly PlannedFunction[], after: readonly PlannedFunction[], reason: string): ChangedEntry[] {
+export function diffFunctions(
+  before: readonly PlannedFunction[],
+  after: readonly PlannedFunction[],
+  reason: string,
+): ChangedEntry[] {
   const out: ChangedEntry[] = [];
   before.forEach((b, i) => {
     const a = after[i];

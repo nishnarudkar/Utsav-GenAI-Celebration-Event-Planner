@@ -11,12 +11,37 @@ import type { PlannedFunction } from "@/lib/schemas/event";
 import words from "../../fixtures/llm/emit_sponsorship.community.json";
 
 const rupees = (r: number) => r * 100;
-const COMMUNITY = { eventType: "community", culture: "generic", city: "Pune", startDate: "2027-01-26", guestCount: 500, budgetTotalPaise: rupees(5_00_000) };
+const COMMUNITY = {
+  eventType: "community",
+  culture: "generic",
+  city: "Pune",
+  startDate: "2027-01-26",
+  guestCount: 500,
+  budgetTotalPaise: rupees(5_00_000),
+};
 const WEDDING = { ...COMMUNITY, eventType: "wedding", culture: "bengali_hindu", city: "Kolkata" };
-const PITCH = { organiser: "Green Park RWA", contact: "Asha, 98200 00000", targetPaise: rupees(2_00_000), cause: "The stage and a free meal" };
+const PITCH = {
+  organiser: "Green Park RWA",
+  contact: "Asha, 98200 00000",
+  targetPaise: rupees(2_00_000),
+  cause: "The stage and a free meal",
+};
 
-const FESTIVAL: PlannedFunction = { name: "Festival day", ritualKeys: [], date: "2027-01-26", startTime: "09:00", endTime: "21:00", expectedGuests: 500 };
-const person = (over: Partial<Volunteer>): Volunteer => ({ id: "v1", name: "Asha", role: "crowd_entry", functionName: "Festival day", ...over });
+const FESTIVAL: PlannedFunction = {
+  name: "Festival day",
+  ritualKeys: [],
+  date: "2027-01-26",
+  startTime: "09:00",
+  endTime: "21:00",
+  expectedGuests: 500,
+};
+const person = (over: Partial<Volunteer>): Volunteer => ({
+  id: "v1",
+  name: "Asha",
+  role: "crowd_entry",
+  functionName: "Festival day",
+  ...over,
+});
 
 async function newEvent(answers: object = COMMUNITY): Promise<StoredEvent> {
   const res = await createEvent(new Request("http://test", { method: "POST", body: JSON.stringify(answers) }));
@@ -35,7 +60,10 @@ afterEach(() => {
 
 describe("rosterCoverage", () => {
   it("compares each shift with what its crowd needs", () => {
-    const { shifts, unplaced } = rosterCoverage([FESTIVAL], [person({}), person({ id: "v2", name: "Ravi", role: "first_aid" })]);
+    const { shifts, unplaced } = rosterCoverage(
+      [FESTIVAL],
+      [person({}), person({ id: "v2", name: "Ravi", role: "first_aid" })],
+    );
     expect(shifts[0]).toMatchObject({ volunteersNeeded: 5, firstAidNeeded: 1, firstAidHave: 1 });
     expect(shifts[0]?.volunteers).toHaveLength(2);
     expect(unplaced).toEqual([]);
@@ -49,7 +77,10 @@ describe("rosterCoverage", () => {
 
 describe("rosterText", () => {
   it("lists shifts and roles, without phone numbers", () => {
-    const text = rosterText("Green Park Festival", rosterCoverage([FESTIVAL, { ...FESTIVAL, name: "Clean-up" }], [person({ phone: "98200 00000" })]));
+    const text = rosterText(
+      "Green Park Festival",
+      rosterCoverage([FESTIVAL, { ...FESTIVAL, name: "Clean-up" }], [person({ phone: "98200 00000" })]),
+    );
     expect(text).toContain("Festival day, 26 Jan 2027, 9:00 AM – 9:00 PM\n- Asha: Crowd and entry");
     expect(text).toContain("- Nobody yet");
     expect(text).not.toContain("98200");
@@ -79,13 +110,20 @@ describe("SponsorshipWords", () => {
     expect(SponsorshipWords.safeParse(words).success).toBe(true);
   });
 
-  it.each([["opening", "Last year 5000 people came."], ["closing", "Only ₹ a little."]])("rejects figures from the model in %s", (field, text) => {
+  it.each([
+    ["opening", "Last year 5000 people came."],
+    ["closing", "Only ₹ a little."],
+  ])("rejects figures from the model in %s", (field, text) => {
     expect(SponsorshipWords.safeParse({ ...words, [field]: text }).success).toBe(false);
   });
 });
 
 describe("pitchFor", () => {
-  const event = { title: "Green Park Festival", answers: { city: "Pune", startDate: "2027-01-26" }, plan: { functions: [FESTIVAL] } };
+  const event = {
+    title: "Green Park Festival",
+    answers: { city: "Pune", startDate: "2027-01-26" },
+    plan: { functions: [FESTIVAL] },
+  };
 
   it("builds the message from the event, the amounts and the wording", () => {
     const { message, totalPaise } = pitchFor(event, { input: PITCH, words });
@@ -115,21 +153,29 @@ describe("volunteers API", () => {
     expect(volunteer).toMatchObject(asha);
     expect((await getEventRepository().get(event.id))?.volunteers).toHaveLength(1);
 
-    expect((await removeVolunteer(request("DELETE", { volunteerId: volunteer.id }), params(event.id))).status).toBe(204);
+    expect((await removeVolunteer(request("DELETE", { volunteerId: volunteer.id }), params(event.id))).status).toBe(
+      204,
+    );
     expect((await getEventRepository().get(event.id))?.volunteers).toEqual([]);
-    expect((await removeVolunteer(request("DELETE", { volunteerId: volunteer.id }), params(event.id))).status).toBe(404);
+    expect((await removeVolunteer(request("DELETE", { volunteerId: volunteer.id }), params(event.id))).status).toBe(
+      404,
+    );
   });
 
   it("refuses bad input, a shift not in the plan, and the same person twice", async () => {
     const event = await newEvent();
     expect((await addVolunteer(request("POST", { ...asha, role: "boss" }), params(event.id))).status).toBe(400);
     expect((await addVolunteer(request("POST", { ...asha, phone: "call me" }), params(event.id))).status).toBe(400);
-    expect((await addVolunteer(request("POST", { ...asha, functionName: "Parade" }), params(event.id))).status).toBe(400);
+    expect((await addVolunteer(request("POST", { ...asha, functionName: "Parade" }), params(event.id))).status).toBe(
+      400,
+    );
 
     await addVolunteer(request("POST", asha), params(event.id));
     const twice = await addVolunteer(request("POST", { ...asha, name: "ASHA" }), params(event.id));
     expect(twice.status).toBe(400);
-    expect((await addVolunteer(request("POST", { ...asha, functionName: "Clean-up" }), params(event.id))).status).toBe(201);
+    expect((await addVolunteer(request("POST", { ...asha, functionName: "Clean-up" }), params(event.id))).status).toBe(
+      201,
+    );
   });
 
   it("is only for community events", async () => {

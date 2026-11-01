@@ -27,7 +27,12 @@ export interface ChangeOptions {
   explain?: (input: ExplainInput) => Promise<string>;
 }
 
-export async function changeEvent(repo: EventRepository, id: string, change: FieldChange, opts: ChangeOptions): Promise<ChangeOutcome> {
+export async function changeEvent(
+  repo: EventRepository,
+  id: string,
+  change: FieldChange,
+  opts: ChangeOptions,
+): Promise<ChangeOutcome> {
   const event = await repo.get(id);
   if (!event) return { kind: "not_found" };
 
@@ -36,7 +41,10 @@ export async function changeEvent(repo: EventRepository, id: string, change: Fie
   if (result.noop) return { kind: "noop", event, diff: result.diff };
 
   // Recovery options (deterministic), then the Explainer words the result.
-  const withOptions: PlanDiff = { ...result.diff, recoveryOptions: generateRecoveryOptions(result.state, { ...ctx, trigger: result.change }) };
+  const withOptions: PlanDiff = {
+    ...result.diff,
+    recoveryOptions: generateRecoveryOptions(result.state, { ...ctx, trigger: result.change }),
+  };
   const explanation = await (opts.explain ?? explainChange)({
     trigger: result.change,
     diff: withOptions,
@@ -63,7 +71,12 @@ export type RecoveryOutcome =
  * Apply one of the recovery options offered by the latest (not undone) change. Logged as its
  * own change, so it can be undone. If the plan is still over budget, fresh options are offered.
  */
-export async function applyRecovery(repo: EventRepository, id: string, optionId: string, opts: { today: ISODate }): Promise<RecoveryOutcome> {
+export async function applyRecovery(
+  repo: EventRepository,
+  id: string,
+  optionId: string,
+  opts: { today: ISODate },
+): Promise<RecoveryOutcome> {
   const event = await repo.get(id);
   if (!event) return { kind: "not_found" };
   const latest = (await repo.listChanges(id))?.find((c) => !c.undone);
@@ -73,11 +86,18 @@ export async function applyRecovery(repo: EventRepository, id: string, optionId:
 
   const ctx = { version: event.version, today: opts.today };
   const result = applyRecoveryPatch(event, patch.data, ctx, `Applied “${option.title}”.`);
-  const trigger = patch.data.kind === "field" ? ({ ...patch.data.change, from: readCurrentValue(event, patch.data.change.field) } as PlanChange) : undefined;
+  const trigger =
+    patch.data.kind === "field"
+      ? ({ ...patch.data.change, from: readCurrentValue(event, patch.data.change.field) } as PlanChange)
+      : undefined;
   const diff: PlanDiff = {
     ...result.diff,
-    explanation: patch.data.kind === "field" ? `Applied “${option.title}”. ${result.diff.explanation}` : result.diff.explanation,
-    recoveryOptions: generateRecoveryOptions(result.state, { ...ctx, ...(trigger?.field === "guest_count" ? { trigger } : {}) }),
+    explanation:
+      patch.data.kind === "field" ? `Applied “${option.title}”. ${result.diff.explanation}` : result.diff.explanation,
+    recoveryOptions: generateRecoveryOptions(result.state, {
+      ...ctx,
+      ...(trigger?.field === "guest_count" ? { trigger } : {}),
+    }),
   };
 
   const applied = await repo.applyChange(id, event.version, result.state, {

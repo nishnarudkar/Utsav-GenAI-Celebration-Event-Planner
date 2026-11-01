@@ -32,7 +32,10 @@ export interface RosterCoverage {
   unplaced: Volunteer[];
 }
 
-export function rosterCoverage(functions: readonly PlannedFunction[], volunteers: readonly Volunteer[]): RosterCoverage {
+export function rosterCoverage(
+  functions: readonly PlannedFunction[],
+  volunteers: readonly Volunteer[],
+): RosterCoverage {
   const shifts = functions.map((f) => {
     const assigned = volunteers.filter((v) => v.functionName === f.name);
     const estimate = estimateCrowd({ peakCrowd: f.expectedGuests });
@@ -55,7 +58,8 @@ export function rosterCoverage(functions: readonly PlannedFunction[], volunteers
 export function rosterText(title: string, { shifts }: RosterCoverage): string {
   const blocks = shifts.map((s) => {
     const heading = `${s.name}, ${formatDate(s.date)}, ${formatClock(s.startTime)} – ${formatClock(s.endTime)}`;
-    const people = s.volunteers.length > 0 ? s.volunteers.map((v) => `- ${v.name}: ${ROLE_LABELS[v.role]}`) : ["- Nobody yet"];
+    const people =
+      s.volunteers.length > 0 ? s.volunteers.map((v) => `- ${v.name}: ${ROLE_LABELS[v.role]}`) : ["- Nobody yet"];
     return [heading, ...people].join("\n");
   });
   return [`Volunteer roster: ${title}`, ...blocks].join("\n\n");

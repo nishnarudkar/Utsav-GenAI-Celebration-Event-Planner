@@ -12,7 +12,11 @@ export interface SponsorshipDeps {
 
 const defaultDeps: SponsorshipDeps = { structured: (opts) => callStructured(opts) };
 
-export async function generateSponsorshipWords(state: EventPlan, input: SponsorshipInput, deps: SponsorshipDeps = defaultDeps): Promise<SponsorshipWords> {
+export async function generateSponsorshipWords(
+  state: EventPlan,
+  input: SponsorshipInput,
+  deps: SponsorshipDeps = defaultDeps,
+): Promise<SponsorshipWords> {
   const context = [
     `Community event in ${state.answers.city}.`,
     `Parts of the event: ${state.plan.functions.map((f) => f.name).join(", ")}.`,

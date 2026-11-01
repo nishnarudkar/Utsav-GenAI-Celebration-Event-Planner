@@ -5,7 +5,7 @@ import { BudgetCategory, Culture, EventType } from "@/lib/schemas/enums";
 /** Shared schemas for creating an event and the Planner agent's output. */
 
 export const ISODateString = z.string().refine(isISODate, "expected a calendar date YYYY-MM-DD");
-export const ClockTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "expected HH:MM (24h)");
+const ClockTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "expected HH:MM (24h)");
 
 /** The six onboarding answers (CLAUDE.md §9), as posted to POST /api/events. */
 export const OnboardingAnswers = z.object({
@@ -41,12 +41,8 @@ export const EventPlanDraft = z.object({
     )
     .min(1)
     .max(12),
-  allocation: z
-    .array(z.object({ category: BudgetCategory, percent: z.number().min(0).max(100) }))
-    .min(1),
-  highLevelTasks: z
-    .array(z.object({ title: z.string().min(1).max(120), category: BudgetCategory.optional() }))
-    .max(25),
+  allocation: z.array(z.object({ category: BudgetCategory, percent: z.number().min(0).max(100) })).min(1),
+  highLevelTasks: z.array(z.object({ title: z.string().min(1).max(120), category: BudgetCategory.optional() })).max(25),
   rationale: z.string().max(400),
 });
 export type EventPlanDraft = z.infer<typeof EventPlanDraft>;

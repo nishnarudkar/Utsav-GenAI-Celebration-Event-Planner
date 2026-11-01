@@ -3,7 +3,13 @@ import { getDb } from "@/lib/db";
 import { PostgresEventRepository } from "@/lib/plan/event-repo-postgres";
 import type { ChangeRecord, ChangeTrigger, EventPlan, EventSummary, StoredEvent, StoredQuote } from "@/lib/plan/types";
 import type { SavedSponsorship, Volunteer, VolunteerInput } from "@/lib/schemas/community";
-import type { CouncilConflict, CouncilOption, CouncilResolution, Stakeholder, StakeholderInput } from "@/lib/schemas/council";
+import type {
+  CouncilConflict,
+  CouncilOption,
+  CouncilResolution,
+  Stakeholder,
+  StakeholderInput,
+} from "@/lib/schemas/council";
 import type { LiveNotification, LiveProposal } from "@/lib/schemas/dayof";
 import type { PlanDiff } from "@/lib/schemas/diff";
 import type { VibeProfile } from "@/lib/schemas/vibe";
@@ -15,10 +21,10 @@ import type { VibeProfile } from "@/lib/schemas/vibe";
  */
 
 export type ApplyResult =
-  | { ok: true; event: StoredEvent; change: ChangeRecord }
-  | { ok: false; error: "not_found" | "version_conflict" };
+  { ok: true; event: StoredEvent; change: ChangeRecord } | { ok: false; error: "not_found" | "version_conflict" };
 
-export type UndoResult = { ok: true; event: StoredEvent; undone: ChangeRecord } | { ok: false; error: "not_found" | "nothing_to_undo" };
+export type UndoResult =
+  { ok: true; event: StoredEvent; undone: ChangeRecord } | { ok: false; error: "not_found" | "nothing_to_undo" };
 
 export interface EventRepository {
   create(plan: EventPlan): Promise<StoredEvent>;
@@ -30,14 +36,22 @@ export interface EventRepository {
    * Store a cascade's result: replace the plan, bump the version, log the change with the
    * previous plan. Fails with "version_conflict" if the event changed since `expectedVersion`.
    */
-  applyChange(id: string, expectedVersion: number, next: EventPlan, log: { trigger: ChangeTrigger; diff: PlanDiff }): Promise<ApplyResult>;
+  applyChange(
+    id: string,
+    expectedVersion: number,
+    next: EventPlan,
+    log: { trigger: ChangeTrigger; diff: PlanDiff },
+  ): Promise<ApplyResult>;
   /** Store a checked quote. Returns it with its id, or null if the event doesn't exist. */
   addQuote(id: string, quote: Omit<StoredQuote, "id" | "createdAt">): Promise<StoredQuote | null>;
   /** Adding or removing a stakeholder clears the Council result, which no longer applies. */
   addStakeholder(id: string, input: StakeholderInput): Promise<Stakeholder | null>;
   /** Returns false if the stakeholder doesn't exist, null if the event doesn't. */
   removeStakeholder(id: string, stakeholderId: string): Promise<boolean | null>;
-  setCouncil(id: string, result: { conflicts: CouncilConflict[]; options: CouncilOption[]; planVersion: number }): Promise<CouncilResolution | null>;
+  setCouncil(
+    id: string,
+    result: { conflicts: CouncilConflict[]; options: CouncilOption[]; planVersion: number },
+  ): Promise<CouncilResolution | null>;
   setChosenOption(id: string, optionId: string | null): Promise<void>;
   /** Hold a day-of proposal until it is confirmed; a newer one replaces it. */
   setLiveProposal(id: string, proposal: LiveProposal): Promise<void>;
@@ -128,7 +142,12 @@ export class MemoryEventRepository implements EventRepository {
     return [...event.procuredItems];
   }
 
-  async applyChange(id: string, expectedVersion: number, next: EventPlan, log: { trigger: ChangeTrigger; diff: PlanDiff }): Promise<ApplyResult> {
+  async applyChange(
+    id: string,
+    expectedVersion: number,
+    next: EventPlan,
+    log: { trigger: ChangeTrigger; diff: PlanDiff },
+  ): Promise<ApplyResult> {
     const event = this.store.events.get(id);
     if (!event) return { ok: false, error: "not_found" };
     if (event.version !== expectedVersion) return { ok: false, error: "version_conflict" };
@@ -181,11 +200,19 @@ export class MemoryEventRepository implements EventRepository {
     return true;
   }
 
-  async setCouncil(id: string, result: { conflicts: CouncilConflict[]; options: CouncilOption[]; planVersion: number }): Promise<CouncilResolution | null> {
+  async setCouncil(
+    id: string,
+    result: { conflicts: CouncilConflict[]; options: CouncilOption[]; planVersion: number },
+  ): Promise<CouncilResolution | null> {
     const event = this.store.events.get(id);
     if (!event) return null;
     const ts = this.now().toISOString();
-    const council: CouncilResolution = { ...structuredClone(result), id: crypto.randomUUID(), chosenOptionId: null, createdAt: ts };
+    const council: CouncilResolution = {
+      ...structuredClone(result),
+      id: crypto.randomUUID(),
+      chosenOptionId: null,
+      createdAt: ts,
+    };
     event.council = council;
     event.updatedAt = ts;
     return structuredClone(council);
@@ -254,7 +281,10 @@ export class MemoryEventRepository implements EventRepository {
     event.live = {
       shifts,
       proposal: null,
-      incidents: [{ id: proposal.id, incident: proposal.incident, summary: proposal.summary, at: ts }, ...event.live.incidents],
+      incidents: [
+        { id: proposal.id, incident: proposal.incident, summary: proposal.summary, at: ts },
+        ...event.live.incidents,
+      ],
       notifications: [...structuredClone(notifications), ...event.live.notifications],
     };
     event.updatedAt = ts;
@@ -275,15 +305,18 @@ export class MemoryEventRepository implements EventRepository {
     latest.undone = true;
     if (latest.trigger.field === "council" && event.council) event.council.chosenOptionId = null;
     // Undo is itself a new version, so versions only ever increase.
-    const restored: StoredEvent = { ...event, ...structuredClone(latest.before), version: event.version + 1, updatedAt: this.now().toISOString() };
+    const restored: StoredEvent = {
+      ...event,
+      ...structuredClone(latest.before),
+      version: event.version + 1,
+      updatedAt: this.now().toISOString(),
+    };
     this.store.events.set(id, restored);
     return { ok: true, event: structuredClone(restored), undone: structuredClone(latest) };
   }
 
   async list(): Promise<EventSummary[]> {
-    return [...this.store.events.values()]
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-      .map(summaryOf);
+    return [...this.store.events.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(summaryOf);
   }
 }
 

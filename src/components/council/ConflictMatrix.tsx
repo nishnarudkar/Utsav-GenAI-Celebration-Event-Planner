@@ -9,7 +9,8 @@ const SEVERITY = {
 
 /** Topic × person × position. Stacked rather than a wide table, so it reads on a phone. */
 export function ConflictMatrix({ conflicts }: { conflicts: CouncilConflict[] }) {
-  if (conflicts.length === 0) return <p className="text-sm text-muted">No real disagreements found — the family is broadly aligned.</p>;
+  if (conflicts.length === 0)
+    return <p className="text-sm text-muted">No real disagreements found — the family is broadly aligned.</p>;
   return (
     <ul className="flex flex-col gap-3">
       {conflicts.map((c) => {

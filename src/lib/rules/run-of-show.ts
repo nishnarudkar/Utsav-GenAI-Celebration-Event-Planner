@@ -44,14 +44,30 @@ export function buildRunOfShow(
     if (placed.length === 0) {
       const id = `fn_${f.name.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`;
       const delta = shifts[id] ?? 0;
-      return [{ id, name: f.name, functionName: f.name, isRitual: false, startMin: toMinutes(f.startTime) + delta, endMin: functionEnd(f) + delta }];
+      return [
+        {
+          id,
+          name: f.name,
+          functionName: f.name,
+          isRitual: false,
+          startMin: toMinutes(f.startTime) + delta,
+          endMin: functionEnd(f) + delta,
+        },
+      ];
     }
     let cursor = toMinutes(f.startTime);
     return placed.map((r) => {
       const start = cursor;
       cursor += r.durationMinutes;
       const delta = shifts[r.key] ?? 0;
-      return { id: r.key, name: r.name, functionName: f.name, isRitual: true, startMin: start + delta, endMin: start + r.durationMinutes + delta };
+      return {
+        id: r.key,
+        name: r.name,
+        functionName: f.name,
+        isRitual: true,
+        startMin: start + delta,
+        endMin: start + r.durationMinutes + delta,
+      };
     });
   });
 }
@@ -107,6 +123,8 @@ export function overruns(functions: readonly PlannedFunction[], slots: readonly 
   return functions.flatMap((f) => {
     const last = slots.filter((s) => s.functionName === f.name).at(-1);
     if (!last || last.endMin <= functionEnd(f)) return [];
-    return [`${f.name} now runs until ${slotTime(last.endMin)}, past its planned finish of ${slotTime(functionEnd(f))}.`];
+    return [
+      `${f.name} now runs until ${slotTime(last.endMin)}, past its planned finish of ${slotTime(functionEnd(f))}.`,
+    ];
   });
 }

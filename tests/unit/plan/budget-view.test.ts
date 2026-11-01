@@ -9,7 +9,14 @@ let demo: EventPlan;
 beforeAll(async () => {
   vi.stubEnv("DEMO_MODE", "true");
   demo = await buildEventPlan(
-    { eventType: "wedding", culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250, budgetTotalPaise: rupees(15_00_000) },
+    {
+      eventType: "wedding",
+      culture: "bengali_hindu",
+      city: "Kolkata",
+      startDate: "2027-02-14",
+      guestCount: 250,
+      budgetTotalPaise: rupees(15_00_000),
+    },
     { today: "2026-10-29" },
   );
 });
@@ -67,11 +74,26 @@ describe("buildBudgetView (demo wedding)", () => {
 
 describe("basisText", () => {
   it.each([
-    [{ unit: "per_plate", quantity: 250, unitTier: "low", unitPaise: rupees(900), cityTier: 1 }, "250 plates × ₹900 · low tier · metro prices"],
-    [{ unit: "per_day", quantity: 1, unitTier: "mid", unitPaise: rupees(1_20_000), cityTier: 2 }, "1 day × ₹1,20,000 · mid tier · large-city prices"],
-    [{ unit: "flat", quantity: 2, unitTier: "high", unitPaise: rupees(30_000), cityTier: 3 }, "2 packages × ₹30,000 · high tier · smaller-city prices"],
-    [{ unit: "per_guest", quantity: 1200, unitTier: "low", unitPaise: rupees(200), cityTier: 1 }, "1,200 guests × ₹200 · low tier · metro prices"],
-    [{ unit: "per_hour", quantity: 1.5, unitTier: "mid", unitPaise: rupees(6_000), cityTier: 1 }, "1.5 hours × ₹6,000 · mid tier · metro prices"],
+    [
+      { unit: "per_plate", quantity: 250, unitTier: "low", unitPaise: rupees(900), cityTier: 1 },
+      "250 plates × ₹900 · low tier · metro prices",
+    ],
+    [
+      { unit: "per_day", quantity: 1, unitTier: "mid", unitPaise: rupees(1_20_000), cityTier: 2 },
+      "1 day × ₹1,20,000 · mid tier · large-city prices",
+    ],
+    [
+      { unit: "flat", quantity: 2, unitTier: "high", unitPaise: rupees(30_000), cityTier: 3 },
+      "2 packages × ₹30,000 · high tier · smaller-city prices",
+    ],
+    [
+      { unit: "per_guest", quantity: 1200, unitTier: "low", unitPaise: rupees(200), cityTier: 1 },
+      "1,200 guests × ₹200 · low tier · metro prices",
+    ],
+    [
+      { unit: "per_hour", quantity: 1.5, unitTier: "mid", unitPaise: rupees(6_000), cityTier: 1 },
+      "1.5 hours × ₹6,000 · mid tier · metro prices",
+    ],
   ] as const)("%o", (basis, text) => {
     expect(basisText(basis)).toBe(text);
   });

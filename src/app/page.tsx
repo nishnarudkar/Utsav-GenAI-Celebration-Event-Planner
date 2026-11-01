@@ -2,7 +2,10 @@ import Link from "next/link";
 import { DemoButton } from "@/components/plan/DemoButton";
 
 const HIGHLIGHTS = [
-  { title: "Rituals, grounded", body: "Ritual sequences and item checklists from a curated knowledge base, with sources." },
+  {
+    title: "Rituals, grounded",
+    body: "Ritual sequences and item checklists from a curated knowledge base, with sources.",
+  },
   { title: "Budgets that add up", body: "City-specific estimates. AI picks the structure; code does the maths." },
   { title: "Plans that react", body: "Change the guest count and see every ripple — costs, conflicts and fixes." },
 ];

@@ -13,7 +13,12 @@ const PDF = new TextEncoder().encode("%PDF-1.7");
 const MISSING = "00000000-0000-0000-0000-000000000000";
 
 const newEvent = async () => ((await (await createDemo()).json()) as { event: StoredEvent }).event;
-const read = async (id: string) => ((await (await getEvent(new Request("http://test"), { params: Promise.resolve({ id }) })).json()) as { event: StoredEvent }).event;
+const read = async (id: string) =>
+  (
+    (await (await getEvent(new Request("http://test"), { params: Promise.resolve({ id }) })).json()) as {
+      event: StoredEvent;
+    }
+  ).event;
 
 function post(id: string, notes: string | null, images: Uint8Array[] = []) {
   const form = new FormData();
@@ -64,7 +69,14 @@ describe("POST /api/events/:id/vibe", () => {
   });
 
   it("explains itself when demo mode has no saved look", async () => {
-    const body = { eventType: "birthday", culture: "generic", city: "Pune", startDate: "2027-02-14", guestCount: 50, budgetTotalPaise: 10000000 };
+    const body = {
+      eventType: "birthday",
+      culture: "generic",
+      city: "Pune",
+      startDate: "2027-02-14",
+      guestCount: 50,
+      budgetTotalPaise: 10000000,
+    };
     const created = await createEvent(new Request("http://test", { method: "POST", body: JSON.stringify(body) }));
     const { event } = (await created.json()) as { event: StoredEvent };
     const res = await post(event.id, "Pastels");
@@ -77,7 +89,11 @@ describe("generateVibe", () => {
   it("sends the photos first, then the event and notes, on the smart model", async () => {
     const event = await newEvent();
     const structured = vi.fn<VibeDeps["structured"]>().mockResolvedValue({} as VibeProfile);
-    await generateVibe(event, { images: [{ mediaType: "image/png", base64: "abc" }], notes: "Pastels" }, { structured });
+    await generateVibe(
+      event,
+      { images: [{ mediaType: "image/png", base64: "abc" }], notes: "Pastels" },
+      { structured },
+    );
 
     const opts = structured.mock.calls[0]![0];
     expect(opts.model).toBe("smart");

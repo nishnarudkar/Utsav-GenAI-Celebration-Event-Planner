@@ -33,7 +33,10 @@ export function PermitChecklist({ eventId, rows, disclaimer }: PermitChecklistPr
   }
 
   return (
-    <section aria-labelledby="permits-title" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+    <section
+      aria-labelledby="permits-title"
+      className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5"
+    >
       <div>
         <h2 id="permits-title" className="font-display text-xl text-maroon">
           Permissions
@@ -48,14 +51,23 @@ export function PermitChecklist({ eventId, rows, disclaimer }: PermitChecklistPr
           return (
             <li key={r.id} className="border-b border-line py-2.5 last:border-0">
               <label className="flex cursor-pointer items-start gap-2.5 text-sm">
-                <input type="checkbox" checked={checked} onChange={(e) => void toggle(r.id, e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-maroon" />
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => void toggle(r.id, e.target.checked)}
+                  className="mt-0.5 size-4 shrink-0 accent-maroon"
+                />
                 <span className="flex flex-col gap-0.5">
                   <span className={`font-medium ${checked ? "text-muted line-through" : "text-ink"}`}>{r.title}</span>
                   <span className="text-muted">
                     {r.authority} · {r.appliesIf}
                   </span>
                   <span className="text-muted">{r.why}</span>
-                  {!checked && <span className={r.late && !checked ? "font-medium text-increased" : "text-ink"}>{r.late ? "Late: apply now" : `Apply by ${formatDate(r.applyBy)}`}</span>}
+                  {!checked && (
+                    <span className={r.late && !checked ? "font-medium text-increased" : "text-ink"}>
+                      {r.late ? "Late: apply now" : `Apply by ${formatDate(r.applyBy)}`}
+                    </span>
+                  )}
                 </span>
               </label>
             </li>

@@ -1,6 +1,11 @@
 import { Check, Loader2 } from "lucide-react";
 
-export const BUILD_PROGRESS_LABELS = ["Finding your rituals", "Allocating the budget", "Building the timeline", "Creating your checklist"] as const;
+export const BUILD_PROGRESS_LABELS = [
+  "Finding your rituals",
+  "Allocating the budget",
+  "Building the timeline",
+  "Creating your checklist",
+] as const;
 
 interface BuildProgressProps {
   /** Index of the step in progress; steps before it are done. Equal to the length when all are done. */
@@ -27,11 +32,19 @@ export function BuildProgress({ activeIndex }: BuildProgressProps) {
                 }
                 aria-hidden
               >
-                {state === "done" ? <Check className="size-4" /> : state === "active" ? <Loader2 className="size-4 animate-spin" /> : i + 1}
+                {state === "done" ? (
+                  <Check className="size-4" />
+                ) : state === "active" ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  i + 1
+                )}
               </span>
               <span className={state === "pending" ? "text-muted" : "text-ink"}>
                 {label}
-                <span className="sr-only">{state === "done" ? " — done" : state === "active" ? " — in progress" : " — waiting"}</span>
+                <span className="sr-only">
+                  {state === "done" ? " — done" : state === "active" ? " — in progress" : " — waiting"}
+                </span>
               </span>
             </li>
           );

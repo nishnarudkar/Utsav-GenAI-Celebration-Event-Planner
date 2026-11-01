@@ -13,7 +13,14 @@ const params = (id: string) => ({ params: Promise.resolve({ id }) });
 const MISSING = "00000000-0000-0000-0000-000000000000";
 
 async function newEvent(): Promise<StoredEvent> {
-  const body = { eventType: "wedding", culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250, budgetTotalPaise: 150000000 };
+  const body = {
+    eventType: "wedding",
+    culture: "bengali_hindu",
+    city: "Kolkata",
+    startDate: "2027-02-14",
+    guestCount: 250,
+    budgetTotalPaise: 150000000,
+  };
   const res = await createEvent(new Request("http://test/api/events", { method: "POST", body: JSON.stringify(body) }));
   return ((await res.json()) as { event: StoredEvent }).event;
 }
@@ -52,20 +59,30 @@ describe("POST /api/events/:id/quotes", () => {
     const res = await upload(event.id, SAMPLE, "catering", "sample.pdf");
     expect(res.status).toBe(201);
     const { quote } = (await res.json()) as { quote: StoredQuote };
-    expect(quote).toMatchObject({ fileName: "sample.pdf", analysis: { vendorName: "Shubho Bhoj Caterers", category: "catering" } });
+    expect(quote).toMatchObject({
+      fileName: "sample.pdf",
+      analysis: { vendorName: "Shubho Bhoj Caterers", category: "catering" },
+    });
     expect(quote.analysis.flags.map((f) => f.title)).toContain("Above typical prices");
     expect(quote.negotiationMessage).toContain("₹1,770");
 
-    const list = (await (await listQuotes(new Request("http://test"), params(event.id))).json()) as { quotes: StoredQuote[] };
+    const list = (await (await listQuotes(new Request("http://test"), params(event.id))).json()) as {
+      quotes: StoredQuote[];
+    };
     expect(list.quotes.map((q) => q.id)).toEqual([quote.id]);
   });
 
   it("keeps checked quotes across a change and its undo", async () => {
     const event = await newEvent();
     await upload(event.id, SAMPLE);
-    await patchEvent(new Request("http://test", { method: "PATCH", body: JSON.stringify({ field: "guest_count", value: 300 }) }), params(event.id));
+    await patchEvent(
+      new Request("http://test", { method: "PATCH", body: JSON.stringify({ field: "guest_count", value: 300 }) }),
+      params(event.id),
+    );
     await undo(new Request("http://test", { method: "POST" }), params(event.id));
-    const stored = ((await (await getEvent(new Request("http://test"), params(event.id))).json()) as { event: StoredEvent }).event;
+    const stored = (
+      (await (await getEvent(new Request("http://test"), params(event.id))).json()) as { event: StoredEvent }
+    ).event;
     expect(stored.quotes).toHaveLength(1);
   });
 

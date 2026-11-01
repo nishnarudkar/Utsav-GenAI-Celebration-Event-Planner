@@ -13,7 +13,10 @@ export const VibeProfile = z.object({
     .min(3)
     .max(6),
   keywords: z.array(z.string().min(1).max(40)).min(3).max(8),
-  decor: z.array(z.object({ item: z.string().min(1).max(80), where: z.string().min(1).max(60) })).min(3).max(10),
+  decor: z
+    .array(z.object({ item: z.string().min(1).max(80), where: z.string().min(1).max(60) }))
+    .min(3)
+    .max(10),
   attire: z.array(z.string().min(1).max(120)).max(5),
   vendorSearchTerms: z.array(z.string().min(1).max(60)).min(2).max(6),
 });

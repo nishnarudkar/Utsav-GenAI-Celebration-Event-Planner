@@ -6,14 +6,18 @@ import type { Conflict } from "@/lib/schemas/diff";
 import type { PlannedFunction } from "@/lib/schemas/event";
 
 /** Share of capacity from which a venue counts as "nearly full". */
-export const NEAR_CAPACITY = 0.9;
+const NEAR_CAPACITY = 0.9;
 
 /**
  * Apply a new guest count to each function. Functions that had the whole guest list (the
  * ceremony, the reception) follow the new count; smaller ones (close-family rituals) keep
  * their number, capped at the new total.
  */
-export function scaleFunctionGuests(functions: readonly PlannedFunction[], fromCount: number, toCount: number): PlannedFunction[] {
+export function scaleFunctionGuests(
+  functions: readonly PlannedFunction[],
+  fromCount: number,
+  toCount: number,
+): PlannedFunction[] {
   return functions.map((f) => {
     const expectedGuests = f.expectedGuests >= fromCount ? toCount : Math.min(f.expectedGuests, toCount);
     return expectedGuests === f.expectedGuests ? f : { ...f, expectedGuests };

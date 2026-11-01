@@ -128,7 +128,9 @@ describe("finalizeEventPlan", () => {
   });
 
   it("rejects an allocation with nothing in it", () => {
-    expect(() => finalizeEventPlan(draft({ allocation: [{ category: "misc", percent: 0 }] }), input)).toThrow(RangeError);
+    expect(() => finalizeEventPlan(draft({ allocation: [{ category: "misc", percent: 0 }] }), input)).toThrow(
+      RangeError,
+    );
   });
 });
 
@@ -138,7 +140,11 @@ describe("planEvent", () => {
     const plan = await planEvent(input, { structured });
 
     const opts = structured.mock.calls[0]?.[0];
-    expect(opts).toMatchObject({ name: "emit_event_plan", fixtureKey: "emit_event_plan.bengali_hindu.wedding", model: "smart" });
+    expect(opts).toMatchObject({
+      name: "emit_event_plan",
+      fixtureKey: "emit_event_plan.bengali_hindu.wedding",
+      model: "smart",
+    });
     const msg = String(opts?.messages[0]?.content);
     expect(msg).toContain("Main day: 2027-02-14");
     expect(msg).toContain("Budget: ₹15,00,000");
@@ -154,9 +160,12 @@ describe("planEvent", () => {
 });
 
 describe("planner demo fixtures", () => {
-  it.each(["emit_event_plan.bengali_hindu.wedding.json", "emit_event_plan.generic.birthday.json"])("%s is a valid draft", (file) => {
-    EventPlanDraft.parse(JSON.parse(readFileSync(path.join(FIXTURES_DIR, file), "utf8")));
-  });
+  it.each(["emit_event_plan.bengali_hindu.wedding.json", "emit_event_plan.generic.birthday.json"])(
+    "%s is a valid draft",
+    (file) => {
+      EventPlanDraft.parse(JSON.parse(readFileSync(path.join(FIXTURES_DIR, file), "utf8")));
+    },
+  );
 
   it("runs Culture → Planner for the demo wedding without an API key", async () => {
     const structuredDeps = defaultStructuredDeps({ DEMO_MODE: "true", DEMO_FIXTURES_DIR: FIXTURES_DIR });

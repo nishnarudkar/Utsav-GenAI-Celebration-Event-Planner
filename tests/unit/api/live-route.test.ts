@@ -12,10 +12,13 @@ import { buildRunOfShow } from "@/lib/rules/run-of-show";
 import type { LiveProposal, LiveState, ReshuffleDraft } from "@/lib/schemas/dayof";
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) });
-const post = (id: string, body: unknown) => live(new Request("http://test", { method: "POST", body: JSON.stringify(body) }), params(id));
+const post = (id: string, body: unknown) =>
+  live(new Request("http://test", { method: "POST", body: JSON.stringify(body) }), params(id));
 const newEvent = async () => ((await (await createDemo()).json()) as { event: StoredEvent }).event;
-const read = async (id: string) => ((await (await getEvent(new Request("http://test"), params(id))).json()) as { event: StoredEvent }).event;
-const propose = async (id: string, incident: string) => ((await (await post(id, { incident })).json()) as { proposal: LiveProposal }).proposal;
+const read = async (id: string) =>
+  ((await (await getEvent(new Request("http://test"), params(id))).json()) as { event: StoredEvent }).event;
+const propose = async (id: string, incident: string) =>
+  ((await (await post(id, { incident })).json()) as { proposal: LiveProposal }).proposal;
 
 beforeEach(() => {
   vi.stubEnv("DEMO_MODE", "true");
@@ -102,13 +105,23 @@ describe("finalizeReshuffle", () => {
 
   it("replaces a message that states its own clock time", async () => {
     const { event, slots } = await setup();
-    const p = finalizeReshuffle(draft({ notify: [{ category: "catering", reason: "r", message: "Dinner is now at 9:15 PM." }] }), event, slots, "Late", "id");
-    expect(p.messages[0]?.body).toBe("Namaste, an update for today: Running late. Bor Boron now starts at 7:00 PM. Thank you.");
+    const p = finalizeReshuffle(
+      draft({ notify: [{ category: "catering", reason: "r", message: "Dinner is now at 9:15 PM." }] }),
+      event,
+      slots,
+      "Late",
+      "id",
+    );
+    expect(p.messages[0]?.body).toBe(
+      "Namaste, an update for today: Running late. Bor Boron now starts at 7:00 PM. Thank you.",
+    );
   });
 
   it("drops a summary that states a clock time", async () => {
     const { event, slots } = await setup();
-    expect(finalizeReshuffle(draft({ summary: "Starting at 7pm." }), event, slots, "Priest late", "id").summary).toBe("Reported: Priest late");
+    expect(finalizeReshuffle(draft({ summary: "Starting at 7pm." }), event, slots, "Priest late", "id").summary).toBe(
+      "Reported: Priest late",
+    );
   });
 
   it("moves nothing when no delay is needed, and never leaves a placeholder", async () => {
@@ -120,14 +133,18 @@ describe("finalizeReshuffle", () => {
 
   it("rejects a slot the model made up", async () => {
     const { event, slots } = await setup();
-    expect(() => finalizeReshuffle(draft({ fromSlotId: "made_up" }), event, slots, "Late", "id")).toThrow(AIValidationError);
+    expect(() => finalizeReshuffle(draft({ fromSlotId: "made_up" }), event, slots, "Late", "id")).toThrow(
+      AIValidationError,
+    );
   });
 
   it("warns when a long delay runs past the planned finish and into the next function", async () => {
     const { event, slots } = await setup();
     const p = finalizeReshuffle(draft({ delayMinutes: 180 }), event, slots, "Late", "id");
     expect(p.moves.at(-1)).toMatchObject({ functionName: "Bashor Raat", deltaMinutes: 45 });
-    expect(p.warnings.join(" ")).toContain("Biye (wedding ceremony) now runs until 12:15 AM (next day), past its planned finish of 11:30 PM.");
+    expect(p.warnings.join(" ")).toContain(
+      "Biye (wedding ceremony) now runs until 12:15 AM (next day), past its planned finish of 11:30 PM.",
+    );
   });
 });
 

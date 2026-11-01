@@ -33,7 +33,11 @@ const VENDOR_ROLES: Record<BudgetCategory, string> = {
 
 /** "Photographer 30 min late" → "photographer-30-min-late", for the demo fixture name. */
 export const incidentSlug = (incident: string) =>
-  incident.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+  incident
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 60);
 
 const CLOCK_TIME = /\d{1,2}[:.]\d{2}|\d\s*(?:am|pm)\b/i;
 
@@ -50,7 +54,11 @@ function userMessage(state: EventPlan, slots: readonly RunSlot[], incident: stri
 }
 
 /** Fill the placeholders. A message with a clock time of its own is replaced, as is one with nothing to fill. */
-function writeMessage(n: ReshuffleDraft["notify"][number], first: SlotMove | undefined, summary: string): OutgoingMessage {
+function writeMessage(
+  n: ReshuffleDraft["notify"][number],
+  first: SlotMove | undefined,
+  summary: string,
+): OutgoingMessage {
   const usesPlaceholder = /\{(?:new_time|slot)\}/.test(n.message);
   const safe = !CLOCK_TIME.test(n.message) && !(usesPlaceholder && !first);
   const update = first ? ` ${first.name} now starts at ${first.to}.` : "";
@@ -61,7 +69,13 @@ function writeMessage(n: ReshuffleDraft["notify"][number], first: SlotMove | und
 }
 
 /** Turn the model's draft into a proposal. All times here come from code. */
-export function finalizeReshuffle(draft: ReshuffleDraft, state: EventPlan, slots: readonly RunSlot[], incident: string, id: string): LiveProposal {
+export function finalizeReshuffle(
+  draft: ReshuffleDraft,
+  state: EventPlan,
+  slots: readonly RunSlot[],
+  incident: string,
+  id: string,
+): LiveProposal {
   const delayed = draft.fromSlotId !== null && draft.delayMinutes > 0;
   const deltas = delayed ? applyDelay(slots, draft.fromSlotId!, draft.delayMinutes) : {};
   if (!deltas) throw new AIValidationError("emit_reshuffle", `Unknown slot id: ${draft.fromSlotId}`);
@@ -76,18 +90,38 @@ export function finalizeReshuffle(draft: ReshuffleDraft, state: EventPlan, slots
     deltaMinutes: deltas[s.id]!,
   }));
 
-  const after = slots.map((s) => ({ ...s, startMin: s.startMin + (deltas[s.id] ?? 0), endMin: s.endMin + (deltas[s.id] ?? 0) }));
+  const after = slots.map((s) => ({
+    ...s,
+    startMin: s.startMin + (deltas[s.id] ?? 0),
+    endMin: s.endMin + (deltas[s.id] ?? 0),
+  }));
   const hasPriest = state.budget.lines.some((l) => l.category === "priest");
   const warnings = [
     ...overruns(state.plan.functions, after),
-    ...(hasPriest && moved.some((s) => s.isRitual) ? ["If a ritual has a fixed muhurat, check with the priest before confirming this."] : []),
+    ...(hasPriest && moved.some((s) => s.isRitual)
+      ? ["If a ritual has a fixed muhurat, check with the priest before confirming this."]
+      : []),
   ];
 
   const summary = CLOCK_TIME.test(draft.summary) ? `Reported: ${incident}` : draft.summary;
-  return { id, incident, summary, moves, warnings, messages: draft.notify.map((n) => writeMessage(n, moves[0], summary)), deltas };
+  return {
+    id,
+    incident,
+    summary,
+    moves,
+    warnings,
+    messages: draft.notify.map((n) => writeMessage(n, moves[0], summary)),
+    deltas,
+  };
 }
 
-export async function planReshuffle(state: EventPlan, slots: readonly RunSlot[], incident: string, id: string, deps: DayofDeps = defaultDeps): Promise<LiveProposal> {
+export async function planReshuffle(
+  state: EventPlan,
+  slots: readonly RunSlot[],
+  incident: string,
+  id: string,
+  deps: DayofDeps = defaultDeps,
+): Promise<LiveProposal> {
   const draft = await deps.structured({
     schema: ReshuffleDraft,
     name: "emit_reshuffle",

@@ -95,7 +95,12 @@ export function resolveBudgetLines<T extends ProposedLine>(
   const lines: ResolvedLine<T>[] = [];
   const unpriced: T[] = [];
   for (const p of proposals) {
-    const unitPaise = unitPricePaise(index, { category: p.category, unit: p.basis.unit, cityTier, tier: p.basis.unitTier });
+    const unitPaise = unitPricePaise(index, {
+      category: p.category,
+      unit: p.basis.unit,
+      cityTier,
+      tier: p.basis.unitTier,
+    });
     if (unitPaise === null) {
       unpriced.push(p);
       continue;
@@ -161,7 +166,10 @@ export function fitTiersToBudget<T extends ProposedLine>(
  * Split a total across categories by weight (e.g. the Planner's allocation %), in whole paise,
  * summing exactly to the total. Uses largest-remainder rounding; weights need not sum to 100.
  */
-export function allocateByWeight<K extends string>(totalPaise: number, weights: Readonly<Partial<Record<K, number>>>): Record<K, number> {
+export function allocateByWeight<K extends string>(
+  totalPaise: number,
+  weights: Readonly<Partial<Record<K, number>>>,
+): Record<K, number> {
   assertPaise(totalPaise, "total");
   if (totalPaise < 0) throw new RangeError("total must be non-negative");
   const entries = (Object.entries(weights) as Array<[K, number | undefined]>).filter(

@@ -7,9 +7,17 @@ import { AIProviderError, AIValidationError } from "@/lib/ai/errors";
 import { callStructured, defaultStructuredDeps, withSavedAnswers, type StructuredDeps } from "@/lib/ai/structured";
 
 const Idea = z.object({ title: z.string() });
-const opts = { schema: Idea, name: "emit_idea", system: "Plan well.", messages: [{ role: "user" as const, content: "Hello" }] };
+const opts = {
+  schema: Idea,
+  name: "emit_idea",
+  system: "Plan well.",
+  messages: [{ role: "user" as const, content: "Hello" }],
+};
 
-async function makeDeps(gemini: NonNullable<StructuredDeps["gemini"]>, over: Partial<StructuredDeps> = {}): Promise<StructuredDeps> {
+async function makeDeps(
+  gemini: NonNullable<StructuredDeps["gemini"]>,
+  over: Partial<StructuredDeps> = {},
+): Promise<StructuredDeps> {
   const fixturesDir = await mkdtemp(path.join(tmpdir(), "utsav-"));
   await writeFile(path.join(fixturesDir, "emit_idea.json"), JSON.stringify({ title: "Saved" }));
   return { createMessage: vi.fn(), resolveModel: () => "test", demoMode: false, fixturesDir, gemini, ...over };
@@ -38,13 +46,18 @@ describe("AI_FALLBACK=saved", () => {
 
   it("uses a saved answer when the provider is out of quota", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    await expect(callStructured(opts, await makeDeps(outOfQuota, { savedFallback: true }))).resolves.toEqual({ title: "Saved" });
+    await expect(callStructured(opts, await makeDeps(outOfQuota, { savedFallback: true }))).resolves.toEqual({
+      title: "Saved",
+    });
     warn.mockRestore();
   });
 
   it("keeps the provider's error when nothing is saved", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    const failure = await callStructured({ ...opts, fixtureKey: "emit_idea.none" }, await makeDeps(outOfQuota, { savedFallback: true })).catch((err: unknown) => err);
+    const failure = await callStructured(
+      { ...opts, fixtureKey: "emit_idea.none" },
+      await makeDeps(outOfQuota, { savedFallback: true }),
+    ).catch((err: unknown) => err);
     expect(failure).toMatchObject({ dailyLimit: true });
     warn.mockRestore();
   });
@@ -55,6 +68,8 @@ describe("AI_FALLBACK=saved", () => {
 
   it("doesn't hide a reply that failed validation", async () => {
     const bad = async () => ({ text: "nope", cutOff: false });
-    await expect(callStructured(opts, await makeDeps(bad, { savedFallback: true }))).rejects.toBeInstanceOf(AIValidationError);
+    await expect(callStructured(opts, await makeDeps(bad, { savedFallback: true }))).rejects.toBeInstanceOf(
+      AIValidationError,
+    );
   });
 });

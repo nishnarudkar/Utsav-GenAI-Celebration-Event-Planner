@@ -33,7 +33,13 @@ export interface DonutSlice {
 
 export interface DashboardSummary {
   daysToGo: number;
-  budget: { committedPaise: number; totalPaise: number; isEstimate: boolean; percentUsed: number; overBudgetPaise: number };
+  budget: {
+    committedPaise: number;
+    totalPaise: number;
+    isEstimate: boolean;
+    percentUsed: number;
+    overBudgetPaise: number;
+  };
   tasks: { done: number; total: number; dueNow: number };
   nextTasks: ScheduledTask[];
   issues: PlanIssue[];
@@ -47,7 +53,13 @@ export interface DashboardSummary {
  * its rank, so slices keep their colours when amounts change. Everything else folds into
  * "Other" (charts cap at 5–6 colours; the Budget page shows all 12).
  */
-export const DONUT_CATEGORIES = ["catering", "venue", "decor", "attire", "photography"] as const satisfies readonly BudgetCategory[];
+export const DONUT_CATEGORIES = [
+  "catering",
+  "venue",
+  "decor",
+  "attire",
+  "photography",
+] as const satisfies readonly BudgetCategory[];
 
 const NEXT_TASKS = 5;
 
@@ -65,7 +77,13 @@ export function summarizeDashboard(event: EventPlan, today: ISODate): DashboardS
   const issues = detectIssues(event);
   return {
     daysToGo: daysUntil(event.answers.startDate, new Date(`${today}T12:00:00+05:30`)),
-    budget: { committedPaise, totalPaise, isEstimate: budget.budgetIsEstimate, percentUsed, overBudgetPaise: budget.overBudgetPaise },
+    budget: {
+      committedPaise,
+      totalPaise,
+      isEstimate: budget.budgetIsEstimate,
+      percentUsed,
+      overBudgetPaise: budget.overBudgetPaise,
+    },
     tasks: { done: tasks.length - open.length, total: tasks.length, dueNow },
     nextTasks: open.slice(0, NEXT_TASKS),
     issues,
@@ -95,7 +113,13 @@ export function donutSlices(event: Pick<EventPlan, "budget">): DonutSlice[] {
     .sort((a, b) => (b[1]?.estimatePaise ?? 0) - (a[1]?.estimatePaise ?? 0));
   const otherPaise = rest.reduce((s, [, c]) => s + (c?.estimatePaise ?? 0), 0);
   if (otherPaise > 0) {
-    slices.push({ key: "other", label: "Other", paise: otherPaise, percent: pct(otherPaise), members: rest.map(([cat]) => CATEGORY_LABELS[cat]) });
+    slices.push({
+      key: "other",
+      label: "Other",
+      paise: otherPaise,
+      percent: pct(otherPaise),
+      members: rest.map(([cat]) => CATEGORY_LABELS[cat]),
+    });
   }
   return slices;
 }
@@ -106,21 +130,46 @@ export function detectIssues(event: EventPlan): PlanIssue[] {
   const { budget, rituals, plan } = event;
 
   if (budget.overBudgetPaise > 0) {
-    issues.push({ id: "over_budget", severity: "critical", title: "Over budget", detail: "The estimate is higher than your budget." });
+    issues.push({
+      id: "over_budget",
+      severity: "critical",
+      title: "Over budget",
+      detail: "The estimate is higher than your budget.",
+    });
   }
   issues.push(...conflictIssues([...checkVenueCapacity(plan.functions), ...timelineOverlaps(plan.functions)]));
   if (budget.unpriced.length > 0) {
     const n = budget.unpriced.length;
-    issues.push({ id: "unpriced", severity: "warn", title: `${n} item${n === 1 ? "" : "s"} need${n === 1 ? "s" : ""} a quote`, detail: budget.unpriced.map((u) => u.label).join(", ") });
+    issues.push({
+      id: "unpriced",
+      severity: "warn",
+      title: `${n} item${n === 1 ? "" : "s"} need${n === 1 ? "s" : ""} a quote`,
+      detail: budget.unpriced.map((u) => u.label).join(", "),
+    });
   }
   if (plan.unassignedRitualKeys.length > 0) {
-    issues.push({ id: "unassigned_rituals", severity: "warn", title: "Rituals without a function", detail: `Not yet scheduled: ${plan.unassignedRitualKeys.join(", ")}` });
+    issues.push({
+      id: "unassigned_rituals",
+      severity: "warn",
+      title: "Rituals without a function",
+      detail: `Not yet scheduled: ${plan.unassignedRitualKeys.join(", ")}`,
+    });
   }
   if (rituals.confidence === "low") {
-    issues.push({ id: "ritual_confidence", severity: "warn", title: "Rituals are a general suggestion", detail: "Verify the sequence with your family priest or elders." });
+    issues.push({
+      id: "ritual_confidence",
+      severity: "warn",
+      title: "Rituals are a general suggestion",
+      detail: "Verify the sequence with your family priest or elders.",
+    });
   }
   if (!event.cityTierKnown) {
-    issues.push({ id: "city_tier", severity: "info", title: "Prices use a typical city", detail: `We don't have price data for ${event.answers.city} yet, so estimates use mid-sized-city rates.` });
+    issues.push({
+      id: "city_tier",
+      severity: "info",
+      title: "Prices use a typical city",
+      detail: `We don't have price data for ${event.answers.city} yet, so estimates use mid-sized-city rates.`,
+    });
   }
   return issues;
 }

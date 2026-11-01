@@ -56,9 +56,18 @@ export function applyRecoveryPatch(
   for (const { lineIndex, basis } of patch.updates) {
     const line = lines[lineIndex];
     if (!line || line.locked) continue;
-    const unitPaise = unitPricePaise(index, { category: line.category, unit: basis.unit, cityTier: state.cityTier, tier: basis.unitTier });
+    const unitPaise = unitPricePaise(index, {
+      category: line.category,
+      unit: basis.unit,
+      cityTier: state.cityTier,
+      tier: basis.unitTier,
+    });
     if (unitPaise === null) continue;
-    lines[lineIndex] = { ...line, basis: { ...basis, unitPaise, cityTier: state.cityTier }, estimatePaise: lineEstimatePaise(basis.quantity, unitPaise) };
+    lines[lineIndex] = {
+      ...line,
+      basis: { ...basis, unitPaise, cityTier: state.cityTier },
+      estimatePaise: lineEstimatePaise(basis.quantity, unitPaise),
+    };
   }
   const budget = retotal(state.budget, lines, state.plan.allocationPaise, state.budget.budgetTotalPaise);
   const next: EventPlan = { ...state, budget };
@@ -111,7 +120,13 @@ function candidates(state: EventPlan, ctx: RecoveryContext): Candidate[] {
     out.push({
       id: `tier:${category}`,
       title: `Choose budget-friendly ${CATEGORY_LABELS[category].toLowerCase()}`,
-      patch: { kind: "lines", updates: items.map(({ i, line, tier }) => ({ lineIndex: i, basis: { unit: line.basis.unit, quantity: line.basis.quantity, unitTier: tier } })) },
+      patch: {
+        kind: "lines",
+        updates: items.map(({ i, line, tier }) => ({
+          lineIndex: i,
+          basis: { unit: line.basis.unit, quantity: line.basis.quantity, unitTier: tier },
+        })),
+      },
     });
   }
 
@@ -148,7 +163,11 @@ function candidates(state: EventPlan, ctx: RecoveryContext): Candidate[] {
  * Up to three options, biggest saving first, each with its exact saving. Only offered when
  * the plan is over a family-set budget, unless evenWithinBudget asks for savings regardless.
  */
-export function generateRecoveryOptions(state: EventPlan, ctx: RecoveryContext, opts: { evenWithinBudget?: boolean } = {}): RecoveryOption[] {
+export function generateRecoveryOptions(
+  state: EventPlan,
+  ctx: RecoveryContext,
+  opts: { evenWithinBudget?: boolean } = {},
+): RecoveryOption[] {
   const over = state.budget.budgetIsEstimate ? 0 : state.budget.overBudgetPaise;
   if (over <= 0 && !opts.evenWithinBudget) return [];
 
@@ -162,7 +181,12 @@ export function generateRecoveryOptions(state: EventPlan, ctx: RecoveryContext, 
     .slice(0, MAX_OPTIONS);
 
   return scored.map(({ c, saves }) => {
-    const covers = over <= 0 ? "" : saves >= over ? " — brings you within budget" : ` — covers ${Math.round((saves / over) * 100)}% of the ${formatINRCompact(over)} overrun`;
+    const covers =
+      over <= 0
+        ? ""
+        : saves >= over
+          ? " — brings you within budget"
+          : ` — covers ${Math.round((saves / over) * 100)}% of the ${formatINRCompact(over)} overrun`;
     return {
       id: c.id,
       title: c.title,

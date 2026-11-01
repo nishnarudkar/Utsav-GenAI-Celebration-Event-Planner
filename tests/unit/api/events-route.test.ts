@@ -15,7 +15,12 @@ const DEMO_BODY = {
 };
 
 const post = (body: unknown) =>
-  createEvent(new Request("http://test/api/events", { method: "POST", body: typeof body === "string" ? body : JSON.stringify(body) }));
+  createEvent(
+    new Request("http://test/api/events", {
+      method: "POST",
+      body: typeof body === "string" ? body : JSON.stringify(body),
+    }),
+  );
 const get = (id: string) => getEvent(new Request(`http://test/api/events/${id}`), { params: Promise.resolve({ id }) });
 
 beforeEach(() => {
@@ -30,7 +35,12 @@ describe("POST /api/events", () => {
     const res = await post(DEMO_BODY);
     expect(res.status).toBe(201);
     const { event } = (await res.json()) as { event: Record<string, unknown> & { id: string } };
-    expect(event).toMatchObject({ title: "Bengali Hindu wedding in Kolkata", status: "planning", version: 1, cityTier: 1 });
+    expect(event).toMatchObject({
+      title: "Bengali Hindu wedding in Kolkata",
+      status: "planning",
+      version: 1,
+      cityTier: 1,
+    });
     expect(event).toHaveProperty("rituals.rituals");
     expect(event).toHaveProperty("budget.totalEstimatePaise", 144000000);
     expect((event as unknown as { timeline: { tasks: unknown[] } }).timeline.tasks.length).toBeGreaterThanOrEqual(20);
@@ -38,14 +48,23 @@ describe("POST /api/events", () => {
     const fetched = await get(event.id);
     expect(fetched.status).toBe(200);
     expect(((await fetched.json()) as { event: { id: string } }).event.id).toBe(event.id);
-
   });
 
   it("builds the demo birthday too, as the demo-mode message promises", async () => {
-    const res = await post({ ...DEMO_BODY, eventType: "birthday", culture: "generic", city: "Pune", guestCount: 60, budgetTotalPaise: 30000000 });
+    const res = await post({
+      ...DEMO_BODY,
+      eventType: "birthday",
+      culture: "generic",
+      city: "Pune",
+      guestCount: 60,
+      budgetTotalPaise: 30000000,
+    });
     expect(res.status).toBe(201);
     const { event } = (await res.json()) as {
-      event: { budget: { unpriced: unknown[]; adjustments: unknown[]; lines: unknown[] }; timeline: { tasks: unknown[]; adjustments: string[] } };
+      event: {
+        budget: { unpriced: unknown[]; adjustments: unknown[]; lines: unknown[] };
+        timeline: { tasks: unknown[]; adjustments: string[] };
+      };
     };
     expect(event.budget.lines).toHaveLength(8);
     expect(event.budget.unpriced).toEqual([]);
@@ -90,14 +109,18 @@ describe("PUT /api/events/:id/ritual-items", () => {
     expect(await ticked.json()).toEqual({ procuredItems: ["gaye_holud#0"] });
     const fetched = (await (await get(event.id)).json()) as { event: { procuredItems: string[] } };
     expect(fetched.event.procuredItems).toEqual(["gaye_holud#0"]);
-    expect(await (await put(event.id, { itemId: "gaye_holud#0", procured: false })).json()).toEqual({ procuredItems: [] });
+    expect(await (await put(event.id, { itemId: "gaye_holud#0", procured: false })).json()).toEqual({
+      procuredItems: [],
+    });
   });
 
   it("rejects items that aren't on the checklist, bad bodies and unknown events", async () => {
     const { event } = (await (await post(DEMO_BODY)).json()) as { event: { id: string } };
     expect((await put(event.id, { itemId: "made_up#0", procured: true })).status).toBe(400);
     expect((await put(event.id, { itemId: "gaye_holud#0", procured: "yes" })).status).toBe(400);
-    expect((await put("00000000-0000-0000-0000-000000000000", { itemId: "gaye_holud#0", procured: true })).status).toBe(404);
+    expect((await put("00000000-0000-0000-0000-000000000000", { itemId: "gaye_holud#0", procured: true })).status).toBe(
+      404,
+    );
   });
 });
 

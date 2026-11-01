@@ -16,7 +16,10 @@ describe("vendor benchmarks", () => {
   it("covers every budget category in every city tier", () => {
     for (const category of BUDGET_CATEGORIES) {
       for (const tier of [1, 2, 3] as const) {
-        expect(pricing.rows.some((r) => r.category === category && r.city_tier === tier), `${category} tier ${tier}`).toBe(true);
+        expect(
+          pricing.rows.some((r) => r.category === category && r.city_tier === tier),
+          `${category} tier ${tier}`,
+        ).toBe(true);
       }
     }
   });

@@ -20,7 +20,11 @@ const IdeaSchema = z.object({
 const VALID = { title: "Marigold mandap", rationale: "Warm and festive", guests: 250 };
 
 /** Minimal BetaMessage for tests; only the fields callStructured reads are meaningful. */
-function fakeMessage(content: Array<Record<string, unknown>>, stop_reason = "end_turn", stop_details: unknown = null): Message {
+function fakeMessage(
+  content: Array<Record<string, unknown>>,
+  stop_reason = "end_turn",
+  stop_details: unknown = null,
+): Message {
   return {
     id: "msg_test",
     type: "message",

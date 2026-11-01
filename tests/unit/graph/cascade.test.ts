@@ -14,13 +14,25 @@ let demo: EventPlan;
 beforeAll(async () => {
   vi.stubEnv("DEMO_MODE", "true");
   const plan = await buildEventPlan(
-    { eventType: "wedding", culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250, budgetTotalPaise: rupees(15_00_000) },
+    {
+      eventType: "wedding",
+      culture: "bengali_hindu",
+      city: "Kolkata",
+      startDate: "2027-02-14",
+      guestCount: 250,
+      budgetTotalPaise: rupees(15_00_000),
+    },
     { today: TODAY },
   );
   // The demo script's 300-seat wedding hall.
   demo = {
     ...plan,
-    plan: { ...plan.plan, functions: plan.plan.functions.map((f) => (f.name === "Biye (wedding ceremony)" ? { ...f, venueCapacity: 300 } : f)) },
+    plan: {
+      ...plan.plan,
+      functions: plan.plan.functions.map((f) =>
+        f.name === "Biye (wedding ceremony)" ? { ...f, venueCapacity: 300 } : f,
+      ),
+    },
   };
 });
 afterAll(() => {
@@ -50,8 +62,12 @@ describe("guest count 250 → 350 (demo scenario)", () => {
 
     // Close-family functions keep their numbers; venue, décor and tattva trays don't change.
     expect(lineByLabel(state, "Gaye Holud breakfast").basis.quantity).toBe(60);
-    expect(lineByLabel(state, "Tattva gift trays").estimatePaise).toBe(lineByLabel(demo, "Tattva gift trays").estimatePaise);
-    expect(lineByLabel(state, "Wedding venue — banquet hall").estimatePaise).toBe(lineByLabel(demo, "Wedding venue — banquet hall").estimatePaise);
+    expect(lineByLabel(state, "Tattva gift trays").estimatePaise).toBe(
+      lineByLabel(demo, "Tattva gift trays").estimatePaise,
+    );
+    expect(lineByLabel(state, "Wedding venue — banquet hall").estimatePaise).toBe(
+      lineByLabel(demo, "Wedding venue — banquet hall").estimatePaise,
+    );
     expect(diff.changed.filter((c) => c.nodeId.startsWith("function:")).map((c) => c.label)).toEqual([
       "Biye (wedding ceremony)",
       "Bou Bhaat (reception)",
@@ -79,7 +95,10 @@ describe("guest count 250 → 350 (demo scenario)", () => {
   it("never changes a locked line, and flags it", () => {
     const locked: EventPlan = {
       ...demo,
-      budget: { ...demo.budget, lines: demo.budget.lines.map((l) => (l.label === "Wedding dinner — buffet" ? { ...l, locked: true } : l)) },
+      budget: {
+        ...demo.budget,
+        lines: demo.budget.lines.map((l) => (l.label === "Wedding dinner — buffet" ? { ...l, locked: true } : l)),
+      },
     };
     const { state, diff } = runCascade(locked, { field: "guest_count", value: 350 }, CTX);
     expect(lineByLabel(state, "Wedding dinner — buffet")).toEqual(lineByLabel(locked, "Wedding dinner — buffet"));
@@ -87,7 +106,8 @@ describe("guest count 250 → 350 (demo scenario)", () => {
     expect(diff.conflicts).toContainEqual({
       type: "locked_item",
       severity: "info",
-      message: '"Wedding dinner — buffet" is locked, so it wasn\'t changed — it would need 350 instead of 250 for 350 guests.',
+      message:
+        '"Wedding dinner — buffet" is locked, so it wasn\'t changed — it would need 350 instead of 250 for 350 guests.',
     });
   });
 });
@@ -108,20 +128,37 @@ describe("budget cut by 20% (₹15L → ₹12L)", () => {
   });
 
   it("ends 'estimate for me' mode when the family sets a budget", () => {
-    const estimated: EventPlan = { ...demo, answers: { ...demo.answers, budgetTotalPaise: null }, budget: { ...demo.budget, budgetIsEstimate: true } };
+    const estimated: EventPlan = {
+      ...demo,
+      answers: { ...demo.answers, budgetTotalPaise: null },
+      budget: { ...demo.budget, budgetIsEstimate: true },
+    };
     const { state } = runCascade(estimated, { field: "budget_total", value: rupees(20_00_000) }, CTX);
-    expect(state.budget).toMatchObject({ budgetIsEstimate: false, budgetTotalPaise: rupees(20_00_000), remainingPaise: rupees(5_60_000) });
+    expect(state.budget).toMatchObject({
+      budgetIsEstimate: false,
+      budgetTotalPaise: rupees(20_00_000),
+      remainingPaise: rupees(5_60_000),
+    });
   });
 });
 
 describe("main day moved a week later (14 → 21 Feb 2027)", () => {
   it("shifts every function and AI/KB task, with a note to check timings", () => {
     const { state, diff } = runCascade(demo, { field: "start_date", value: "2027-02-21" }, CTX);
-    expect(state.plan.functions.map((f) => f.date)).toEqual(["2027-02-19", "2027-02-21", "2027-02-21", "2027-02-21", "2027-02-22", "2027-02-23"]);
+    expect(state.plan.functions.map((f) => f.date)).toEqual([
+      "2027-02-19",
+      "2027-02-21",
+      "2027-02-21",
+      "2027-02-21",
+      "2027-02-22",
+      "2027-02-23",
+    ]);
     expect([state.plan.startDate, state.plan.endDate]).toEqual(["2027-02-19", "2027-02-23"]);
     expect(diff.budgetDeltaPaise).toBe(0);
     expect(diff.changed.find((c) => c.nodeId === "timeline:all")?.reason).toBe("33 tasks moved 7 days later");
-    expect(diff.conflicts).toEqual([{ type: "date_note", severity: "info", message: "New date: check the timings with your priest or elders." }]);
+    expect(diff.conflicts).toEqual([
+      { type: "date_note", severity: "info", message: "New date: check the timings with your priest or elders." },
+    ]);
 
     const before = new Map(demo.timeline.tasks.map((t) => [t.ref, t]));
     for (const t of state.timeline.tasks) {
@@ -138,7 +175,9 @@ describe("main day moved a week later (14 → 21 Feb 2027)", () => {
     const withUser: EventPlan = { ...demo, timeline: { ...demo.timeline, tasks: [...demo.timeline.tasks, userTask] } };
     const { state, diff } = runCascade(withUser, { field: "start_date", value: "2027-02-21" }, CTX);
     expect(state.timeline.tasks.find((t) => t.ref === "my_task")).toEqual(userTask);
-    expect(diff.changed.find((c) => c.nodeId === "timeline:all")?.reason).toBe("33 tasks moved 7 days later; 1 of your own tasks left as they were");
+    expect(diff.changed.find((c) => c.nodeId === "timeline:all")?.reason).toBe(
+      "33 tasks moved 7 days later; 1 of your own tasks left as they were",
+    );
   });
 });
 
@@ -173,7 +212,10 @@ describe("no-op changes", () => {
 
 describe("estimated budgets", () => {
   it("follow the estimate, so there's no over-budget conflict", () => {
-    const estimated: EventPlan = { ...demo, budget: { ...demo.budget, budgetIsEstimate: true, budgetTotalPaise: demo.budget.totalEstimatePaise } };
+    const estimated: EventPlan = {
+      ...demo,
+      budget: { ...demo.budget, budgetIsEstimate: true, budgetTotalPaise: demo.budget.totalEstimatePaise },
+    };
     const { state, diff } = runCascade(estimated, { field: "guest_count", value: 350 }, CTX);
     expect(state.budget.budgetTotalPaise).toBe(state.budget.totalEstimatePaise);
     expect(diff.conflicts.map((c) => c.type)).toEqual(["venue_capacity"]);

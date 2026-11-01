@@ -52,7 +52,11 @@ export function timelineOverlaps(functions: readonly PlannedFunction[]): Conflic
       const a = spans[i]!;
       const b = spans[j]!;
       if (a.span[0] < b.span[1] && b.span[0] < a.span[1]) {
-        out.push({ type: "timeline_overlap", severity: "warn", message: `${a.f.name} and ${b.f.name} overlap in time.` });
+        out.push({
+          type: "timeline_overlap",
+          severity: "warn",
+          message: `${a.f.name} and ${b.f.name} overlap in time.`,
+        });
       }
     }
   }
@@ -69,5 +73,8 @@ export function detectConflicts(input: ConflictInput): Conflict[] {
     ...timelineOverlaps(input.functions),
   ];
   const rank = { critical: 0, warn: 1, info: 2 } as const;
-  return all.map((c, i) => ({ c, i })).sort((a, b) => rank[a.c.severity] - rank[b.c.severity] || a.i - b.i).map(({ c }) => c);
+  return all
+    .map((c, i) => ({ c, i }))
+    .sort((a, b) => rank[a.c.severity] - rank[b.c.severity] || a.i - b.i)
+    .map(({ c }) => c);
 }

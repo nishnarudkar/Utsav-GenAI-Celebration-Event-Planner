@@ -52,7 +52,10 @@ export const cultureLabel = (c: Culture) => CULTURE_LABELS[c];
 const MAX_YEARS_AHEAD = 3;
 
 /** Question text, chips and input hints per step. Some depend on earlier answers. */
-export function stepPrompt(step: StepId, answers: CollectedAnswers): {
+export function stepPrompt(
+  step: StepId,
+  answers: CollectedAnswers,
+): {
   question: string;
   chips: Chip[];
   inputLabel: string;
@@ -63,14 +66,22 @@ export function stepPrompt(step: StepId, answers: CollectedAnswers): {
 } {
   switch (step) {
     case "eventType":
-      return { question: "Namaste! What are we celebrating?", chips: EVENT_TYPE_CHIPS, inputLabel: "Event type", placeholder: "", inputType: "text", chipsOnly: true };
+      return {
+        question: "Namaste! What are we celebrating?",
+        chips: EVENT_TYPE_CHIPS,
+        inputLabel: "Event type",
+        placeholder: "",
+        inputType: "text",
+        chipsOnly: true,
+      };
     case "culture": {
       const order: Culture[] =
         answers.eventType === "wedding"
           ? ["bengali_hindu", "tamil_brahmin", "punjabi_sikh", "marathi", "gujarati", "muslim", "christian", "generic"]
           : ["generic", "bengali_hindu", "tamil_brahmin", "punjabi_sikh", "marathi", "gujarati", "muslim", "christian"];
       return {
-        question: "Which tradition should the rituals follow? Pick the closest, or none — you can mix and adjust later.",
+        question:
+          "Which tradition should the rituals follow? Pick the closest, or none — you can mix and adjust later.",
         chips: order.map((c) => ({ label: CULTURE_LABELS[c], value: c })),
         inputLabel: "Tradition",
         placeholder: "",
@@ -124,12 +135,16 @@ export function stepPrompt(step: StepId, answers: CollectedAnswers): {
 
 export function parseEventType(input: string): Parsed<EventType> {
   const chip = EVENT_TYPE_CHIPS.find((c) => c.value === input);
-  return chip ? { ok: true, value: chip.value as EventType, display: chip.label } : { ok: false, message: "Pick one of the options." };
+  return chip
+    ? { ok: true, value: chip.value as EventType, display: chip.label }
+    : { ok: false, message: "Pick one of the options." };
 }
 
 export function parseCulture(input: string): Parsed<Culture> {
   const c = (Object.keys(CULTURE_LABELS) as Culture[]).find((k) => k === input);
-  return c ? { ok: true, value: c, display: CULTURE_LABELS[c] } : { ok: false, message: "Pick the closest tradition, or “No specific tradition”." };
+  return c
+    ? { ok: true, value: c, display: CULTURE_LABELS[c] }
+    : { ok: false, message: "Pick the closest tradition, or “No specific tradition”." };
 }
 
 export function parseCity(input: string): Parsed<string> {
@@ -144,7 +159,8 @@ export function parseStartDate(input: string, today: ISODate): Parsed<ISODate> {
   if (!isISODate(value)) return { ok: false, message: "Pick a date from the calendar." };
   const days = diffDays(today, value);
   if (days < 0) return { ok: false, message: "That date has passed — pick an upcoming one." };
-  if (days > MAX_YEARS_AHEAD * 366) return { ok: false, message: `Utsav plans up to ${MAX_YEARS_AHEAD} years ahead — pick a nearer date.` };
+  if (days > MAX_YEARS_AHEAD * 366)
+    return { ok: false, message: `Utsav plans up to ${MAX_YEARS_AHEAD} years ahead — pick a nearer date.` };
   return { ok: true, value, display: formatDate(value, { weekday: true }) };
 }
 
@@ -164,7 +180,8 @@ export function parseBudget(input: string): Parsed<number | null> {
   const paise = parseINR(input);
   if (paise === null) return { ok: false, message: "Try something like 15L, 15 lakh or ₹15,00,000." };
   if (paise < 10_000_00) return { ok: false, message: "That seems low — budgets start from ₹10,000." };
-  if (paise > 1_000_00_00_000_00) return { ok: false, message: "That's beyond what Utsav can plan — check the amount?" };
+  if (paise > 1_000_00_00_000_00)
+    return { ok: false, message: "That's beyond what Utsav can plan — check the amount?" };
   return { ok: true, value: paise, display: formatINR(paise) };
 }
 
@@ -195,7 +212,15 @@ export function applyAnswer(
 
 /** The POST /api/events body once every step is answered; null if something's missing. */
 export function toOnboardingAnswers(a: CollectedAnswers): OnboardingAnswers | null {
-  if (!a.eventType || !a.culture || !a.city || !a.startDate || a.guestCount === undefined || a.budgetTotalPaise === undefined) return null;
+  if (
+    !a.eventType ||
+    !a.culture ||
+    !a.city ||
+    !a.startDate ||
+    a.guestCount === undefined ||
+    a.budgetTotalPaise === undefined
+  )
+    return null;
   return {
     eventType: a.eventType,
     culture: a.culture,

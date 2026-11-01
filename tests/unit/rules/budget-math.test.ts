@@ -16,9 +16,33 @@ import {
 const rupees = (r: number) => r * 100;
 
 const ROWS: BenchmarkRow[] = [
-  { category: "catering", unit: "per_plate", city_tier: 1, low_paise: rupees(900), mid_paise: rupees(1500), high_paise: rupees(2800), label: "plate" },
-  { category: "catering", unit: "per_plate", city_tier: 2, low_paise: rupees(700), mid_paise: rupees(1200), high_paise: rupees(2200), label: "plate" },
-  { category: "venue", unit: "per_day", city_tier: 1, low_paise: rupees(80_000), mid_paise: rupees(2_00_000), high_paise: rupees(6_00_000), label: "hall" },
+  {
+    category: "catering",
+    unit: "per_plate",
+    city_tier: 1,
+    low_paise: rupees(900),
+    mid_paise: rupees(1500),
+    high_paise: rupees(2800),
+    label: "plate",
+  },
+  {
+    category: "catering",
+    unit: "per_plate",
+    city_tier: 2,
+    low_paise: rupees(700),
+    mid_paise: rupees(1200),
+    high_paise: rupees(2200),
+    label: "plate",
+  },
+  {
+    category: "venue",
+    unit: "per_day",
+    city_tier: 1,
+    low_paise: rupees(80_000),
+    mid_paise: rupees(2_00_000),
+    high_paise: rupees(6_00_000),
+    label: "hall",
+  },
 ];
 const index = indexBenchmarks(ROWS);
 
@@ -35,8 +59,12 @@ describe("sumPaise", () => {
 
 describe("benchmarks", () => {
   it("looks up unit prices by category, unit, city tier and price tier", () => {
-    expect(unitPricePaise(index, { category: "catering", unit: "per_plate", cityTier: 1, tier: "mid" })).toBe(rupees(1500));
-    expect(unitPricePaise(index, { category: "catering", unit: "per_plate", cityTier: 2, tier: "low" })).toBe(rupees(700));
+    expect(unitPricePaise(index, { category: "catering", unit: "per_plate", cityTier: 1, tier: "mid" })).toBe(
+      rupees(1500),
+    );
+    expect(unitPricePaise(index, { category: "catering", unit: "per_plate", cityTier: 2, tier: "low" })).toBe(
+      rupees(700),
+    );
   });
 
   it("returns null when no benchmark exists", () => {
@@ -73,8 +101,16 @@ describe("lineEstimatePaise", () => {
 describe("resolveBudgetLines", () => {
   it("prices proposals and records the working in the basis", () => {
     const proposals = [
-      { category: "catering" as const, label: "Wedding dinner", basis: { unit: "per_plate" as const, quantity: 250, unitTier: "mid" as const } },
-      { category: "venue" as const, label: "Banquet hall", basis: { unit: "per_day" as const, quantity: 2, unitTier: "low" as const } },
+      {
+        category: "catering" as const,
+        label: "Wedding dinner",
+        basis: { unit: "per_plate" as const, quantity: 250, unitTier: "mid" as const },
+      },
+      {
+        category: "venue" as const,
+        label: "Banquet hall",
+        basis: { unit: "per_day" as const, quantity: 2, unitTier: "low" as const },
+      },
     ];
     const { lines, unpriced } = resolveBudgetLines(proposals, index, 1);
 
@@ -96,7 +132,10 @@ describe("resolveBudgetLines", () => {
   });
 
   it("returns lines without a benchmark as unpriced instead of guessing", () => {
-    const music = { category: "music" as const, basis: { unit: "per_hour" as const, quantity: 4, unitTier: "mid" as const } };
+    const music = {
+      category: "music" as const,
+      basis: { unit: "per_hour" as const, quantity: 4, unitTier: "mid" as const },
+    };
     const { lines, unpriced } = resolveBudgetLines([music], index, 1);
     expect(lines).toEqual([]);
     expect(unpriced).toEqual([music]);
@@ -105,7 +144,13 @@ describe("resolveBudgetLines", () => {
 
 describe("allocateByWeight", () => {
   it("splits exactly, summing to the total", () => {
-    const alloc = allocateByWeight(rupees(15_00_000), { catering: 40, venue: 20, decor: 15, photography: 10, misc: 15 });
+    const alloc = allocateByWeight(rupees(15_00_000), {
+      catering: 40,
+      venue: 20,
+      decor: 15,
+      photography: 10,
+      misc: 15,
+    });
     expect(alloc).toEqual({
       catering: rupees(6_00_000),
       venue: rupees(3_00_000),
@@ -159,7 +204,12 @@ describe("summarizeBudget", () => {
   const lines = [
     { category: "catering" as const, estimatePaise: rupees(6_00_000), quotedPaise: rupees(6_80_000) },
     { category: "catering" as const, estimatePaise: rupees(50_000) },
-    { category: "venue" as const, estimatePaise: rupees(3_00_000), quotedPaise: rupees(3_20_000), actualPaise: rupees(3_10_000) },
+    {
+      category: "venue" as const,
+      estimatePaise: rupees(3_00_000),
+      quotedPaise: rupees(3_20_000),
+      actualPaise: rupees(3_10_000),
+    },
   ];
 
   it("uses actual, then quoted, then estimate", () => {
