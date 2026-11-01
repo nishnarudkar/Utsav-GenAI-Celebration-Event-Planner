@@ -52,13 +52,16 @@ describe("translating requests", () => {
     expect(toGeminiSystem([{ type: "text", text: "One", cache_control: { type: "ephemeral" } }, { type: "text", text: "Two" }])).toBe("One\n\nTwo");
   });
 
-  it("keeps the schema's shape but drops what the docs don't list", () => {
+  it("keeps the schema's shape but drops limits, which Gemini can reject", () => {
     const schema = toGeminiSchema(VibeProfile);
     const text = JSON.stringify(schema);
     expect(schema).toMatchObject({ type: "object", required: expect.arrayContaining(["theme", "palette"]) });
-    expect(text).not.toContain('"pattern"');
-    expect(text).not.toContain("$schema");
-    expect(text).not.toContain("$ref");
+    for (const keyword of ["pattern", "maxLength", "minItems", "maxItems", "$schema", "$ref"]) expect(text).not.toContain(`"${keyword}"`);
+    expect(JSON.stringify(toGeminiSchema(z.object({ guests: z.number().int().positive() })))).not.toMatch(/imum/);
+  });
+
+  it("keeps a property that happens to be named like a limit", () => {
+    expect(toGeminiSchema(z.object({ maximum: z.string() }))).toMatchObject({ properties: { maximum: { type: "string" } } });
   });
 
   it("sends the key in a header, and stores nothing", async () => {
@@ -99,6 +102,15 @@ describe("generateGemini", () => {
     const { deps, fetchMock } = makeDeps(...Array.from({ length: 4 }, () => new Error("socket hang up")));
     await expect(generateGemini(request, deps)).rejects.toBeInstanceOf(AIProviderError);
     expect(fetchMock).toHaveBeenCalledTimes(4);
+  });
+
+  it("doesn't retry a timeout", async () => {
+    const { deps, fetchMock } = makeDeps(new DOMException("timed out", "TimeoutError") as unknown as Error);
+    fetchMock.mockImplementationOnce(async () => {
+      throw Object.assign(new Error("timed out"), { name: "TimeoutError" });
+    });
+    await expect(generateGemini(request, deps)).rejects.toBeInstanceOf(AIProviderError);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("doesn't retry a request Google rejected", async () => {
@@ -163,7 +175,7 @@ describe("choosing the provider", () => {
     const deps = defaultStructuredDeps({ AI_PROVIDER: "gemini", GEMINI_MODEL_FAST: "custom-fast" });
     expect(deps.gemini).toBeDefined();
     expect(deps.resolveModel("fast")).toBe("custom-fast");
-    expect(resolveGeminiModel("smart", {})).toBe("gemini-3.8-flash");
+    expect(resolveGeminiModel("smart", {})).toBe("gemini-3.6-flash");
   });
 });
 

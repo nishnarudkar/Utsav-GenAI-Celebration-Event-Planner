@@ -15,9 +15,10 @@ const TIMEOUT_MS = 120_000;
 const MAX_RETRIES = 3;
 const MAX_RETRY_DELAY_MS = 30_000;
 const RETRYABLE = new Set([408, 429, 500, 502, 503, 504]);
+const LIMIT_KEYWORDS = ["pattern", "minLength", "maxLength", "minItems", "maxItems", "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum"] as const;
 
 const DEFAULT_MODELS: Record<ModelTier, string> = {
-  smart: "gemini-3.8-flash",
+  smart: "gemini-3.6-flash",
   fast: "gemini-3.5-flash-lite",
 };
 
@@ -46,14 +47,15 @@ export function toGeminiSystem(system: string | readonly SystemBlock[]): string 
 }
 
 /**
- * JSON schema for `response_format`. Definitions are inlined and `pattern` dropped because the
- * docs don't list `$defs` or `pattern` as supported; Zod still enforces the full schema locally.
+ * JSON schema for `response_format`: shape only. Definitions are inlined and limits dropped, because
+ * Gemini rejects bounded schemas as having "too many states" (the budget's did). Zod still enforces
+ * the full schema locally, and a reply outside the limits gets the usual corrective retry.
  */
 export function toGeminiSchema(schema: z.ZodType): Record<string, unknown> {
   const { $schema: _dialect, ...json } = z.toJSONSchema(schema, {
     reused: "inline",
     override: ({ jsonSchema }) => {
-      delete jsonSchema.pattern;
+      for (const limit of LIMIT_KEYWORDS) delete jsonSchema[limit];
     },
   });
   return json;
@@ -133,6 +135,8 @@ export async function generateGemini(req: GeminiRequest, deps: GeminiDeps): Prom
     } catch (err) {
       if (err instanceof AIProviderError) throw err;
       failure = new AIProviderError(req.outputName, null, err instanceof Error ? err.message : "request failed");
+      // Someone is waiting on a spinner, so a timed-out call isn't worth repeating.
+      if (err instanceof Error && err.name === "TimeoutError") throw failure;
     }
     if (attempt === MAX_RETRIES) throw failure;
     await deps.sleep(retryDelay(attempt, res));
