@@ -2,7 +2,7 @@ import "server-only";
 import { COUNCIL_PROMPT_V1 } from "@/lib/ai/prompts/council";
 import { callStructured, type CallStructuredOptions } from "@/lib/ai/structured";
 import { formatDate, formatINR } from "@/lib/format";
-import { applyCouncilPatch } from "@/lib/graph/council";
+import { applyCouncilPatch, matchFunctionName } from "@/lib/graph/council";
 import type { EventPlan } from "@/lib/plan/types";
 import type { ISODate } from "@/lib/rules/dates";
 import { CouncilDraft, type CouncilConflict, type CouncilOption, type Stakeholder } from "@/lib/schemas/council";
@@ -82,8 +82,18 @@ export function finalizeCouncil(
     }))
     .filter((c) => c.positions.length >= 2);
 
+  const known = state.plan.functions.map((f) => f.name);
+
   const options = draft.options.map((o): CouncilOption => {
-    const { diff } = applyCouncilPatch(state, o.patch, ctx, o.title);
+    const unmatched: string[] = [];
+    const functionGuests = o.patch.functionGuests.flatMap((u) => {
+      const functionName = matchFunctionName(u.functionName, known);
+      if (functionName) return [{ ...u, functionName }];
+      unmatched.push(`“${u.functionName}” isn't in the plan, so its guest count won't change.`);
+      return [];
+    });
+    const patch = { ...o.patch, functionGuests };
+    const { diff } = applyCouncilPatch(state, patch, ctx, o.title);
     return {
       id: o.id,
       title: o.title,
@@ -91,8 +101,8 @@ export function finalizeCouncil(
       satisfies: names(o.satisfies),
       compromises: names(o.compromises),
       costDeltaPaise: diff.budgetDeltaPaise,
-      conflictsAfter: diff.conflicts.filter((c) => c.severity !== "info").map((c) => c.message),
-      patch: o.patch,
+      conflictsAfter: [...unmatched, ...diff.conflicts.filter((c) => c.severity !== "info").map((c) => c.message)],
+      patch,
     };
   });
   return { conflicts, options };

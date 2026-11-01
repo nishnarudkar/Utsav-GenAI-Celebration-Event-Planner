@@ -14,6 +14,19 @@ import { detectConflicts } from "@/lib/rules/conflicts";
 import type { CouncilPatch } from "@/lib/schemas/council";
 import type { Conflict, PlanDiff } from "@/lib/schemas/diff";
 
+/**
+ * The model is told to copy function names exactly, but real replies shorten them ("Biye" for
+ * "Biye (wedding ceremony)"). Exact match, then ignoring case, then an unambiguous leading phrase.
+ */
+export function matchFunctionName(name: string, known: readonly string[]): string | null {
+  if (known.includes(name)) return name;
+  const wanted = name.trim().toLowerCase();
+  const same = known.find((k) => k.toLowerCase() === wanted);
+  if (same) return same;
+  const leading = known.filter((k) => k.toLowerCase().startsWith(`${wanted} `));
+  return leading.length === 1 ? (leading[0] ?? null) : null;
+}
+
 /** Set guests at specific functions, rescaling that function's guest-driven lines. */
 export function applyFunctionGuests(
   state: EventPlan,
