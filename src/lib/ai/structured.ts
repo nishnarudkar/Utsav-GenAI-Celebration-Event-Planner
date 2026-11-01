@@ -1,11 +1,12 @@
 import "server-only";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { z } from "zod";
 import { getAnthropic, resolveModel, type Env, type ModelTier } from "@/lib/ai/client";
-import { AIFixtureMissingError, AIRefusalError, AIValidationError } from "@/lib/ai/errors";
+import { AIFixtureMissingError, AIProviderError, AIRefusalError, AIValidationError } from "@/lib/ai/errors";
 import { defaultGeminiDeps, generateGemini, resolveGeminiModel, type GeminiReply, type GeminiRequest } from "@/lib/ai/gemini";
 
 /**
@@ -43,6 +44,8 @@ export interface StructuredDeps {
   resolveModel: (tier: ModelTier) => string;
   demoMode: boolean;
   fixturesDir: string;
+  /** AI_FALLBACK=saved: answer from a saved fixture, if there is one, when the provider is down or out of quota. */
+  savedFallback?: boolean;
   /** Set when AI_PROVIDER=gemini; calls then go here instead of `createMessage`. */
   gemini?: (request: GeminiRequest) => Promise<GeminiReply>;
 }
@@ -54,6 +57,7 @@ export function defaultStructuredDeps(env: Env = process.env): StructuredDeps {
     resolveModel: (tier) => (useGemini ? resolveGeminiModel(tier, env) : resolveModel(tier, env)),
     ...(useGemini ? { gemini: (request: GeminiRequest) => generateGemini(request, defaultGeminiDeps(env)) } : {}),
     demoMode: env.DEMO_MODE === "true",
+    savedFallback: env.AI_FALLBACK === "saved",
     fixturesDir: env.DEMO_FIXTURES_DIR ?? path.join(process.cwd(), "tests", "fixtures", "llm"),
   };
 }
@@ -62,6 +66,11 @@ const DEFAULT_MAX_TOKENS = 16_000;
 const SAFE_NAME = /^[A-Za-z0-9_.-]+$/;
 /** Server-side refusal fallback; only the "default" form is accepted for Claude Sonnet 5.5. */
 const FALLBACK_BETA = "server-side-fallback-2026-07-01";
+
+const savedAnswers = new AsyncLocalStorage<true>();
+
+/** Serve saved fixtures for everything inside `run`, so the demo wedding costs no AI quota. */
+export const withSavedAnswers = <R>(run: () => Promise<R>): Promise<R> => savedAnswers.run(true, run);
 
 export async function callStructured<T extends z.ZodType>(
   opts: CallStructuredOptions<T>,
@@ -72,8 +81,20 @@ export async function callStructured<T extends z.ZodType>(
     throw new RangeError(`Invalid structured output name: ${fixtureKey}`);
   }
 
-  if (deps.demoMode) return loadFixture(opts.schema, opts.name, fixtureKey, deps.fixturesDir);
+  if (deps.demoMode || savedAnswers.getStore()) return loadFixture(opts.schema, opts.name, fixtureKey, deps.fixturesDir);
 
+  try {
+    return await callModel(opts, deps);
+  } catch (err) {
+    if (!deps.savedFallback || !(err instanceof AIProviderError)) throw err;
+    console.warn(`[callStructured] ${err.message}; using saved answer for ${fixtureKey}`);
+    return loadFixture(opts.schema, opts.name, fixtureKey, deps.fixturesDir).catch(() => {
+      throw err; // keeps the "wait a minute" or "try tomorrow" message, not a demo-only one
+    });
+  }
+}
+
+async function callModel<T extends z.ZodType>(opts: CallStructuredOptions<T>, deps: StructuredDeps): Promise<z.infer<T>> {
   const send = deps.gemini ? geminiSender(opts, deps, deps.gemini) : anthropicSender(opts, deps);
 
   let issues = "";
