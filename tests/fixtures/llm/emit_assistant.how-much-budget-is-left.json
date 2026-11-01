@@ -1,0 +1,6 @@
+{
+  "change": null,
+  "tool": null,
+  "intent": "answer",
+  "reply": "Your plan comes to {estimate} against a budget of {budget_total}, so you have {budget_position}."
+}

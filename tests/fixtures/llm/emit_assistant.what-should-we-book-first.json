@@ -1,0 +1,6 @@
+{
+  "change": null,
+  "tool": null,
+  "intent": "answer",
+  "reply": "Here's what to do next, soonest first: {next_tasks}."
+}

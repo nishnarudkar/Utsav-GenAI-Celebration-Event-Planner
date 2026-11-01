@@ -1,0 +1,11 @@
+{
+  "change": {
+    "field": "guest_count",
+    "op": "add",
+    "amount": 100,
+    "text": null
+  },
+  "tool": null,
+  "intent": "change_plan",
+  "reply": "I can add them to your list. Here's the change, and I'll show you everything it affects."
+}
