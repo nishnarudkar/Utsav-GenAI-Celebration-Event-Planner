@@ -34,5 +34,5 @@ export function checkRateLimit(windows: Map<string, Window>, key: string, now: n
 /** Routes that spend AI quota. Everything else is cheap and left alone. */
 export function spendsAIQuota(method: string, pathname: string): boolean {
   if (method !== "POST") return false;
-  return pathname === "/api/events" || /^\/api\/events\/[^/]+\/(quotes|vibe|council|live|sponsorship)$/.test(pathname);
+  return pathname === "/api/events" || /^\/api\/events\/[^/]+\/(quotes|vibe|council|live|sponsorship|assistant)$/.test(pathname);
 }

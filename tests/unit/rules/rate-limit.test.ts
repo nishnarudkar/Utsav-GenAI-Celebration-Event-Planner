@@ -34,7 +34,7 @@ describe("checkRateLimit", () => {
 describe("spendsAIQuota", () => {
   const id = "18879082-21ed-4ad5-89d0-9ccfba95f4e8";
 
-  it.each(["/api/events", ...["quotes", "vibe", "council", "live", "sponsorship"].map((r) => `/api/events/${id}/${r}`)])("covers POST %s", (path) => {
+  it.each(["/api/events", ...["quotes", "vibe", "council", "live", "sponsorship", "assistant"].map((r) => `/api/events/${id}/${r}`)])("covers POST %s", (path) => {
     expect(spendsAIQuota("POST", path)).toBe(true);
   });
 

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { checkRateLimit, spendsAIQuota, type RateLimit } from "@/lib/rules/rate-limit";
 
 /** A person can plan and explore freely; a script can't drain the day's AI allowance. */
-const AI_LIMIT: RateLimit = { max: 12, windowMs: 10 * 60_000 };
+const AI_LIMIT: RateLimit = { max: 30, windowMs: 10 * 60_000 };
 
 const windows = new Map<string, { count: number; resetAt: number }>();
 
