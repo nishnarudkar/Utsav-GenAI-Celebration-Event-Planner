@@ -30,39 +30,109 @@ async function main(): Promise<void> {
   const { id } = created;
   try {
     expectEqual("create, then read back", (await repo.get(id))?.title, sample.title);
-    expectEqual("listed", (await repo.list()).some((e) => e.id === id), true);
+    expectEqual(
+      "listed",
+      (await repo.list()).some((e) => e.id === id),
+      true,
+    );
     expectEqual("unknown event", await repo.get("00000000-0000-0000-0000-000000000000"), null);
     expectEqual("malformed id", await repo.get("not-a-uuid"), null);
 
     expectEqual("tick a permission", await repo.setPermitDone(id, "fire_noc", true), ["fire_noc"]);
-    const volunteer = await repo.addVolunteer(id, { name: "Sample", role: "general", functionName: sample.plan.functions[0]?.name ?? "" });
-    expectEqual("add a volunteer", (await repo.get(id))?.volunteers.map((v) => v.id), [volunteer?.id]);
+    const volunteer = await repo.addVolunteer(id, {
+      name: "Sample",
+      role: "general",
+      functionName: sample.plan.functions[0]?.name ?? "",
+    });
+    expectEqual(
+      "add a volunteer",
+      (await repo.get(id))?.volunteers.map((v) => v.id),
+      [volunteer?.id],
+    );
     expectEqual("remove a volunteer", await repo.removeVolunteer(id, volunteer?.id ?? ""), true);
 
-    const applied = await repo.applyChange(id, 1, { ...samplePlan, title: "Changed title" }, { trigger: { field: "guest_count", value: 300, from: 250 }, diff: { version: 2, budgetDeltaPaise: 0, changed: [], added: [], removed: [], conflicts: [], recoveryOptions: [], explanation: "Sample" } });
+    const applied = await repo.applyChange(
+      id,
+      1,
+      { ...samplePlan, title: "Changed title" },
+      {
+        trigger: { field: "guest_count", value: 300, from: 250 },
+        diff: {
+          version: 2,
+          budgetDeltaPaise: 0,
+          changed: [],
+          added: [],
+          removed: [],
+          conflicts: [],
+          recoveryOptions: [],
+          explanation: "Sample",
+        },
+      },
+    );
     expectEqual("apply a change", applied.ok && applied.event.version, 2);
-    expectEqual("stale version refused", await repo.applyChange(id, 1, samplePlan, { trigger: { field: "guest_count", value: 300, from: 250 }, diff: { version: 2, budgetDeltaPaise: 0, changed: [], added: [], removed: [], conflicts: [], recoveryOptions: [], explanation: "" } }), { ok: false, error: "version_conflict" });
-    expectEqual("change log", (await repo.listChanges(id))?.map((c) => [c.version, c.undone]), [[2, false]]);
+    expectEqual(
+      "stale version refused",
+      await repo.applyChange(id, 1, samplePlan, {
+        trigger: { field: "guest_count", value: 300, from: 250 },
+        diff: {
+          version: 2,
+          budgetDeltaPaise: 0,
+          changed: [],
+          added: [],
+          removed: [],
+          conflicts: [],
+          recoveryOptions: [],
+          explanation: "",
+        },
+      }),
+      { ok: false, error: "version_conflict" },
+    );
+    expectEqual(
+      "change log",
+      (await repo.listChanges(id))?.map((c) => [c.version, c.undone]),
+      [[2, false]],
+    );
 
     const undone = await repo.undoLatest(id);
     expectEqual("undo restores the plan", undone.ok && undone.event.title, sample.title);
     expectEqual("undo keeps state outside the plan", (await repo.get(id))?.permitsDone, ["fire_noc"]);
-    expectEqual("undo is logged", (await repo.listChanges(id))?.map((c) => c.undone), [true]);
+    expectEqual(
+      "undo is logged",
+      (await repo.listChanges(id))?.map((c) => c.undone),
+      [true],
+    );
     expectEqual("nothing more to undo", await repo.undoLatest(id), { ok: false, error: "nothing_to_undo" });
 
     // The anon key ships to browsers, so with a real row present it must still see nothing.
-    const publicApi = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/events?select=id`, { headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "" } });
+    const publicApi = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/events?select=id`, {
+      headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "" },
+    });
     expectEqual("public API can't read events", publicApi.ok ? await publicApi.json() : [], []);
 
-    const open = await getDb().execute<{ tablename: string }>(sql`select tablename from pg_tables where schemaname = 'public' and not rowsecurity`);
-    expectEqual("every table has row level security", open.map((t) => t.tablename), []);
+    const open = await getDb().execute<{ tablename: string }>(
+      sql`select tablename from pg_tables where schemaname = 'public' and not rowsecurity`,
+    );
+    expectEqual(
+      "every table has row level security",
+      open.map((t) => t.tablename),
+      [],
+    );
 
     const racers = await Promise.all(["a", "b", "c"].map((p) => repo.setPermitDone(id, p, true)));
     expectEqual("concurrent writes all land", racers.length === 3 && (await repo.get(id))?.permitsDone.length, 4);
   } finally {
     await getDb().delete(events).where(eq(events.id, id));
   }
-  expectEqual("sample removed", (await getDb().select({ id: events.id }).from(events).where(inArray(events.id, [id]))).length, 0);
+  expectEqual(
+    "sample removed",
+    (
+      await getDb()
+        .select({ id: events.id })
+        .from(events)
+        .where(inArray(events.id, [id]))
+    ).length,
+    0,
+  );
 }
 
 main()
