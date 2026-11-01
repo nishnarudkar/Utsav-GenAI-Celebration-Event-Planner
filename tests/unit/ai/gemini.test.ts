@@ -104,6 +104,23 @@ describe("generateGemini", () => {
     expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 
+  it("stops at once when the daily allowance is gone, and says so", async () => {
+    const message = "Rate limit exceeded for model x (limit: 20 requests per day on Free Tier). Please retry in 16h32m14s";
+    const { deps, fetchMock, sleep } = makeDeps(Response.json({ error: { message } }, { status: 429 }));
+    const failure = await generateGemini(request, deps).catch((err: unknown) => err);
+    expect(failure).toMatchObject({ dailyLimit: true, status: 429 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(sleep).not.toHaveBeenCalled();
+    const res = errorResponse(failure, "test");
+    expect(((await res.json()) as { error: { message: string } }).error.message).toMatch(/try again tomorrow/);
+  });
+
+  it("doesn't wait out a long Retry-After", async () => {
+    const { deps, fetchMock } = makeDeps(new Response(null, { status: 429, headers: { "retry-after": "3600" } }));
+    await expect(generateGemini(request, deps)).rejects.toBeInstanceOf(AIProviderError);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("doesn't retry a timeout", async () => {
     const { deps, fetchMock } = makeDeps(new DOMException("timed out", "TimeoutError") as unknown as Error);
     fetchMock.mockImplementationOnce(async () => {

@@ -48,9 +48,14 @@ export class AIProviderError extends AIError {
     /** HTTP status, or null if there was no usable response. */
     readonly status: number | null,
     detail: string,
+    opts: { dailyLimit?: boolean } = {},
   ) {
     super(`Provider failed for "${outputName}"${status ? ` (HTTP ${status})` : ""}: ${detail}`, outputName);
+    this.dailyLimit = opts.dailyLimit ?? false;
   }
+
+  /** The day's allowance is used up, so "try again shortly" would be wrong. */
+  readonly dailyLimit: boolean;
 }
 
 /** DEMO_MODE is on but no cached response exists for this output. */

@@ -15,6 +15,8 @@ const TIMEOUT_MS = 120_000;
 const MAX_RETRIES = 3;
 const MAX_RETRY_DELAY_MS = 30_000;
 const RETRYABLE = new Set([408, 429, 500, 502, 503, 504]);
+/** Google's 429 for a used-up daily allowance, which retrying can't help. */
+const DAILY_LIMIT = /per day|daily/i;
 const LIMIT_KEYWORDS = ["pattern", "minLength", "maxLength", "minItems", "maxItems", "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum"] as const;
 
 const DEFAULT_MODELS: Record<ModelTier, string> = {
@@ -102,9 +104,10 @@ async function errorDetail(res: Response): Promise<string> {
   return body?.error?.message?.slice(0, 300) ?? res.statusText;
 }
 
+const retryAfterMs = (res: Response | null) => Number(res?.headers.get("retry-after") ?? 0) * 1000 || 0;
+
 function retryDelay(attempt: number, res: Response | null): number {
-  const seconds = Number(res?.headers.get("retry-after"));
-  return Math.min(seconds > 0 ? seconds * 1000 : 1000 * 2 ** attempt, MAX_RETRY_DELAY_MS);
+  return retryAfterMs(res) || 1000 * 2 ** attempt;
 }
 
 export async function generateGemini(req: GeminiRequest, deps: GeminiDeps): Promise<GeminiReply> {
@@ -130,8 +133,9 @@ export async function generateGemini(req: GeminiRequest, deps: GeminiDeps): Prom
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
       if (res.ok) return replyFrom(req.outputName, (await res.json()) as Interaction);
-      failure = new AIProviderError(req.outputName, res.status, await errorDetail(res));
-      if (!RETRYABLE.has(res.status)) throw failure;
+      const detail = await errorDetail(res);
+      failure = new AIProviderError(req.outputName, res.status, detail, { dailyLimit: DAILY_LIMIT.test(detail) });
+      if (!RETRYABLE.has(res.status) || failure.dailyLimit || retryAfterMs(res) > MAX_RETRY_DELAY_MS) throw failure;
     } catch (err) {
       if (err instanceof AIProviderError) throw err;
       failure = new AIProviderError(req.outputName, null, err instanceof Error ? err.message : "request failed");

@@ -42,6 +42,7 @@ export function errorResponse(err: unknown, context: string): Response {
   }
   if (err instanceof AIError) {
     console.error(`[${context}] ${err.code}: ${err.message}`);
+    if (err instanceof AIProviderError && err.dailyLimit) return apiError(429, "AI_FAILED", "Utsav has used up today's AI allowance. Please try again tomorrow.");
     if (err instanceof AIProviderError && err.status === 429) return apiError(429, "AI_FAILED", "Utsav's AI is busy right now — wait a minute and try again.");
     return apiError(502, "AI_FAILED", "Couldn't generate that — try again.");
   }
