@@ -1,5 +1,5 @@
 import "server-only";
-import { COUNCIL_PROMPT_V1 } from "@/lib/ai/prompts/council";
+import { COUNCIL_PROMPT_V2 } from "@/lib/ai/prompts/council";
 import { callStructured, type CallStructuredOptions } from "@/lib/ai/structured";
 import { formatDate, formatINR } from "@/lib/format";
 import { applyCouncilPatch, matchFunctionName } from "@/lib/graph/council";
@@ -120,7 +120,7 @@ export async function runCouncil(
     name: "emit_council",
     fixtureKey: `emit_council.${state.answers.culture}.${state.answers.eventType}`,
     model: "smart",
-    system: COUNCIL_PROMPT_V1,
+    system: COUNCIL_PROMPT_V2,
     messages: [{ role: "user", content: userMessage(state, refs) }],
   });
   return finalizeCouncil(draft, state, stakeholders, ctx);

@@ -1,5 +1,5 @@
 import "server-only";
-import { PLANNER_PROMPT_V1 } from "@/lib/ai/prompts/planner";
+import { PLANNER_PROMPT_V2 } from "@/lib/ai/prompts/planner";
 import { callStructured, type CallStructuredOptions } from "@/lib/ai/structured";
 import { formatINR } from "@/lib/format";
 import { allocateByWeight } from "@/lib/rules/budget-math";
@@ -32,7 +32,7 @@ export async function planEvent(input: PlannerInput, deps: PlannerDeps = default
     name: "emit_event_plan",
     fixtureKey: `emit_event_plan.${answers.culture}.${answers.eventType}`,
     model: "smart",
-    system: PLANNER_PROMPT_V1,
+    system: PLANNER_PROMPT_V2,
     messages: [{ role: "user", content: userMessage(input) }],
   });
   return finalizeEventPlan(draft, input);

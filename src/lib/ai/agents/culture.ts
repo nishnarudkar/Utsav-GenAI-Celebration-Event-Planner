@@ -1,6 +1,6 @@
 import "server-only";
 import { createLocalRetriever, type RetrievedChunk, type Retriever } from "@/lib/ai/rag";
-import { CULTURE_PROMPT_V1, renderKbExcerpts } from "@/lib/ai/prompts/culture";
+import { CULTURE_PROMPT_V2, renderKbExcerpts } from "@/lib/ai/prompts/culture";
 import { callStructured, type CallStructuredOptions } from "@/lib/ai/structured";
 import type { Culture, EventType } from "@/lib/schemas/enums";
 import { RitualPlan } from "@/lib/schemas/ritual";
@@ -45,7 +45,7 @@ export async function generateRitualPlan(input: CultureInput, deps: CultureDeps 
     fixtureKey: `emit_ritual_plan.${input.culture}.${input.eventType}`,
     model: "smart",
     system: [
-      { type: "text", text: CULTURE_PROMPT_V1, cache_control: { type: "ephemeral" } },
+      { type: "text", text: CULTURE_PROMPT_V2, cache_control: { type: "ephemeral" } },
       // Excerpts are fixed per (culture, event type), so they cache well too.
       { type: "text", text: renderKbExcerpts(chunks), cache_control: { type: "ephemeral" } },
     ],

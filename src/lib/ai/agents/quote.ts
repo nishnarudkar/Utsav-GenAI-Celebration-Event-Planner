@@ -2,7 +2,7 @@ import "server-only";
 import type Anthropic from "@anthropic-ai/sdk";
 import { amountsAreGrounded } from "@/lib/ai/agents/explainer";
 import { AIError } from "@/lib/ai/errors";
-import { NEGOTIATION_PROMPT_V1, QUOTE_EXTRACTION_PROMPT_V2 } from "@/lib/ai/prompts/quote";
+import { NEGOTIATION_PROMPT_V1, QUOTE_EXTRACTION_PROMPT_V3 } from "@/lib/ai/prompts/quote";
 import { callStructured, type CallStructuredOptions } from "@/lib/ai/structured";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import { negotiationFacts, type QuoteAnalysis } from "@/lib/rules/quote-analysis";
@@ -47,7 +47,7 @@ export async function extractQuote(
     name: "emit_quote_extraction",
     fixtureKey: ctx.fixtureKey ?? `emit_quote_extraction.${ctx.category}`,
     model: "smart",
-    system: QUOTE_EXTRACTION_PROMPT_V2,
+    system: QUOTE_EXTRACTION_PROMPT_V3,
     messages: [
       {
         role: "user",
