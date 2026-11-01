@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { deflateSync } from "node:zlib";
 import { z } from "zod";
+import { samplePng } from "./lib/sample-png";
 import { POST as assistant } from "@/app/api/events/[id]/assistant/route";
 import { POST as council } from "@/app/api/events/[id]/council/route";
 import { POST as live } from "@/app/api/events/[id]/live/route";
@@ -48,19 +48,42 @@ delete process.env.DATABASE_URL; // sample events stay in memory, away from real
 
 const deps = defaultStructuredDeps();
 const Reply = z.object({ greeting: z.string().min(1), languages: z.array(z.string()).min(2).max(3) });
-const WEDDING = { eventType: "wedding", culture: "bengali_hindu", city: "Kolkata", startDate: "2027-02-14", guestCount: 250, budgetTotalPaise: 15_00_000_00 };
-const FESTIVAL = { eventType: "community", culture: "generic", city: "Pune", startDate: "2027-01-26", guestCount: 500, budgetTotalPaise: 5_00_000_00 };
+const WEDDING = {
+  eventType: "wedding",
+  culture: "bengali_hindu",
+  city: "Kolkata",
+  startDate: "2027-02-14",
+  guestCount: 250,
+  budgetTotalPaise: 15_00_000_00,
+};
+const FESTIVAL = {
+  eventType: "community",
+  culture: "generic",
+  city: "Pune",
+  startDate: "2027-01-26",
+  guestCount: 500,
+  budgetTotalPaise: 5_00_000_00,
+};
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) });
-const jsonRequest = (method: string, body?: unknown) => new Request("http://check", { method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+const jsonRequest = (method: string, body?: unknown) =>
+  new Request("http://check", { method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
 
 // Show each provider call, so slow models and rate limits are visible.
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (input, init) => {
   const started = Date.now();
   const res = await realFetch(input, init);
-  const body = (await res.clone().json().catch(() => null)) as { model?: string; usage?: { total_output_tokens?: number; total_thought_tokens?: number } } | null;
-  console.log(`     HTTP ${res.status} in ${((Date.now() - started) / 1000).toFixed(1)}s, ${body?.model ?? ""} output ${body?.usage?.total_output_tokens ?? "?"} + thinking ${body?.usage?.total_thought_tokens ?? "?"} tokens`);
+  const body = (await res
+    .clone()
+    .json()
+    .catch(() => null)) as {
+    model?: string;
+    usage?: { total_output_tokens?: number; total_thought_tokens?: number };
+  } | null;
+  console.log(
+    `     HTTP ${res.status} in ${((Date.now() - started) / 1000).toFixed(1)}s, ${body?.model ?? ""} output ${body?.usage?.total_output_tokens ?? "?"} + thinking ${body?.usage?.total_thought_tokens ?? "?"} tokens`,
+  );
   return res;
 };
 
@@ -68,7 +91,9 @@ async function check(label: string, run: () => Promise<unknown>): Promise<boolea
   const started = Date.now();
   try {
     const result = await run();
-    console.log(`OK   ${label} (${((Date.now() - started) / 1000).toFixed(1)}s)\n     ${JSON.stringify(result).slice(0, 1500)}`);
+    console.log(
+      `OK   ${label} (${((Date.now() - started) / 1000).toFixed(1)}s)\n     ${JSON.stringify(result).slice(0, 1500)}`,
+    );
     return true;
   } catch (err) {
     console.error(`FAIL ${label}: ${err instanceof Error ? err.message : String(err)}`);
@@ -84,7 +109,14 @@ async function bodyOf<T>(res: Response): Promise<T> {
 
 const ask = (model: "smart" | "fast") =>
   callStructured(
-    { schema: Reply, name: "emit_check", model, maxTokens: 2000, system: "You test an app's connection.", messages: [{ role: "user", content: "Give a short festive greeting and name two Indian languages." }] },
+    {
+      schema: Reply,
+      name: "emit_check",
+      model,
+      maxTokens: 2000,
+      system: "You test an app's connection.",
+      messages: [{ role: "user", content: "Give a short festive greeting and name two Indian languages." }],
+    },
     deps,
   );
 
@@ -112,36 +144,6 @@ async function withSamples<T>(run: () => Promise<T>): Promise<T> {
   }
 }
 
-/** A small striped PNG in reds and golds, so the image path gets a real, decodable picture. */
-function samplePng(): Buffer {
-  const size = 64;
-  const rows = Buffer.alloc((size * 3 + 1) * size);
-  for (let y = 0; y < size; y++) {
-    const start = y * (size * 3 + 1);
-    const [r, g, b] = y % 16 < 8 ? [127, 29, 29] : [245, 158, 11];
-    for (let x = 0; x < size; x++) rows.set([r ?? 0, g ?? 0, b ?? 0], start + 1 + x * 3);
-  }
-  const crcTable = Array.from({ length: 256 }, (_, n) => {
-    let c = n;
-    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    return c >>> 0;
-  });
-  const crc = (data: Buffer) => (data.reduce((c, byte) => (crcTable[(c ^ byte) & 0xff] ?? 0) ^ (c >>> 8), 0xffffffff) ^ 0xffffffff) >>> 0;
-  const chunk = (type: string, data: Buffer) => {
-    const body = Buffer.concat([Buffer.from(type, "ascii"), data]);
-    const length = Buffer.alloc(4);
-    length.writeUInt32BE(data.length);
-    const sum = Buffer.alloc(4);
-    sum.writeUInt32BE(crc(body));
-    return Buffer.concat([length, body, sum]);
-  };
-  const header = Buffer.alloc(13);
-  header.writeUInt32BE(size, 0);
-  header.writeUInt32BE(size, 4);
-  header.set([8, 2], 8); // 8-bit RGB
-  return Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk("IHDR", header), chunk("IDAT", deflateSync(rows)), chunk("IEND", Buffer.alloc(0))]);
-}
-
 async function checkAssistant(): Promise<boolean[]> {
   const wedding = await withSamples(() => createDemoEvent(getEventRepository()));
   const results: boolean[] = [];
@@ -150,25 +152,38 @@ async function checkAssistant(): Promise<boolean[]> {
   }
   results.push(
     await check("follow-up: make it 400", async () =>
-      bodyOf(await assistantReply(wedding.id, "make it 400", [{ role: "user", text: "add 100 guests" }, { role: "assistant", text: "I can add them to your list." }])),
+      bodyOf(
+        await assistantReply(wedding.id, "make it 400", [
+          { role: "user", text: "add 100 guests" },
+          { role: "assistant", text: "I can add them to your list." },
+        ]),
+      ),
     ),
   );
   return results;
 }
 
-const assistantReply = (id: string, message: string, history: { role: string; text: string }[] = []) => assistant(jsonRequest("POST", { message, history }), params(id));
+const assistantReply = (id: string, message: string, history: { role: string; text: string }[] = []) =>
+  assistant(jsonRequest("POST", { message, history }), params(id));
 
 async function checkFeatures(): Promise<boolean[]> {
   const repo = getEventRepository();
   const wedding = await withSamples(() => createDemoEvent(repo));
-  const festival = await withSamples(async () => (await bodyOf<{ event: StoredEvent }>(await createEvent(jsonRequest("POST", FESTIVAL)))).event);
+  const festival = await withSamples(
+    async () => (await bodyOf<{ event: StoredEvent }>(await createEvent(jsonRequest("POST", FESTIVAL)))).event,
+  );
 
   return [
     await check("quote x-ray (PDF)", async () => {
       const form = new FormData();
-      form.set("file", new File([await readFile(path.join(process.cwd(), "public/samples/sample-caterer-quote.pdf"))], "sample.pdf"));
+      form.set(
+        "file",
+        new File([await readFile(path.join(process.cwd(), "public/samples/sample-caterer-quote.pdf"))], "sample.pdf"),
+      );
       form.set("category", "catering");
-      const { quote } = await bodyOf<{ quote: StoredQuote }>(await quotes(new Request("http://check", { method: "POST", body: form }), params(wedding.id)));
+      const { quote } = await bodyOf<{ quote: StoredQuote }>(
+        await quotes(new Request("http://check", { method: "POST", body: form }), params(wedding.id)),
+      );
       return { flags: quote.analysis.flags.map((f) => f.title), negotiation: quote.negotiationMessage };
     }),
     await check("vibe (photo and notes)", async () => {
@@ -178,21 +193,40 @@ async function checkFeatures(): Promise<boolean[]> {
       return bodyOf(await vibe(new Request("http://check", { method: "POST", body: form }), params(wedding.id)));
     }),
     await check("family council", async () => bodyOf(await council(jsonRequest("POST"), params(wedding.id)))),
-    await check("live incident", async () => bodyOf(await live(jsonRequest("POST", { incident: "Photographer 30 min late" }), params(wedding.id)))),
+    await check("live incident", async () =>
+      bodyOf(await live(jsonRequest("POST", { incident: "Photographer 30 min late" }), params(wedding.id))),
+    ),
     await check("change summary (350 guests)", async () => {
-      const { diff } = await bodyOf<{ diff: { explanation: string; recoveryOptions: { title: string }[]; conflicts: { message: string }[] } }>(
-        await patchEvent(jsonRequest("PATCH", { field: "guest_count", value: 350 }), params(wedding.id)),
-      );
-      return { explanation: diff.explanation, recovery: diff.recoveryOptions.map((o) => o.title), conflicts: diff.conflicts.map((c) => c.message) };
+      const { diff } = await bodyOf<{
+        diff: { explanation: string; recoveryOptions: { title: string }[]; conflicts: { message: string }[] };
+      }>(await patchEvent(jsonRequest("PATCH", { field: "guest_count", value: 350 }), params(wedding.id)));
+      return {
+        explanation: diff.explanation,
+        recovery: diff.recoveryOptions.map((o) => o.title),
+        conflicts: diff.conflicts.map((c) => c.message),
+      };
     }),
     await check("sponsorship pitch", async () =>
-      bodyOf(await sponsorship(jsonRequest("POST", { organiser: "Sample Residents' Association", contact: "Sample contact", targetPaise: 2_00_000_00, cause: "The stage, sound system and a free community meal" }), params(festival.id))),
+      bodyOf(
+        await sponsorship(
+          jsonRequest("POST", {
+            organiser: "Sample Residents' Association",
+            contact: "Sample contact",
+            targetPaise: 2_00_000_00,
+            cause: "The stage, sound system and a free community meal",
+          }),
+          params(festival.id),
+        ),
+      ),
     ),
   ];
 }
 
 console.log(`Provider: ${deps.gemini ? "gemini" : "anthropic"}`);
-const results = [await check(`fast model: ${deps.resolveModel("fast")}`, () => ask("fast")), await check(`smart model: ${deps.resolveModel("smart")}`, () => ask("smart"))];
+const results = [
+  await check(`fast model: ${deps.resolveModel("fast")}`, () => ask("fast")),
+  await check(`smart model: ${deps.resolveModel("smart")}`, () => ask("smart")),
+];
 if (process.argv.includes("--plan")) results.push(await check("full plan: sample wedding", buildPlan));
 if (process.argv.includes("--assistant")) results.push(...(await checkAssistant()));
 if (process.argv.includes("--features")) results.push(...(await checkFeatures()));
