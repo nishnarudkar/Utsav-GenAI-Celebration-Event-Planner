@@ -1,4 +1,6 @@
 import "server-only";
+import { getDb } from "@/lib/db";
+import { PostgresEventRepository } from "@/lib/plan/event-repo-postgres";
 import type { ChangeRecord, ChangeTrigger, EventPlan, EventSummary, StoredEvent, StoredQuote } from "@/lib/plan/types";
 import type { SavedSponsorship, Volunteer, VolunteerInput } from "@/lib/schemas/community";
 import type { CouncilConflict, CouncilOption, CouncilResolution, Stakeholder, StakeholderInput } from "@/lib/schemas/council";
@@ -8,8 +10,8 @@ import type { VibeProfile } from "@/lib/schemas/vibe";
 
 /**
  * Persistence for generated plans and their change log. `MemoryEventRepository` keeps both in
- * process memory (lost on restart) so the app runs without a database; a Drizzle/Supabase
- * implementation of the same interface replaces it once DATABASE_URL is configured.
+ * process memory (lost on restart) so the app runs without a database; with DATABASE_URL set,
+ * `PostgresEventRepository` saves them, running this same logic on one locked row at a time.
  */
 
 export type ApplyResult =
@@ -62,14 +64,27 @@ function planOf(e: StoredEvent): EventPlan {
   return { title, answers, cityTier, cityTierKnown, rituals, plan, budget, timeline };
 }
 
-interface Store {
+export interface MemoryStore {
   events: Map<string, StoredEvent>;
   changes: Map<string, ChangeRecord[]>;
 }
 
+export function summaryOf(e: StoredEvent): EventSummary {
+  return {
+    id: e.id,
+    title: e.title,
+    eventType: e.answers.eventType,
+    city: e.answers.city,
+    startDate: e.answers.startDate,
+    guestCount: e.answers.guestCount,
+    budgetTotalPaise: e.budget.budgetTotalPaise,
+    status: e.status,
+  };
+}
+
 export class MemoryEventRepository implements EventRepository {
   constructor(
-    private readonly store: Store = { events: new Map(), changes: new Map() },
+    private readonly store: MemoryStore = { events: new Map(), changes: new Map() },
     private readonly now: () => Date = () => new Date(),
   ) {}
 
@@ -268,23 +283,20 @@ export class MemoryEventRepository implements EventRepository {
   async list(): Promise<EventSummary[]> {
     return [...this.store.events.values()]
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-      .map((e) => ({
-        id: e.id,
-        title: e.title,
-        eventType: e.answers.eventType,
-        city: e.answers.city,
-        startDate: e.answers.startDate,
-        guestCount: e.answers.guestCount,
-        budgetTotalPaise: e.budget.budgetTotalPaise,
-        status: e.status,
-      }));
+      .map(summaryOf);
   }
 }
 
 // One store per server process, kept on globalThis so Next's dev hot-reload doesn't wipe it.
-const globalStore = globalThis as typeof globalThis & { __utsavStore?: Store };
+const globalStore = globalThis as typeof globalThis & { __utsavStore?: MemoryStore };
+
+/** Demo mode and tests stay in memory, so a rehearsal never writes to the real database. */
+export function usesPostgres(env: Readonly<Record<string, string | undefined>> = process.env): boolean {
+  return Boolean(env.DATABASE_URL?.trim()) && env.DEMO_MODE !== "true";
+}
 
 export function getEventRepository(): EventRepository {
+  if (usesPostgres()) return new PostgresEventRepository(getDb(), (store) => new MemoryEventRepository(store));
   globalStore.__utsavStore ??= { events: new Map(), changes: new Map() };
   return new MemoryEventRepository(globalStore.__utsavStore);
 }
