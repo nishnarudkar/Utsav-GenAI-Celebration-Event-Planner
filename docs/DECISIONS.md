@@ -355,6 +355,18 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Free-tier privacy:** Google's terms say unpaid API content may be used to improve its products and may be read by human reviewers, and advise against sending sensitive or personal data. Families' names, preferences and quote photos would go to it, so real users need a paid (billed) project or another provider first.
 - **First real plan (`--plan`, 1 Nov 2026):** 14 rituals, high confidence, 109 seconds, nothing unpriced, but ₹1.75L over the ₹15L budget. Saved sample plans stay within budget, so fixtures had hidden this (fixed below).
 
+## 2026-11-02 — Code quality pass
+
+The first submission scored 86 for Code Quality, its lowest area, so this pass changes structure only, not behaviour. jscpd, knip and a line-length count guided it, and each finding was checked by hand because several were false alarms.
+
+- **Prettier is added**, at a 120-character width, with `pnpm format` and `pnpm format:check`. It's the one new dependency, and it removes a whole class of inconsistency. The code had 786 lines over 120 characters. The 93 left are mostly long strings, which Prettier doesn't split.
+- **`parseBody` and `lib/plan/event-page.ts` replace repeated setup** in 12 routes and 9 pages. Duplication fell from 0.83% to 0.11%.
+- **`PostgresEventRepository` declares its delegated methods in one line each**, through `onEvent`, replacing about 50 lines of near-identical wrappers.
+- **Removed as unused:** `@vitejs/plugin-react`, `vite-tsconfig-paths`, `jsdom`, four settings in `.env.example`, and the `export` on 19 values used only in their own file.
+- **Kept although tools flagged them:** `@fontsource/noto-sans` (loaded by file path), `eslint-config-next` (loaded through `FlatCompat`), the `server-only` test stub, and `scripts/gen-sample-quote.ts`, which now has a `samples:quote` script.
+- **The 10 empty database tables stay.** They're the data model in CLAUDE.md §6, and dropping them means changing the live database shortly before submission, for no change in behaviour.
+- **`cascade.ts` and `WhatIfSimulator.tsx` weren't split.** They're the largest files after formatting, but they're central, and splitting them risks more than it would gain now.
+
 ## 2026-11-01 — Event assistant
 
 - **"Ask Utsav" is the Orchestrator from CLAUDE.md §7.3, as a request and reply rather than a stream.** Replies are short and structured, so §7.1 rule 9's streaming adds nothing. A thinking indicator covers the wait.
