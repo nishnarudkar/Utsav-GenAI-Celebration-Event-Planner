@@ -353,4 +353,15 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **Gemini refusals aren't mapped to `AIRefusalError`.** The docs don't show how a blocked reply looks in this API, so it surfaces as a validation or provider failure with the same friendly message.
 - **`pnpm ai:check` proves the connection**, and `--plan` builds the demo wedding through the real agents. Both ignore DEMO_MODE and use real quota.
 - **Free-tier privacy:** Google's terms say unpaid API content may be used to improve its products and may be read by human reviewers, and advise against sending sensitive or personal data. Families' names, preferences and quote photos would go to it, so real users need a paid (billed) project or another provider first.
-- **First real plan (`--plan`, 1 Nov 2026):** 14 rituals, high confidence, 109 seconds, nothing unpriced, but ₹1.75L over the ₹15L budget. Saved sample plans stay within budget, so the Budget agent's prompt needs tuning for real output.
+- **First real plan (`--plan`, 1 Nov 2026):** 14 rituals, high confidence, 109 seconds, nothing unpriced, but ₹1.75L over the ₹15L budget. Saved sample plans stay within budget, so fixtures had hidden this (fixed below).
+
+## 2026-11-01 — Fixes from the first real AI replies
+
+Fixtures are tidy, so these only showed up with a live model. `pnpm ai:check --features` now runs every AI feature on made-up events.
+
+- **Budgets are fitted to the total in code, not by prompting.** The model picks price tiers without seeing totals, so asking it to try harder wouldn't be reliable (§7.1 rule 1). `fitTiersToBudget` steps tiers down, using the smallest step that clears the overage, or else the biggest available. It keeps quantities, logs each move in `budget.adjustments`, and stops at all-low so an impossible budget stays a visible conflict. It only runs when a plan is first built: a later cascade must show the overage, not hide it.
+- **Council function names are matched, and failures are shown.** The model wrote "Biye" for "Biye (wedding ceremony)" and code silently dropped the change, so an option could promise something it didn't do. `matchFunctionName` accepts an exact, case-insensitive or unambiguous leading match. Anything else appears in the option's `conflictsAfter`.
+- **Live mode only offers slots still to come, on the day itself.** The model had no clock, so it could delay rituals that had already happened. Before the day the whole order is offered, for rehearsals. With no time in the incident it picks the first affected slot, so a rehearsal of "Photographer 30 min late" can land on a dawn ritual.
+- **"Included" quote lines are ₹0, not unpriced**, which removes a false "No price given" warning.
+- **Sponsorship perks don't repeat the tier name.**
+- **The free tier allows 20 `gemini-3.6-flash` requests a day**, and a plan uses 4, so about 5 plans a day (Council, quotes and Live share the allowance). Daily limits now fail at once with "try again tomorrow" instead of retrying. `GEMINI_MODEL_SMART=gemini-3.5-flash-lite` has a separate allowance and replied in 1–4 seconds, but with visibly thinner output and one invented detail ("traffic delay") in a reason, so it's a fallback, not the default. Demo mode remains the safe choice for a live presentation.
