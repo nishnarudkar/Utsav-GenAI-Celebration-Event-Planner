@@ -3,7 +3,7 @@
  * with a friendly message ("Couldn't generate that — try again"); never expose details to users.
  */
 
-export type AIErrorCode = "AI_VALIDATION" | "AI_REFUSAL" | "AI_FIXTURE_MISSING";
+export type AIErrorCode = "AI_VALIDATION" | "AI_REFUSAL" | "AI_FIXTURE_MISSING" | "AI_PROVIDER";
 
 export abstract class AIError extends Error {
   abstract readonly code: AIErrorCode;
@@ -37,6 +37,19 @@ export class AIRefusalError extends AIError {
     readonly category: string | null,
   ) {
     super(`Request for "${outputName}" was declined${category ? ` (${category})` : ""}`, outputName);
+  }
+}
+
+/** The provider's API failed, after retries where those make sense. */
+export class AIProviderError extends AIError {
+  readonly code = "AI_PROVIDER";
+  constructor(
+    outputName: string,
+    /** HTTP status, or null if there was no usable response. */
+    readonly status: number | null,
+    detail: string,
+  ) {
+    super(`Provider failed for "${outputName}"${status ? ` (HTTP ${status})` : ""}: ${detail}`, outputName);
   }
 }
 

@@ -6,6 +6,7 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { z } from "zod";
 import { getAnthropic, resolveModel, type Env, type ModelTier } from "@/lib/ai/client";
 import { AIFixtureMissingError, AIRefusalError, AIValidationError } from "@/lib/ai/errors";
+import { defaultGeminiDeps, generateGemini, resolveGeminiModel, type GeminiReply, type GeminiRequest } from "@/lib/ai/gemini";
 
 /**
  * The single entry point for every LLM call (CLAUDE.md §7.1 rule 2).
@@ -14,6 +15,8 @@ import { AIFixtureMissingError, AIRefusalError, AIValidationError } from "@/lib/
  * rather than forced tool use: `tool_choice: {type: "tool"}` returns a 400 on Claude Sonnet 5.5.
  * The result is validated with the full Zod schema; on failure we retry once with the issues
  * appended, then throw AIValidationError. See docs/DECISIONS.md.
+ *
+ * With AI_PROVIDER=gemini the same flow runs through lib/ai/gemini.ts instead.
  */
 
 export type SystemBlock = Anthropic.Beta.BetaTextBlockParam;
@@ -40,12 +43,16 @@ export interface StructuredDeps {
   resolveModel: (tier: ModelTier) => string;
   demoMode: boolean;
   fixturesDir: string;
+  /** Set when AI_PROVIDER=gemini; calls then go here instead of `createMessage`. */
+  gemini?: (request: GeminiRequest) => Promise<GeminiReply>;
 }
 
 export function defaultStructuredDeps(env: Env = process.env): StructuredDeps {
+  const useGemini = env.AI_PROVIDER === "gemini";
   return {
     createMessage: (params) => getAnthropic().beta.messages.create(params),
-    resolveModel: (tier) => resolveModel(tier, env),
+    resolveModel: (tier) => (useGemini ? resolveGeminiModel(tier, env) : resolveModel(tier, env)),
+    ...(useGemini ? { gemini: (request: GeminiRequest) => generateGemini(request, defaultGeminiDeps(env)) } : {}),
     demoMode: env.DEMO_MODE === "true",
     fixturesDir: env.DEMO_FIXTURES_DIR ?? path.join(process.cwd(), "tests", "fixtures", "llm"),
   };
@@ -67,6 +74,34 @@ export async function callStructured<T extends z.ZodType>(
 
   if (deps.demoMode) return loadFixture(opts.schema, opts.name, fixtureKey, deps.fixturesDir);
 
+  const send = deps.gemini ? geminiSender(opts, deps, deps.gemini) : anthropicSender(opts, deps);
+
+  let issues = "";
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const reply = await send(attempt === 0 ? opts.messages : [...opts.messages, correctionMessage(opts.name, issues)]);
+    const result = validate(opts.schema, reply.text, reply.cutOff);
+    if (result.success) return result.data;
+    issues = result.issues;
+  }
+  throw new AIValidationError(opts.name, issues);
+}
+
+type Send = (messages: MessageParam[]) => Promise<GeminiReply>;
+
+function geminiSender<T extends z.ZodType>(opts: CallStructuredOptions<T>, deps: StructuredDeps, gemini: NonNullable<StructuredDeps["gemini"]>): Send {
+  return (messages) =>
+    gemini({
+      outputName: opts.name,
+      model: deps.resolveModel(opts.model ?? "smart"),
+      system: opts.system,
+      messages,
+      schema: opts.schema,
+      maxOutputTokens: opts.maxTokens ?? DEFAULT_MAX_TOKENS,
+      ...(opts.effort ? { effort: opts.effort } : {}),
+    });
+}
+
+function anthropicSender<T extends z.ZodType>(opts: CallStructuredOptions<T>, deps: StructuredDeps): Send {
   const tier = opts.model ?? "smart";
   // Send only the JSON-schema fields; the helper's client-side `parse` is replaced by our own validation.
   const { type, schema } = zodOutputFormat(opts.schema);
@@ -80,21 +115,13 @@ export async function callStructured<T extends z.ZodType>(
     ...(tier === "smart" ? { betas: [FALLBACK_BETA], fallbacks: "default" as const } : {}),
   };
 
-  let issues = "";
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const params: CreateParams =
-      attempt === 0 ? base : { ...base, messages: [...opts.messages, correctionMessage(opts.name, issues)] };
-    const response = await deps.createMessage(params);
-
+  return async (messages) => {
+    const response = await deps.createMessage({ ...base, messages });
     if (response.stop_reason === "refusal") {
       throw new AIRefusalError(opts.name, response.stop_details?.category ?? null);
     }
-
-    const result = validate(opts.schema, finalText(response), response.stop_reason);
-    if (result.success) return result.data;
-    issues = result.issues;
-  }
-  throw new AIValidationError(opts.name, issues);
+    return { text: finalText(response), cutOff: response.stop_reason === "max_tokens" };
+  };
 }
 
 function toSystemBlocks(system: string | SystemBlock[]): SystemBlock[] {
@@ -115,8 +142,8 @@ function finalText(response: Message): string {
 
 type Validation<T> = { success: true; data: T } | { success: false; issues: string };
 
-function validate<T extends z.ZodType>(schema: T, text: string, stopReason: Message["stop_reason"]): Validation<z.infer<T>> {
-  if (stopReason === "max_tokens") {
+function validate<T extends z.ZodType>(schema: T, text: string, cutOff: boolean): Validation<z.infer<T>> {
+  if (cutOff) {
     return { success: false, issues: "Output was cut off at max_tokens. Return a more concise JSON object." };
   }
   let json: unknown;

@@ -24,7 +24,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/seed.ts",
     "kb:embed": "tsx scripts/embed-kb.ts",
-    "fixtures:rituals": "tsx scripts/gen-ritual-fixtures.ts"
+    "fixtures:rituals": "tsx scripts/gen-ritual-fixtures.ts",
+    "ai:check": "tsx --env-file=.env.local --conditions=react-server scripts/check-ai.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

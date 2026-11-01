@@ -1,6 +1,6 @@
 import "server-only";
 import type { z } from "zod";
-import { AIError, AIFixtureMissingError } from "@/lib/ai/errors";
+import { AIError, AIFixtureMissingError, AIProviderError } from "@/lib/ai/errors";
 
 /**
  * API error responses: `{ error: { code, message } }` with the right status (CLAUDE.md §10).
@@ -42,6 +42,7 @@ export function errorResponse(err: unknown, context: string): Response {
   }
   if (err instanceof AIError) {
     console.error(`[${context}] ${err.code}: ${err.message}`);
+    if (err instanceof AIProviderError && err.status === 429) return apiError(429, "AI_FAILED", "Utsav's AI is busy right now — wait a minute and try again.");
     return apiError(502, "AI_FAILED", "Couldn't generate that — try again.");
   }
   console.error(`[${context}] unexpected error`, err);
