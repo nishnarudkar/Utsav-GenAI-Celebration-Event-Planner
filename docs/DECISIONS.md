@@ -330,3 +330,15 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **All permissions are listed, each with when it applies**, instead of asking organisers a series of yes/no questions first. A pandal-or-not filter can come later.
 - **The permissions and lead days were written from general knowledge, not checked against official sources.** They need review by someone who knows the local process. The page says rules vary and that dates are estimates.
 - **The crowd numbers are rules of thumb, not standards:** density bands of 2, 4 and 5 people per sq m; 82 people per metre of exit per minute over 8 minutes, with a floor of 2 exits at 1.5 m each because the formula alone gives 1 m for 500 people; 1 volunteer per 100, 1 first-aid post per 1,000, 1 toilet per 150. They round up, and the page says they aren't a safety certificate.
+
+## 2026-11-01 — Community extras, part 2 (F9): volunteers and sponsors
+
+- **A volunteer entry is one person on one shift, and a shift is one function of the plan.** Someone covering two functions has two entries. The same name twice on one shift is refused. Roles are a short fixed list, and "task assignment" means role plus shift; linking volunteers to individual timeline tasks would need task status and owners, which the app doesn't have yet.
+- **Numbers needed reuse `estimateCrowd`** per function, so the roster and the crowd card can't disagree. They carry the same rule-of-thumb caveat.
+- **Phone numbers are optional and left out of "Copy roster"**, because that text goes to group chats.
+- **Volunteers whose function leaves the plan stay visible** under "No longer in the plan".
+- **The model writes wording only.** Tiers (1 × 40%, 2 × 20%, 4 × 5%, each rounded up to ₹1,000), the event details and the crowd size come from code. `SponsorshipWords` rejects any digit or ₹ sign, which triggers the usual corrective retry, so a model can't invent attendance or prices.
+- **The message is rebuilt on read from the saved inputs and wording**, so a changed guest count or date reaches the pitch without another AI call.
+- **The prompt bans tax claims, invented past events and promised outcomes**, and the page asks organisers to check they can deliver each perk. The tier split is a made-up default, not market data, and the page calls it a suggestion.
+- **Uses the fast model and one fixture for all community events**, since the wording is generic and a plain writing task. The real model's output is untested.
+- **The tier split can't be edited on the page.** Only the target can change, which is the simplest thing that works for the demo.

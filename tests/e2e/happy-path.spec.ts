@@ -140,4 +140,25 @@ test("a community event gets a saved permissions checklist and crowd numbers", a
   await expect(page.getByText("1 of 12 sorted.")).toBeVisible();
   await page.reload();
   await expect(permit).toBeChecked();
+
+  // Volunteers: a shift fills up, and survives a reload.
+  await expect(page.getByText("0 of about 5 volunteers")).toBeVisible();
+  await page.getByLabel("Volunteer's name").fill("Asha");
+  await page.getByLabel("Shift").selectOption("Festival day");
+  await page.getByRole("button", { name: "Add volunteer" }).click();
+  await expect(page.getByText("1 of about 5 volunteers")).toBeVisible();
+
+  // Sponsors: code supplies the amounts and the crowd size.
+  await page.getByLabel("Organised by").fill("Green Park RWA");
+  await page.getByLabel("How sponsors reach you").fill("Asha, 98200 00000");
+  await page.getByLabel("Amount to raise").fill("₹2L");
+  await page.getByLabel("What the money pays for").fill("The stage and a free meal");
+  await page.getByRole("button", { name: "Write the pitch" }).click();
+  await expect(page.getByText(/Title sponsor \(1 place\): ₹80,000/)).toBeVisible();
+  await expect(page.getByText(/about 500 people/)).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByText("1 of about 5 volunteers")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Write it again" })).toBeVisible();
+  await expect(page.getByLabel("Amount to raise")).toHaveValue("₹2,00,000");
 });
