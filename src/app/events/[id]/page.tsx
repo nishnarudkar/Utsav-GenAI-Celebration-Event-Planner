@@ -1,7 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { BudgetDonut } from "@/components/plan/BudgetDonut";
 import { EventHeader } from "@/components/plan/EventHeader";
@@ -12,17 +10,12 @@ import { PlanControls } from "@/components/plan/PlanControls";
 import { StatCards } from "@/components/plan/StatCards";
 import { formatDate } from "@/lib/format";
 import { summarizeDashboard } from "@/lib/plan/dashboard";
-import { getEventRepository } from "@/lib/plan/event-repo";
+import { eventMetadata, loadEvent, type EventPageProps } from "@/lib/plan/event-page";
 import { toISTDate } from "@/lib/rules/dates";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }> };
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const event = await getEventRepository().get((await params).id);
-  return { title: event ? `${event.title} — Utsav` : "Event not found — Utsav" };
-}
+export const generateMetadata = eventMetadata();
 
 function Section({ title, children, aside }: { title: string; children: ReactNode; aside?: ReactNode }) {
   return (
@@ -36,10 +29,8 @@ function Section({ title, children, aside }: { title: string; children: ReactNod
   );
 }
 
-export default async function EventDashboardPage({ params }: Props) {
-  const { id } = await params;
-  const event = await getEventRepository().get(id);
-  if (!event) notFound();
+export default async function EventDashboardPage(props: EventPageProps) {
+  const event = await loadEvent(props);
 
   const today = toISTDate(new Date());
   const summary = summarizeDashboard(event, today);
@@ -88,7 +79,10 @@ export default async function EventDashboardPage({ params }: Props) {
         </ol>
       </Section>
       {event.answers.eventType === "community" && (
-        <Link href={`/events/${event.id}/community`} className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 hover:border-maroon">
+        <Link
+          href={`/events/${event.id}/community`}
+          className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 hover:border-maroon"
+        >
           <span>
             <span className="block font-display text-xl text-maroon">Community tools</span>
             <span className="block text-sm text-muted">Permissions, crowd safety, volunteers and sponsors.</span>
@@ -96,10 +90,15 @@ export default async function EventDashboardPage({ params }: Props) {
           <ChevronRight className="size-5 shrink-0 text-maroon" aria-hidden />
         </Link>
       )}
-      <Link href={`/events/${event.id}/vibe`} className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 hover:border-maroon">
+      <Link
+        href={`/events/${event.id}/vibe`}
+        className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 hover:border-maroon"
+      >
         <span>
           <span className="block font-display text-xl text-maroon">Look &amp; feel</span>
-          <span className="block text-sm text-muted">{event.vibe ? event.vibe.theme : "Turn photos you love into colours and décor ideas."}</span>
+          <span className="block text-sm text-muted">
+            {event.vibe ? event.vibe.theme : "Turn photos you love into colours and décor ideas."}
+          </span>
         </span>
         <ChevronRight className="size-5 shrink-0 text-maroon" aria-hidden />
       </Link>

@@ -1,4 +1,4 @@
-import { apiError, errorResponse, invalidInput, readJson } from "@/lib/api/errors";
+import { apiError, errorResponse, parseBody } from "@/lib/api/errors";
 import { FieldChange } from "@/lib/graph/types";
 import { changeEvent } from "@/lib/plan/change-service";
 import { getEventRepository } from "@/lib/plan/event-repo";
@@ -28,10 +28,8 @@ export async function GET(_req: Request, ctx: Ctx): Promise<Response> {
  */
 export async function PATCH(req: Request, ctx: Ctx): Promise<Response> {
   const { id } = await ctx.params;
-  const body = await readJson(req);
-  if (!body.ok) return body.response;
-  const parsed = FieldChange.safeParse(body.value);
-  if (!parsed.success) return invalidInput(parsed.error);
+  const parsed = await parseBody(req, FieldChange);
+  if (!parsed.ok) return parsed.response;
   const dryRun = new URL(req.url).searchParams.get("dryRun") === "true";
 
   try {

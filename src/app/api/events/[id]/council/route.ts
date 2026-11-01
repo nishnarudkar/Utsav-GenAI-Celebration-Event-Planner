@@ -37,7 +37,11 @@ export async function POST(_req: Request, ctx: Ctx): Promise<Response> {
     }
   } catch (err) {
     if (err instanceof AIFixtureMissingError) {
-      return apiError(422, "DEMO_FIXTURE_MISSING", "Demo mode only has a sample council for the Bengali wedding. Use that plan, or turn demo mode off.");
+      return apiError(
+        422,
+        "DEMO_FIXTURE_MISSING",
+        "Demo mode only has a sample council for the Bengali wedding. Use that plan, or turn demo mode off.",
+      );
     }
     return errorResponse(err, `POST /api/events/${id}/council`);
   }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { apiError, errorResponse, invalidInput, readJson } from "@/lib/api/errors";
+import { apiError, errorResponse, parseBody } from "@/lib/api/errors";
 import { getEventRepository } from "@/lib/plan/event-repo";
 import { VolunteerInput } from "@/lib/schemas/community";
 
@@ -13,10 +13,8 @@ const RemoveBody = z.object({ volunteerId: z.string().min(1).max(100) });
 /** POST /api/events/:id/volunteers — add someone to a shift. */
 export async function POST(req: Request, ctx: Ctx): Promise<Response> {
   const { id } = await ctx.params;
-  const body = await readJson(req);
-  if (!body.ok) return body.response;
-  const parsed = VolunteerInput.safeParse(body.value);
-  if (!parsed.success) return invalidInput(parsed.error);
+  const parsed = await parseBody(req, VolunteerInput);
+  if (!parsed.ok) return parsed.response;
 
   try {
     const repo = getEventRepository();
@@ -24,7 +22,8 @@ export async function POST(req: Request, ctx: Ctx): Promise<Response> {
     if (!event || event.answers.eventType !== "community") return apiError(404, "NOT_FOUND", NO_EVENT);
 
     const { name, functionName } = parsed.data;
-    if (!event.plan.functions.some((f) => f.name === functionName)) return apiError(400, "INVALID_INPUT", "That part of the event isn't in the plan.");
+    if (!event.plan.functions.some((f) => f.name === functionName))
+      return apiError(400, "INVALID_INPUT", "That part of the event isn't in the plan.");
     if (event.volunteers.some((v) => v.functionName === functionName && v.name.toLowerCase() === name.toLowerCase())) {
       return apiError(400, "INVALID_INPUT", `${name} is already on this shift.`);
     }
@@ -38,10 +37,8 @@ export async function POST(req: Request, ctx: Ctx): Promise<Response> {
 /** DELETE /api/events/:id/volunteers — take someone off a shift. */
 export async function DELETE(req: Request, ctx: Ctx): Promise<Response> {
   const { id } = await ctx.params;
-  const body = await readJson(req);
-  if (!body.ok) return body.response;
-  const parsed = RemoveBody.safeParse(body.value);
-  if (!parsed.success) return invalidInput(parsed.error);
+  const parsed = await parseBody(req, RemoveBody);
+  if (!parsed.ok) return parsed.response;
 
   try {
     const removed = await getEventRepository().removeVolunteer(id, parsed.data.volunteerId);

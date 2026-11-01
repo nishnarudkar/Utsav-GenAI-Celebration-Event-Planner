@@ -1,23 +1,14 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { EventHeader } from "@/components/plan/EventHeader";
 import { QuoteCard } from "@/components/plan/QuoteCard";
 import { QuoteUploader } from "@/components/plan/QuoteUploader";
-import { getEventRepository } from "@/lib/plan/event-repo";
+import { eventMetadata, loadEvent, type EventPageProps } from "@/lib/plan/event-page";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }> };
+export const generateMetadata = eventMetadata("Vendors");
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const event = await getEventRepository().get((await params).id);
-  return { title: event ? `Vendors · ${event.title} — Utsav` : "Event not found — Utsav" };
-}
-
-export default async function VendorsPage({ params }: Props) {
-  const { id } = await params;
-  const event = await getEventRepository().get(id);
-  if (!event) notFound();
+export default async function VendorsPage(props: EventPageProps) {
+  const event = await loadEvent(props);
 
   return (
     <main id="main" className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">

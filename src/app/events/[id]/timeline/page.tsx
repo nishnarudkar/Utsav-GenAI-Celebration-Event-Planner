@@ -1,6 +1,4 @@
 import { AlertTriangle, BookOpen } from "lucide-react";
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { EventHeader } from "@/components/plan/EventHeader";
 import { Gantt } from "@/components/plan/Gantt";
@@ -8,19 +6,14 @@ import { NextTasks } from "@/components/plan/NextTasks";
 import { RitualCard } from "@/components/plan/RitualCard";
 import { loadKbChunks } from "@/lib/ai/rag";
 import { formatDate } from "@/lib/format";
-import { getEventRepository } from "@/lib/plan/event-repo";
+import { eventMetadata, loadEvent, type EventPageProps } from "@/lib/plan/event-page";
 import { ganttLayout, ritualGroups, tasksByMonth } from "@/lib/plan/timeline-view";
 import { toISTDate } from "@/lib/rules/dates";
 import type { Confidence } from "@/lib/schemas/ritual";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }> };
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const event = await getEventRepository().get((await params).id);
-  return { title: event ? `Timeline · ${event.title} — Utsav` : "Event not found — Utsav" };
-}
+export const generateMetadata = eventMetadata("Timeline");
 
 /** CLAUDE.md §7.1 rule 3: low confidence shows the "verify with elders" note. */
 function ConfidenceNote({ confidence }: { confidence: Confidence }) {
@@ -54,10 +47,8 @@ function Section({ title, children, aside }: { title: string; children: ReactNod
   );
 }
 
-export default async function TimelinePage({ params }: Props) {
-  const { id } = await params;
-  const event = await getEventRepository().get(id);
-  if (!event) notFound();
+export default async function TimelinePage(props: EventPageProps) {
+  const event = await loadEvent(props);
 
   const today = toISTDate(new Date());
   const gantt = ganttLayout(event.plan.functions);
@@ -68,7 +59,10 @@ export default async function TimelinePage({ params }: Props) {
     <main id="main" className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
       <EventHeader event={event} active="timeline" />
 
-      <Section title="Schedule" aside={<span className="text-sm text-muted">{event.plan.functions.length} functions</span>}>
+      <Section
+        title="Schedule"
+        aside={<span className="text-sm text-muted">{event.plan.functions.length} functions</span>}
+      >
         <Gantt days={gantt.days} bars={gantt.bars} />
       </Section>
 

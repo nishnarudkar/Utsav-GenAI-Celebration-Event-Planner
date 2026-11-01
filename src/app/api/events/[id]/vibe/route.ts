@@ -16,13 +16,15 @@ const TOO_BIG = "Photos can be up to 4 MB in total.";
 export async function POST(req: Request, ctx: Ctx): Promise<Response> {
   const { id } = await ctx.params;
   // Refuse oversized uploads before buffering them (allowing for multipart overhead).
-  if (Number(req.headers.get("content-length") ?? 0) > MAX_VIBE_TOTAL_BYTES + 64 * 1024) return apiError(413, "INVALID_INPUT", TOO_BIG);
+  if (Number(req.headers.get("content-length") ?? 0) > MAX_VIBE_TOTAL_BYTES + 64 * 1024)
+    return apiError(413, "INVALID_INPUT", TOO_BIG);
 
   const form = await req.formData().catch(() => null);
   const files = (form?.getAll("images") ?? []).filter((f): f is File => f instanceof File && f.size > 0);
   const notes = VibeInput.safeParse({ notes: form?.get("notes") ?? "" });
   if (!notes.success) return apiError(400, "INVALID_INPUT", "Keep your notes to 300 characters.");
-  if (files.length === 0 && !notes.data.notes) return apiError(400, "INVALID_INPUT", "Add a photo, or describe the look you want.");
+  if (files.length === 0 && !notes.data.notes)
+    return apiError(400, "INVALID_INPUT", "Add a photo, or describe the look you want.");
   if (files.length > MAX_VIBE_IMAGES) return apiError(400, "INVALID_INPUT", `Choose up to ${MAX_VIBE_IMAGES} photos.`);
   if (files.reduce((sum, f) => sum + f.size, 0) > MAX_VIBE_TOTAL_BYTES) return apiError(413, "INVALID_INPUT", TOO_BIG);
 
@@ -30,7 +32,8 @@ export async function POST(req: Request, ctx: Ctx): Promise<Response> {
   for (const file of files) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const mediaType = sniffMediaType(bytes);
-    if (!mediaType || mediaType === "application/pdf") return apiError(415, "INVALID_INPUT", "Use JPG, PNG or WebP photos.");
+    if (!mediaType || mediaType === "application/pdf")
+      return apiError(415, "INVALID_INPUT", "Use JPG, PNG or WebP photos.");
     images.push({ mediaType, base64: Buffer.from(bytes).toString("base64") });
   }
 
@@ -43,7 +46,11 @@ export async function POST(req: Request, ctx: Ctx): Promise<Response> {
     return Response.json({ vibe });
   } catch (err) {
     if (err instanceof AIFixtureMissingError) {
-      return apiError(422, "DEMO_FIXTURE_MISSING", "Demo mode only has a saved look for the demo wedding. Try that one, or turn demo mode off.");
+      return apiError(
+        422,
+        "DEMO_FIXTURE_MISSING",
+        "Demo mode only has a saved look for the demo wedding. Try that one, or turn demo mode off.",
+      );
     }
     return errorResponse(err, `POST /api/events/${id}/vibe`);
   }

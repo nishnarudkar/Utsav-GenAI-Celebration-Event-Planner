@@ -1,4 +1,4 @@
-import { apiError, errorResponse, invalidInput, readJson } from "@/lib/api/errors";
+import { apiError, errorResponse, parseBody } from "@/lib/api/errors";
 import { generateRecoveryOptions } from "@/lib/graph/recovery";
 import { applyScenario, describeScenario, projectScenario } from "@/lib/graph/whatif";
 import { getEventRepository } from "@/lib/plan/event-repo";
@@ -16,10 +16,8 @@ const Body = z.object({ scenario: WhatIfScenario, apply: z.boolean().default(fal
  */
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }): Promise<Response> {
   const { id } = await ctx.params;
-  const body = await readJson(req);
-  if (!body.ok) return body.response;
-  const parsed = Body.safeParse(body.value);
-  if (!parsed.success) return invalidInput(parsed.error);
+  const parsed = await parseBody(req, Body);
+  if (!parsed.ok) return parsed.response;
   const { scenario, apply } = parsed.data;
 
   try {

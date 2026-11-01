@@ -1,6 +1,4 @@
 import { AlertTriangle, Info } from "lucide-react";
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { BudgetTable } from "@/components/plan/BudgetTable";
 import { EventHeader } from "@/components/plan/EventHeader";
 import { WhatIfSimulator } from "@/components/plan/WhatIfSimulator";
@@ -8,21 +6,14 @@ import { formatINR, formatINRCompact } from "@/lib/format";
 import { getPricing } from "@/lib/kb/pricing";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import { buildBudgetView, dominantTier } from "@/lib/plan/budget-view";
-import { getEventRepository } from "@/lib/plan/event-repo";
+import { eventMetadata, loadEvent, type EventPageProps } from "@/lib/plan/event-page";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }> };
+export const generateMetadata = eventMetadata("Budget");
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const event = await getEventRepository().get((await params).id);
-  return { title: event ? `Budget · ${event.title} — Utsav` : "Event not found — Utsav" };
-}
-
-export default async function BudgetPage({ params }: Props) {
-  const { id } = await params;
-  const event = await getEventRepository().get(id);
-  if (!event) notFound();
+export default async function BudgetPage(props: EventPageProps) {
+  const event = await loadEvent(props);
 
   const view = buildBudgetView(event);
   const over = view.overBudgetPaise > 0;
@@ -35,16 +26,22 @@ export default async function BudgetPage({ params }: Props) {
         <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <div>
             <dt className="text-sm text-muted">Estimated cost</dt>
-            <dd className="font-display text-2xl text-maroon lining-nums tabular-nums">{formatINRCompact(view.totalEstimatePaise)}</dd>
+            <dd className="font-display text-2xl text-maroon lining-nums tabular-nums">
+              {formatINRCompact(view.totalEstimatePaise)}
+            </dd>
           </div>
           <div>
             <dt className="text-sm text-muted">{view.isEstimate ? "Suggested budget" : "Your budget"}</dt>
-            <dd className="font-display text-2xl text-maroon lining-nums tabular-nums">{formatINRCompact(view.budgetTotalPaise)}</dd>
+            <dd className="font-display text-2xl text-maroon lining-nums tabular-nums">
+              {formatINRCompact(view.budgetTotalPaise)}
+            </dd>
           </div>
           {!view.isEstimate && (
             <div className="col-span-2 sm:col-span-1">
               <dt className="text-sm text-muted">{over ? "Over budget" : "Left to plan with"}</dt>
-              <dd className={`flex items-center gap-1.5 font-display text-2xl lining-nums tabular-nums ${over ? "text-increased" : "text-saved"}`}>
+              <dd
+                className={`flex items-center gap-1.5 font-display text-2xl lining-nums tabular-nums ${over ? "text-increased" : "text-saved"}`}
+              >
                 {over && <AlertTriangle className="size-5" aria-hidden />}
                 {formatINRCompact(over ? view.overBudgetPaise : view.remainingPaise)}
               </dd>
@@ -52,7 +49,9 @@ export default async function BudgetPage({ params }: Props) {
           )}
         </dl>
         {view.isEstimate && (
-          <p className="mt-3 text-sm text-muted">You asked Utsav to estimate, so the suggested budget is the total of the items below.</p>
+          <p className="mt-3 text-sm text-muted">
+            You asked Utsav to estimate, so the suggested budget is the total of the items below.
+          </p>
         )}
       </section>
 
@@ -80,7 +79,9 @@ export default async function BudgetPage({ params }: Props) {
           <h2 className="flex items-center gap-2 font-display text-xl text-maroon">
             <AlertTriangle className="size-5 text-conflict" aria-hidden /> Needs a quote
           </h2>
-          <p className="mt-1 text-sm text-muted">We don&apos;t have price data for these yet. Ask vendors for a quote.</p>
+          <p className="mt-1 text-sm text-muted">
+            We don&apos;t have price data for these yet. Ask vendors for a quote.
+          </p>
           <ul className="mt-3 flex flex-col gap-2 text-sm">
             {view.unpriced.map((u) => (
               <li key={u.label} className="flex justify-between gap-3">
@@ -94,7 +95,9 @@ export default async function BudgetPage({ params }: Props) {
 
       {view.adjustments.length > 0 && (
         <details className="rounded-2xl border border-line bg-white p-5 text-sm">
-          <summary className="cursor-pointer font-medium text-ink">Adjustments Utsav made ({view.adjustments.length})</summary>
+          <summary className="cursor-pointer font-medium text-ink">
+            Adjustments Utsav made ({view.adjustments.length})
+          </summary>
           <ul className="mt-2 list-disc pl-5 text-muted">
             {view.adjustments.map((a) => (
               <li key={a}>{a}</li>

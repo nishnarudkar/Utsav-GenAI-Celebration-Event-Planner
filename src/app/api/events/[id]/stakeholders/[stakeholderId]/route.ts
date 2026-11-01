@@ -4,7 +4,10 @@ import { getEventRepository } from "@/lib/plan/event-repo";
 export const dynamic = "force-dynamic";
 
 /** DELETE /api/events/:id/stakeholders/:stakeholderId */
-export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string; stakeholderId: string }> }): Promise<Response> {
+export async function DELETE(
+  _req: Request,
+  ctx: { params: Promise<{ id: string; stakeholderId: string }> },
+): Promise<Response> {
   const { id, stakeholderId } = await ctx.params;
   try {
     const removed = await getEventRepository().removeStakeholder(id, stakeholderId);
