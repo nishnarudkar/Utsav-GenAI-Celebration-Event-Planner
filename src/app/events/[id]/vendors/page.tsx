@@ -20,7 +20,7 @@ export default async function VendorsPage({ params }: Props) {
   if (!event) notFound();
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
       <EventHeader event={event} active="vendors" />
       <QuoteUploader eventId={event.id} />
       {event.quotes.length > 0 && (

@@ -16,7 +16,7 @@
   /* Diff semantics — always paired with +/− icons, never colour alone. */
   --color-saved: #15803d;
   --color-increased: #b91c1c;
-  --color-conflict: #b45309;
+  --color-conflict: #92400e;
 
   /* Chart series (categorical, fixed order; validated on the cream surface with the dataviz
      palette validator). Slots 3–5 are below 3:1 contrast, so charts always ship a labelled legend. */
@@ -40,4 +40,15 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-maroon);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

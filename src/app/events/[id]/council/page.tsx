@@ -19,7 +19,7 @@ export default async function CouncilPage({ params }: Props) {
   if (!event) notFound();
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
       <EventHeader event={event} active="council" />
       <CouncilPanel eventId={event.id} version={event.version} stakeholders={event.stakeholders} council={event.council} />
     </main>

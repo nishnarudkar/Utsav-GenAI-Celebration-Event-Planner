@@ -9,7 +9,7 @@ const HIGHLIGHTS = [
 
 export default function HomePage() {
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:py-20">
+    <main id="main" className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:py-20">
       <header className="flex flex-col gap-5">
         <p className="text-sm font-semibold uppercase tracking-widest text-marigold-ink">Utsav</p>
         <h1 className="font-display text-4xl leading-tight text-maroon sm:text-5xl">

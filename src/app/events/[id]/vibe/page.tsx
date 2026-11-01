@@ -19,7 +19,7 @@ export default async function VibePage({ params }: Props) {
   if (!event) notFound();
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
       <EventHeader event={event} active={null} />
       <VibePanel eventId={event.id} vibe={event.vibe} demoMode={process.env.DEMO_MODE === "true"} />
     </main>

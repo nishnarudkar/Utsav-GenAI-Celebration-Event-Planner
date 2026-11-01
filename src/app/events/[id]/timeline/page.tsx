@@ -65,7 +65,7 @@ export default async function TimelinePage({ params }: Props) {
   const months = tasksByMonth(event.timeline.tasks);
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
       <EventHeader event={event} active="timeline" />
 
       <Section title="Schedule" aside={<span className="text-sm text-muted">{event.plan.functions.length} functions</span>}>

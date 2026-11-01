@@ -28,7 +28,7 @@ export default async function BudgetPage({ params }: Props) {
   const over = view.overBudgetPaise > 0;
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-6">
       <EventHeader event={event} active="budget" />
 
       <section aria-label="Budget summary" className="rounded-2xl border border-line bg-white p-5">

@@ -10,13 +10,14 @@ export default function NewEventPage() {
   // Computed on the server so the client and server agree on "today" (IST).
   const today = toISTDate(new Date());
   return (
-    <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-6 px-4 py-6">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-xl flex-col gap-6 px-4 py-6">
       <header className="flex items-center justify-between">
         <Link href="/" className="font-display text-2xl text-maroon">
           Utsav
         </Link>
         <span className="text-sm text-muted">6 quick questions</span>
       </header>
+      <h1 className="sr-only">Plan a celebration</h1>
       <OnboardingChat today={today} />
     </main>
   );

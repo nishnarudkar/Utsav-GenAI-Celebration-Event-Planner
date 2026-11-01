@@ -3,8 +3,10 @@
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useState, type FormEvent } from "react";
+import { AssistantChat } from "@/components/plan/AssistantChat";
 import { DiffPanel } from "@/components/plan/DiffPanel";
 import { formatINR, parseINR } from "@/lib/format";
+import type { FieldChange } from "@/lib/graph/types";
 import { apiCall } from "@/lib/plan/client-api";
 import type { PlanDiff } from "@/lib/schemas/diff";
 
@@ -38,17 +40,18 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
   useEffect(() => setGuests(String(guestCount)), [guestCount]);
   useEffect(() => setBudget(formatINR(budgetTotalPaise)), [budgetTotalPaise]);
 
-  async function run(url: string, init: RequestInit, after?: (r: ChangeResponse) => void) {
+  async function run(url: string, init: RequestInit, after?: (r: ChangeResponse) => void): Promise<boolean> {
     setBusy(true);
     setMessage(null);
     const result = await apiCall<ChangeResponse>(url, init);
     setBusy(false);
     if (!result.ok) {
       setMessage({ tone: "error", text: result.message });
-      return;
+      return false;
     }
     after?.(result.data);
     router.refresh();
+    return true;
   }
 
   function submitGuests(e: FormEvent) {
@@ -58,7 +61,7 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
       setMessage({ tone: "error", text: "Guest count should be a whole number between 1 and 5,000." });
       return;
     }
-    void change("guest_count", value);
+    void change({ field: "guest_count", value });
   }
 
   function submitBudget(e: FormEvent) {
@@ -68,15 +71,14 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
       setMessage({ tone: "error", text: "Try a budget like 12L, 12 lakh or ₹12,00,000." });
       return;
     }
-    void change("budget_total", value);
+    void change({ field: "budget_total", value });
   }
 
-  async function change(field: "guest_count" | "budget_total", value: number) {
-    await run(`/api/events/${eventId}`, { method: "PATCH", body: JSON.stringify({ field, value }) }, (r) => {
+  const change = (update: FieldChange) =>
+    run(`/api/events/${eventId}`, { method: "PATCH", body: JSON.stringify(update) }, (r) => {
       if (r.noop) setMessage({ tone: "info", text: "That's already the current value — nothing changed." });
       else setDiff(r.diff ?? null);
     });
-  }
 
   const undo = () =>
     run(`/api/events/${eventId}/undo`, { method: "POST" }, () => {
@@ -92,6 +94,7 @@ export function PlanControls({ eventId, guestCount, budgetTotalPaise, budgetIsEs
 
   return (
     <div className="flex flex-col gap-4">
+      <AssistantChat eventId={eventId} onConfirm={change} busy={busy} />
       <section aria-label="Adjust plan" className="rounded-2xl border border-line bg-white p-5">
         <h2 className="font-display text-xl text-maroon">Adjust plan</h2>
         <p className="mt-1 text-sm text-muted">Change a number and see everything it affects.</p>
