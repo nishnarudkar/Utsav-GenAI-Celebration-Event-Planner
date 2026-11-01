@@ -1,5 +1,6 @@
 import "server-only";
 import type { ChangeRecord, ChangeTrigger, EventPlan, EventSummary, StoredEvent, StoredQuote } from "@/lib/plan/types";
+import type { SavedSponsorship, Volunteer, VolunteerInput } from "@/lib/schemas/community";
 import type { CouncilConflict, CouncilOption, CouncilResolution, Stakeholder, StakeholderInput } from "@/lib/schemas/council";
 import type { LiveNotification, LiveProposal } from "@/lib/schemas/dayof";
 import type { PlanDiff } from "@/lib/schemas/diff";
@@ -42,6 +43,11 @@ export interface EventRepository {
   applyLive(id: string, proposal: LiveProposal, notifications: LiveNotification[]): Promise<StoredEvent | null>;
   /** Tick or untick a permission. Returns the updated list, or null if the event doesn't exist. */
   setPermitDone(id: string, permitId: string, done: boolean): Promise<string[] | null>;
+  addVolunteer(id: string, input: VolunteerInput): Promise<Volunteer | null>;
+  /** Returns false if the volunteer doesn't exist, null if the event doesn't. */
+  removeVolunteer(id: string, volunteerId: string): Promise<boolean | null>;
+  /** Store the latest sponsorship pitch, replacing any earlier one. */
+  setSponsorship(id: string, sponsorship: SavedSponsorship): Promise<void>;
   /** Store the look from Vibe-to-Plan, replacing any earlier one. */
   setVibe(id: string, vibe: VibeProfile): Promise<void>;
   /** Change log, newest first. */
@@ -81,6 +87,8 @@ export class MemoryEventRepository implements EventRepository {
       live: { shifts: {}, proposal: null, incidents: [], notifications: [] },
       vibe: null,
       permitsDone: [],
+      volunteers: [],
+      sponsorship: null,
       createdAt: ts,
       updatedAt: ts,
     };
@@ -182,6 +190,32 @@ export class MemoryEventRepository implements EventRepository {
     event.permitsDone = [...permits].sort();
     event.updatedAt = this.now().toISOString();
     return [...event.permitsDone];
+  }
+
+  async addVolunteer(id: string, input: VolunteerInput): Promise<Volunteer | null> {
+    const event = this.store.events.get(id);
+    if (!event) return null;
+    const volunteer: Volunteer = { ...structuredClone(input), id: crypto.randomUUID() };
+    event.volunteers = [...event.volunteers, volunteer];
+    event.updatedAt = this.now().toISOString();
+    return structuredClone(volunteer);
+  }
+
+  async removeVolunteer(id: string, volunteerId: string): Promise<boolean | null> {
+    const event = this.store.events.get(id);
+    if (!event) return null;
+    const kept = event.volunteers.filter((v) => v.id !== volunteerId);
+    if (kept.length === event.volunteers.length) return false;
+    event.volunteers = kept;
+    event.updatedAt = this.now().toISOString();
+    return true;
+  }
+
+  async setSponsorship(id: string, sponsorship: SavedSponsorship): Promise<void> {
+    const event = this.store.events.get(id);
+    if (!event) return;
+    event.sponsorship = structuredClone(sponsorship);
+    event.updatedAt = this.now().toISOString();
   }
 
   async setVibe(id: string, vibe: VibeProfile): Promise<void> {
