@@ -1,6 +1,7 @@
 /** Upload checks for quote files. Pure and client-safe. */
 
-export const MAX_QUOTE_BYTES = 10 * 1024 * 1024;
+/** Vercel refuses request bodies over 4.5 MB, so uploads stop short of that. */
+export const MAX_QUOTE_BYTES = 4 * 1024 * 1024;
 
 export type SniffedMediaType = "image/jpeg" | "image/png" | "image/webp" | "application/pdf";
 

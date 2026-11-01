@@ -2,7 +2,9 @@
 
 export const MAX_VIBE_IMAGES = 5;
 /** The largest image the vision API accepts. */
-export const MAX_VIBE_IMAGE_BYTES = 5 * 1024 * 1024;
+export const MAX_VIBE_IMAGE_BYTES = 4 * 1024 * 1024;
+/** One request holds every photo, and Vercel refuses bodies over 4.5 MB. */
+export const MAX_VIBE_TOTAL_BYTES = 4 * 1024 * 1024;
 
 export type VibeImageType = "image/jpeg" | "image/png" | "image/webp";
 

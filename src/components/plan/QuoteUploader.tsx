@@ -45,7 +45,7 @@ export function QuoteUploader({ eventId }: { eventId: string }) {
     e.preventDefault();
     const file = fileRef.current?.files?.[0];
     if (!file) return setError("Choose a photo or PDF of the quote first.");
-    if (file.size > MAX_QUOTE_BYTES) return setError("That file is too big. Quotes can be up to 10 MB.");
+    if (file.size > MAX_QUOTE_BYTES) return setError("That file is too big. Quotes can be up to 4 MB.");
     void send(file, category);
   }
 
@@ -85,7 +85,7 @@ export function QuoteUploader({ eventId }: { eventId: string }) {
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor={fileId} className="text-sm font-medium text-ink">
-            Photo or PDF (up to 10 MB)
+            Photo or PDF (up to 4 MB)
           </label>
           <input
             ref={fileRef}

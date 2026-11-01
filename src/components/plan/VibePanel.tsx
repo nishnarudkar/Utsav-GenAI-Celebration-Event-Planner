@@ -3,7 +3,7 @@
 import { Loader2, Palette } from "lucide-react";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { CopyButton } from "@/components/plan/CopyButton";
-import { MAX_VIBE_IMAGE_BYTES, MAX_VIBE_IMAGES, readableTextOn } from "@/lib/rules/vibe-file";
+import { MAX_VIBE_IMAGES, MAX_VIBE_TOTAL_BYTES, readableTextOn } from "@/lib/rules/vibe-file";
 import type { VibeProfile } from "@/lib/schemas/vibe";
 
 const SAMPLE_NOTES = "Classic and warm: deep red, ivory and marigold, with lots of fresh flowers.";
@@ -47,7 +47,7 @@ export function VibePanel({ eventId, vibe: initial, demoMode }: VibePanelProps) 
     const images = [...(fileRef.current?.files ?? [])];
     if (images.length === 0 && !notes.trim()) return setError("Add a photo, or describe the look you want.");
     if (images.length > MAX_VIBE_IMAGES) return setError(`Choose up to ${MAX_VIBE_IMAGES} photos.`);
-    if (images.some((f) => f.size > MAX_VIBE_IMAGE_BYTES)) return setError("Each photo can be up to 5 MB.");
+    if (images.reduce((sum, f) => sum + f.size, 0) > MAX_VIBE_TOTAL_BYTES) return setError("Photos can be up to 4 MB in total.");
     void send(notes, images);
   }
 
@@ -63,7 +63,7 @@ export function VibePanel({ eventId, vibe: initial, demoMode }: VibePanelProps) 
         <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
             <label htmlFor={fileId} className="text-sm font-medium text-ink">
-              Photos (up to {MAX_VIBE_IMAGES}, 5 MB each)
+              Photos (up to {MAX_VIBE_IMAGES}, 4 MB in total)
             </label>
             <input
               ref={fileRef}

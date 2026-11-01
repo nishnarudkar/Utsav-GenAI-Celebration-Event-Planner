@@ -3,20 +3,20 @@ import { AIFixtureMissingError } from "@/lib/ai/errors";
 import { apiError, errorResponse } from "@/lib/api/errors";
 import { getEventRepository } from "@/lib/plan/event-repo";
 import { sniffMediaType } from "@/lib/rules/quote-file";
-import { MAX_VIBE_IMAGE_BYTES, MAX_VIBE_IMAGES } from "@/lib/rules/vibe-file";
+import { MAX_VIBE_IMAGES, MAX_VIBE_TOTAL_BYTES } from "@/lib/rules/vibe-file";
 import { VibeInput } from "@/lib/schemas/vibe";
 
 export const dynamic = "force-dynamic";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-const TOO_BIG = "Each photo can be up to 5 MB.";
+const TOO_BIG = "Photos can be up to 4 MB in total.";
 
 /** POST /api/events/:id/vibe — multipart { images[], notes } → the event's look. Images aren't kept. */
 export async function POST(req: Request, ctx: Ctx): Promise<Response> {
   const { id } = await ctx.params;
   // Refuse oversized uploads before buffering them (allowing for multipart overhead).
-  if (Number(req.headers.get("content-length") ?? 0) > MAX_VIBE_IMAGES * MAX_VIBE_IMAGE_BYTES + 64 * 1024) return apiError(413, "INVALID_INPUT", TOO_BIG);
+  if (Number(req.headers.get("content-length") ?? 0) > MAX_VIBE_TOTAL_BYTES + 64 * 1024) return apiError(413, "INVALID_INPUT", TOO_BIG);
 
   const form = await req.formData().catch(() => null);
   const files = (form?.getAll("images") ?? []).filter((f): f is File => f instanceof File && f.size > 0);
@@ -24,7 +24,7 @@ export async function POST(req: Request, ctx: Ctx): Promise<Response> {
   if (!notes.success) return apiError(400, "INVALID_INPUT", "Keep your notes to 300 characters.");
   if (files.length === 0 && !notes.data.notes) return apiError(400, "INVALID_INPUT", "Add a photo, or describe the look you want.");
   if (files.length > MAX_VIBE_IMAGES) return apiError(400, "INVALID_INPUT", `Choose up to ${MAX_VIBE_IMAGES} photos.`);
-  if (files.some((f) => f.size > MAX_VIBE_IMAGE_BYTES)) return apiError(413, "INVALID_INPUT", TOO_BIG);
+  if (files.reduce((sum, f) => sum + f.size, 0) > MAX_VIBE_TOTAL_BYTES) return apiError(413, "INVALID_INPUT", TOO_BIG);
 
   const images: VibeImage[] = [];
   for (const file of files) {

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PUT as putItem } from "@/app/api/events/[id]/ritual-items/route";
 import { GET as getEvent } from "@/app/api/events/[id]/route";
-import { GET as listEvents, POST as createEvent } from "@/app/api/events/route";
+import { POST as createEvent } from "@/app/api/events/route";
 
 /** Calls the real route handlers in demo mode: no API key, no database. */
 
@@ -39,8 +39,6 @@ describe("POST /api/events", () => {
     expect(fetched.status).toBe(200);
     expect(((await fetched.json()) as { event: { id: string } }).event.id).toBe(event.id);
 
-    const list = (await (await listEvents()).json()) as { events: Array<{ id: string }> };
-    expect(list.events.some((e) => e.id === event.id)).toBe(true);
   });
 
   it("builds the demo birthday too, as the demo-mode message promises", async () => {

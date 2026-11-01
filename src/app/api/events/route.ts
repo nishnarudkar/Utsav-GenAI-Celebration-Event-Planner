@@ -20,12 +20,3 @@ export async function POST(req: Request): Promise<Response> {
     return errorResponse(err, "POST /api/events");
   }
 }
-
-/** GET /api/events — summaries, newest first. */
-export async function GET(): Promise<Response> {
-  try {
-    return Response.json({ events: await getEventRepository().list() });
-  } catch (err) {
-    return errorResponse(err, "GET /api/events");
-  }
-}

@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
 
 const NOT_FOUND = "We couldn't find that event.";
-const TOO_BIG = "That file is too big. Quotes can be up to 10 MB.";
+const TOO_BIG = "That file is too big. Quotes can be up to 4 MB.";
 
 /** POST /api/events/:id/quotes — multipart { file, category } → checked quote. */
 export async function POST(req: Request, ctx: Ctx): Promise<Response> {
