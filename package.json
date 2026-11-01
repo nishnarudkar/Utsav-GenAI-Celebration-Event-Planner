@@ -28,7 +28,10 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:check": "tsx --env-file=.env.local --conditions=react-server scripts/check-db.ts",
     "fixtures:rituals": "tsx scripts/gen-ritual-fixtures.ts",
-    "ai:check": "tsx --env-file=.env.local --conditions=react-server scripts/check-ai.ts"
+    "ai:check": "tsx --env-file=.env.local --conditions=react-server scripts/check-ai.ts",
+    "format": "prettier --write src scripts tests/unit tests/e2e",
+    "format:check": "prettier --check src scripts tests/unit tests/e2e",
+    "samples:quote": "tsx scripts/gen-sample-quote.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",
@@ -51,15 +54,13 @@
     "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.1.2",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.28",
-    "jsdom": "^30.1.3",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^3.2.7"
   }
 }
