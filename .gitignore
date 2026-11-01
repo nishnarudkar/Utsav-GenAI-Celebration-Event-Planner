@@ -21,6 +21,8 @@ test-results/
 # misc
 .DS_Store
 *.log
+*.mp4
+Demo_video/
 
 # IDE & AI Assistant configs
 .claude/
