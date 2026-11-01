@@ -342,3 +342,15 @@ Log of non-obvious choices (CLAUDE.md: "note it in docs/DECISIONS.md").
 - **The prompt bans tax claims, invented past events and promised outcomes**, and the page asks organisers to check they can deliver each perk. The tier split is a made-up default, not market data, and the page calls it a suggestion.
 - **Uses the fast model and one fixture for all community events**, since the wording is generic and a plain writing task. The real model's output is untested.
 - **The tier split can't be edited on the page.** Only the target can change, which is the simplest thing that works for the demo.
+
+## 2026-11-01 — Gemini provider
+
+- **Gemini joins Anthropic behind `callStructured`, chosen with `AI_PROVIDER=gemini`.** This departs from CLAUDE.md §2 because no Anthropic key is available. Agents and their prompts are unchanged and still write Anthropic-shaped messages; `lib/ai/gemini.ts` translates them, including images and PDFs. The default stays Anthropic, and demo mode works as before.
+- **The REST Interactions API with plain `fetch`**, because Google's docs now centre on it and this avoids a new dependency. `store: false` asks Google not to keep the conversation for retrieval. It doesn't change the data-use terms below.
+- **Default models: `gemini-3.6-flash` (smart), `gemini-3.5-flash-lite` (fast).** On 1 Nov 2026 `gemini-3.8-flash` took 52–112 seconds on small replies and returned 503s, and a plan failed on it. `gemini-3.6-flash` took 2–22 seconds per call. Limits can differ by account, and one day's load isn't a lasting verdict, so both are env settings.
+- **The schema sent to Gemini is shape only.** With limits included, Gemini returned 400 "too many states" for the budget. `toGeminiSchema` drops them, and local Zod validation plus the corrective retry still enforce the full schema.
+- **Retries:** 429, 408 and 5xx get up to 3 retries with backoff, honouring Retry-After. Timeouts (120 s) aren't retried, since four of them would keep someone waiting 8 minutes. Rate limits show "wait a minute" instead of the generic failure.
+- **Gemini refusals aren't mapped to `AIRefusalError`.** The docs don't show how a blocked reply looks in this API, so it surfaces as a validation or provider failure with the same friendly message.
+- **`pnpm ai:check` proves the connection**, and `--plan` builds the demo wedding through the real agents. Both ignore DEMO_MODE and use real quota.
+- **Free-tier privacy:** Google's terms say unpaid API content may be used to improve its products and may be read by human reviewers, and advise against sending sensitive or personal data. Families' names, preferences and quote photos would go to it, so real users need a paid (billed) project or another provider first.
+- **First real plan (`--plan`, 1 Nov 2026):** 14 rituals, high confidence, 109 seconds, nothing unpriced, but ₹1.75L over the ₹15L budget. Saved sample plans stay within budget, so the Budget agent's prompt needs tuning for real output.
